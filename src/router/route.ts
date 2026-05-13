@@ -7,6 +7,11 @@ export type Route =
   | { name: 'traffic' }
   | { name: 'map' }
   | { name: 'billing' }
+  | { name: 'v2' }
+  | { name: 'v2-overview' }
+  | { name: 'v2-nodes' }
+  | { name: 'v1-overview' }
+  | { name: 'v1-nodes' }
   | { name: '404'; raw: string }
 
 /** Parse the hash portion of the URL into a Route. Defaults to overview. */
@@ -31,6 +36,19 @@ export function parseHash(hash: string): Route {
       return { name: 'map' }
     case 'billing':
       return { name: 'billing' }
+    case 'v2':
+      // /v2          → demo page (component showcase)
+      // /v2/overview → v2 Overview
+      // /v2/nodes    → v2 Nodes
+      if (parts[1] === 'overview') return { name: 'v2-overview' }
+      if (parts[1] === 'nodes') return { name: 'v2-nodes' }
+      return { name: 'v2' }
+    case 'v1':
+      // /v1/overview → v1 Overview (force)
+      // /v1/nodes    → v1 Nodes (force)
+      if (parts[1] === 'overview') return { name: 'v1-overview' }
+      if (parts[1] === 'nodes') return { name: 'v1-nodes' }
+      return { name: 'overview' } // /v1 alone → just overview
     default:
       return { name: '404', raw: clean }
   }
@@ -43,6 +61,14 @@ export function hashFor(route: Route): string {
       return route.uuid ? `#/nodes/${route.uuid}` : '#/nodes'
     case 'hub':
       return route.uuid ? `#/hub/${route.uuid}` : '#/hub'
+    case 'v2-overview':
+      return '#/v2/overview'
+    case 'v2-nodes':
+      return '#/v2/nodes'
+    case 'v1-overview':
+      return '#/v1/overview'
+    case 'v1-nodes':
+      return '#/v1/nodes'
     case '404':
       return `#/${route.raw}`
     default:
