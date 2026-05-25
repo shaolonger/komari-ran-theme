@@ -797,6 +797,63 @@ body {
   --grid-line-strong: rgba(80, 55, 10, 0.14);
 }
 
+/* ── ran-ji (霁 — clear-sky white, blue accent) ───────────────
+   Pure cool white. Rain-cleared-sky palette: neutral white grounds,
+   blue accent. Cooler & whiter than ran-mist (which is warm porcelain).
+   fg pulled toward near-black for AA contrast on white. */
+[data-theme='ran-ji'] {
+  --bg-0: #f4f6f8;
+  --bg-1: #f9fafb;
+  --bg-2: #fcfdfe;
+  --bg-3: #ffffff;
+  --bg-4: #ffffff;
+  --bg-inset: #e8ebef;
+
+  --fg-0: #10151c;
+  --fg-1: #1f2530;
+  --fg-2: #4a5160;
+  --fg-3: #7a818e;
+  --fg-mark: #000000;
+
+  --txt-engrave: 0 1px 1px rgba(255, 255, 255, 0.8);
+
+  --edge-bright: rgba(255, 255, 255, 0.95);
+  --edge-mid: rgba(255, 255, 255, 0.6);
+  --edge-deep: rgba(30, 40, 55, 0.16);
+  --edge-engrave: rgba(30, 40, 55, 0.10);
+
+  --accent: #2f6fd6;
+  --accent-dim: #2358b0;
+  --accent-bright: #4a86e8;
+
+  --signal-good: #3f9c6a;
+  --signal-warn: #c08420;
+  --signal-bad: #cf4a3e;
+  --signal-info: #3f6fb0;
+
+  --shadow-card:
+    0 1px 0 var(--edge-bright) inset,
+    0 -1px 0 var(--edge-deep) inset,
+    0 1px 3px rgba(30, 40, 55, 0.07);
+  --shadow-inset:
+    inset 0 1px 0 var(--edge-deep),
+    inset 0 -1px 0 var(--edge-bright),
+    inset 0 1px 3px rgba(30, 40, 55, 0.10);
+  --shadow-button:
+    0 1px 0 var(--edge-bright) inset,
+    0 -1px 0 var(--edge-deep) inset,
+    0 1px 2px rgba(30, 40, 55, 0.08);
+
+  --grid-line: rgba(30, 40, 55, 0.05);
+  --grid-line-strong: rgba(30, 40, 55, 0.09);
+
+  /* Map-specific — cool white land, blue-gray borders. */
+  --map-land: #eef1f5;
+  --map-land-hover: #e2e7ee;
+  --map-border: rgba(30, 40, 55, 0.30);
+  --map-graticule: rgba(30, 40, 55, 0.09);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -37,7 +37,7 @@ const THEME_KEY = 'ran.theme'
 function loadTheme(): Theme {
   try {
     const v = localStorage.getItem(THEME_KEY)
-    if (v === 'ran-night' || v === 'ran-mist' || v === 'ran-ember' || v === 'ran-sakura' || v === 'ran-lavender') return v
+    if (v === 'ran-night' || v === 'ran-mist' || v === 'ran-ember' || v === 'ran-sakura' || v === 'ran-lavender' || v === 'ran-ji') return v
   } catch {
     /* ignore */
   }
@@ -103,7 +103,7 @@ export default function MapApp() {
     if (!embed) return
     const onStorage = (e: StorageEvent) => {
       if (e.key !== THEME_KEY) return
-      if (e.newValue === 'ran-night' || e.newValue === 'ran-mist') {
+      if (e.newValue === 'ran-night' || e.newValue === 'ran-mist' || e.newValue === 'ran-ji') {
         setTheme(e.newValue)
       }
     }
@@ -237,7 +237,7 @@ export default function MapApp() {
     >
       <Sidebar
         active="map"
-        version="v2.0.0"
+        version="v2.0.1"
         hubTargetUuid={hubTargetUuid}
         crossPage
         mobileOpen={drawer.open}
@@ -414,7 +414,7 @@ export default function MapApp() {
           </div>
         </main>
 
-        <Footer version="v2.0.0" config={config} />
+        <Footer version="v2.0.1" config={config} />
       </div>
     </div>
   )

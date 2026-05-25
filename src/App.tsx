@@ -24,7 +24,7 @@ const THEME_KEY = 'ran.theme'
 /** Set to '1' when the user has explicitly picked a theme via the ThemePicker. */
 const THEME_USER_SET_KEY = 'ran.theme.user'
 
-const VALID_THEMES: Theme[] = ['ran-night', 'ran-mist', 'ran-ember', 'ran-sakura', 'ran-lavender', 'ran-tomcat', 'ran-teal', 'ran-midnight', 'ran-mint', 'ran-butter']
+const VALID_THEMES: Theme[] = ['ran-night', 'ran-mist', 'ran-ember', 'ran-sakura', 'ran-lavender', 'ran-tomcat', 'ran-teal', 'ran-midnight', 'ran-mint', 'ran-butter', 'ran-ji']
 
 function isValidTheme(v: unknown): v is Theme {
   return VALID_THEMES.includes(v as Theme)

@@ -11,6 +11,7 @@ export type Theme =
   | 'ran-midnight'
   | 'ran-mint'
   | 'ran-butter'
+  | 'ran-ji'
 
 interface Props {
   value: Theme
@@ -95,6 +96,12 @@ const THEMES: ThemeOption[] = [
     name: 'BUTTER',
     zh: '奶油',
     swatch: { bg: '#f6ecc8', card: '#faf2dc', accent: '#c4881c' },
+  },
+  {
+    value: 'ran-ji',
+    name: 'JI',
+    zh: '霁',
+    swatch: { bg: '#f4f6f8', card: '#fcfdfe', accent: '#2f6fd6' },
   },
 ]
 
