@@ -30,6 +30,12 @@ const COLORS = [
   'var(--signal-info)',
   'var(--signal-good)',
   'var(--signal-warn)',
+  '#c89b3c',
+  '#5aa6c8',
+  '#a86fd6',
+  '#d67a9c',
+  '#6fc4a8',
+  '#d6915a',
 ]
 
 const DEFAULT_X_LABELS = ['-1h', '-50m', '-40m', '-30m', '-20m', '-10m', 'now']

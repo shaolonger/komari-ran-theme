@@ -78,15 +78,28 @@ export function bucketLoadHistory(
     if (r.load != null) sums.load[idx] += r.load
   }
 
+  // Average each filled bucket; for empty buckets, forward-fill the previous
+  // value so the curve stays continuous instead of dropping to 0. This fixes
+  // the sawtooth seen on the 6H window, where bucket count exceeds the sample
+  // count and >half the buckets would otherwise be zero-filled.
+  const keys: (keyof LoadSeries)[] = ['cpu', 'ram', 'disk', 'netIn', 'netOut', 'load']
+  const last: Record<string, number | null> = {
+    cpu: null, ram: null, disk: null, netIn: null, netOut: null, load: null,
+  }
   for (let i = 0; i < buckets; i++) {
     const n = counts[i]
     if (n > 0) {
-      series.cpu[i] = sums.cpu[i] / n
-      series.ram[i] = sums.ram[i] / n
-      series.disk[i] = sums.disk[i] / n
-      series.netIn[i] = sums.netIn[i] / n
-      series.netOut[i] = sums.netOut[i] / n
-      series.load[i] = sums.load[i] / n
+      for (const k of keys) {
+        const v = sums[k][i] / n
+        series[k][i] = v
+        last[k] = v
+      }
+    } else {
+      // empty bucket — hold the previous value (forward-fill).
+      // leading empties (no prior value) stay 0.
+      for (const k of keys) {
+        series[k][i] = last[k] ?? 0
+      }
     }
   }
 

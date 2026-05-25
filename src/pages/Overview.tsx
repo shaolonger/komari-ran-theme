@@ -250,7 +250,7 @@ export function OverviewPage({
   // many Komari deployments respond to with empty `tasks`.
   const pingSrc = history?.ping ?? ping
   const pingTargets = useMemo(
-    () => (pingSrc && hasPingData(pingSrc) ? aggregatePingByTarget(pingSrc, 60, 60 * 60 * 1000, 4) : []),
+    () => (pingSrc && hasPingData(pingSrc) ? aggregatePingByTarget(pingSrc, 60, 60 * 60 * 1000) : []),
     [pingSrc],
   )
   const pingSeries = useMemo(

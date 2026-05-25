@@ -150,7 +150,7 @@ export function NodeDetailPage({
   const pingTargets = useMemo(
     () =>
       hasPingData(history.ping)
-        ? aggregatePingByTarget(history.ping, windowSpec.buckets, windowMs, 6)
+        ? aggregatePingByTarget(history.ping, windowSpec.buckets, windowMs)
         : [],
     [history.ping, windowSpec.buckets, windowMs],
   )

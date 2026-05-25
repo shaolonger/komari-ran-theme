@@ -887,7 +887,7 @@ export function HubPage({
   const pingTargetsAgg = useMemo(
     () =>
       hasPingData(history.ping)
-        ? aggregatePingByTarget(history.ping, BUCKETS, windowMs, 6)
+        ? aggregatePingByTarget(history.ping, BUCKETS, windowMs)
         : [],
     [history.ping, BUCKETS, windowMs],
   )

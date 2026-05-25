@@ -14,13 +14,15 @@ export interface PingTargetSeries {
  * Each target is monitored by N probe nodes — for each time bucket we average
  * across the nodes that reported, giving a "global mean latency" view.
  *
- * Returns up to `maxTargets` series, sorted by task id.
+ * Returns one series per target (task), sorted by task id.
+ * If `maxTargets` is given, only the first N targets are returned; otherwise
+ * every target the backend reports is shown.
  */
 export function aggregatePingByTarget(
   history: PingHistory,
   buckets = 60,
   windowMs = 60 * 60 * 1000,
-  maxTargets = 4,
+  maxTargets?: number,
 ): PingTargetSeries[] {
   const { tasks, records } = history
   if (!tasks?.length || !records?.length) return []
@@ -49,7 +51,9 @@ export function aggregatePingByTarget(
 
   // Average each bucket; pick latest non-empty for `latest`
   const out: PingTargetSeries[] = []
-  const sortedTasks = [...tasks].sort((a, b) => a.id - b.id).slice(0, maxTargets)
+  const sortedAll = [...tasks].sort((a, b) => a.id - b.id)
+  const sortedTasks =
+    typeof maxTargets === 'number' ? sortedAll.slice(0, maxTargets) : sortedAll
 
   for (const task of sortedTasks) {
     const slot = byTask.get(task.id)

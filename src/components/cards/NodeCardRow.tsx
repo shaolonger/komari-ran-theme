@@ -204,6 +204,25 @@ function PingMiniBar({ data }: { data: number[] }) {
   return (
     <div style={{ display: 'flex', gap: 1, alignItems: 'flex-end', height: 12 }}>
       {data.map((v, i) => {
+        // ping <= 0 (or non-finite) = packet loss / no sample, NOT low latency.
+        // Render as a dead "fault" cell: hollow, gray-outlined, no glow.
+        const dead = !Number.isFinite(v) || v <= 0
+        if (dead) {
+          return (
+            <div
+              key={i}
+              style={{
+                flex: 1,
+                height: 4,
+                background: 'var(--bg-inset)',
+                border: '1px solid var(--fg-3)',
+                boxSizing: 'border-box',
+                opacity: 0.55,
+                borderRadius: 0.5,
+              }}
+            />
+          )
+        }
         const color =
           v > 200 ? 'var(--signal-bad)' : v > 100 ? 'var(--signal-warn)' : 'var(--signal-good)'
         const h = Math.max(2, Math.min(12, (v / 250) * 12 + 2))
