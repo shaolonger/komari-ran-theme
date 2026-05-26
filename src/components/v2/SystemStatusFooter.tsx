@@ -168,6 +168,52 @@ export function SystemStatusFooter({ conn, lastUpdate }: Props) {
           {fmtUtcOffset()}
         </span>
       </div>
+
+      <a
+        href="/admin"
+        target="_blank"
+        rel="noopener noreferrer"
+        title="Komari 后台 /admin"
+        style={{
+          marginTop: 8,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 8,
+          padding: '7px 10px',
+          background: 'var(--bg-1)',
+          border: '1px solid var(--edge-engrave)',
+          borderRadius: 2,
+          boxShadow: 'inset 0 1px 0 var(--edge-bright), inset 0 -1px 0 var(--edge-deep)',
+          fontFamily: 'var(--font-mono)',
+          fontSize: contentFs(9.5),
+          letterSpacing: '0.16em',
+          textTransform: 'uppercase',
+          color: 'var(--fg-1)',
+          textDecoration: 'none',
+          transition: 'color 0.15s, background 0.15s, border-color 0.15s',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.color = 'var(--accent-bright)'
+          e.currentTarget.style.background = 'var(--bg-2)'
+          e.currentTarget.style.borderColor = 'var(--edge-mid)'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.color = 'var(--fg-1)'
+          e.currentTarget.style.background = 'var(--bg-1)'
+          e.currentTarget.style.borderColor = 'var(--edge-engrave)'
+        }}
+      >
+        <span style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+          <span style={{ fontSize: 8, color: 'var(--accent)', letterSpacing: '0.2em', fontWeight: 700 }}>
+            ◇
+          </span>
+          <span style={{ fontWeight: 600 }}>ADMIN · SIGN IN</span>
+        </span>
+        <span style={{ fontSize: contentFs(10), lineHeight: 1, color: 'var(--fg-3)', fontFamily: 'var(--font-sans)' }}>
+          →
+        </span>
+      </a>
     </div>
   )
 }

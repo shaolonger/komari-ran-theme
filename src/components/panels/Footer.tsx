@@ -57,7 +57,7 @@ function BeianEntry({ text, url }: { text: string; url: string }) {
   return <span>{text}</span>
 }
 
-export function Footer({ version = 'v2.0.1', config }: FooterProps) {
+export function Footer({ version = 'v2.0.2', config }: FooterProps) {
   const ts = config?.theme_settings
   const icpText = readStr(ts, 'icp_text')
   const icpUrl = readStr(ts, 'icp_url')
@@ -79,9 +79,9 @@ export function Footer({ version = 'v2.0.1', config }: FooterProps) {
         textTransform: 'uppercase',
         letterSpacing: '0.14em',
         display: 'flex',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-start',
         alignItems: 'center',
-        gap: 16,
+        gap: 0,
         flexWrap: 'wrap',
         marginTop: 'auto',
       }}
@@ -98,21 +98,9 @@ export function Footer({ version = 'v2.0.1', config }: FooterProps) {
         >
           MIULER
         </a>
-      </span>
-      <span
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          justifyContent: 'flex-end',
-          textTransform: 'none',
-          letterSpacing: '0.06em',
-        }}
-      >
-        {text && (
-          <span style={{ textTransform: 'uppercase', letterSpacing: '0.14em' }}>{text}</span>
-        )}
-        {hasBeian && text && <span style={sepStyle}>·</span>}
+        {text && <span style={sepStyle}>·</span>}
+        {text && <span>{text}</span>}
+        {hasBeian && <span style={sepStyle}>·</span>}
         {icpText && <BeianEntry text={icpText} url={icpUrl} />}
         {icpText && policeText && <span style={sepStyle}>·</span>}
         {policeText && <BeianEntry text={policeText} url={policeUrl} />}

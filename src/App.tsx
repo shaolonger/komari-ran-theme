@@ -155,7 +155,13 @@ export default function App() {
   )
   const globalHistory = useGlobalHistory(realUuids, 1)
 
-  const siteName = (config?.theme_settings?.site_name as string | undefined) || config?.sitename || '岚 · Komari'
+  const siteName = config?.site_name || config?.sitename || '岚 · Komari'
+
+  // Keep the browser tab title in sync with the backend-configured site name
+  // instead of the value hard-coded in index.html.
+  useEffect(() => {
+    if (siteName) document.title = siteName
+  }, [siteName])
 
   // Pick a default uuid for the Hub sidebar entry. Prefer the first online
   // node so the cockpit lands on something interesting. Fall back to the

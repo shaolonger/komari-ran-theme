@@ -1,6 +1,5 @@
 import { useEffect, type ReactNode } from 'react'
 import { Etch } from '@/components/atoms/Etch'
-import { SerialPlate } from '@/components/atoms/SerialPlate'
 import { Icon } from '@/components/atoms/icons'
 import { useIsMobile } from '@/hooks/useMediaQuery'
 import { hashFor, type Route } from '@/router/route'
@@ -26,7 +25,6 @@ const NAV_BASE: Omit<NavItem, 'enabled' | 'uuidLink'>[] = [
 
 interface Props {
   active: Route['name']
-  region?: string
   version?: string
   /**
    * Default uuid the Hub link should target. The Hub page lives at
@@ -55,8 +53,7 @@ interface Props {
 
 export function Sidebar({
   active,
-  region = '岚 / RAN',
-  version = 'v2.0.1',
+  version = 'v2.0.2',
   hubTargetUuid,
   crossPage = false,
   mobileOpen = false,
@@ -364,14 +361,6 @@ export function Sidebar({
               →
             </span>
           </a>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <Etch>Region · Operator</Etch>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: 11, color: 'var(--fg-1)' }}>{region}</span>
-              <SerialPlate>OP-04A</SerialPlate>
-            </div>
-          </div>
         </div>
       </aside>
     </>
