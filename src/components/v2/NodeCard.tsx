@@ -27,6 +27,7 @@ interface Props {
    *  Classic variant uses its own internal sparkline via pingSpark. */
   netSpark?: number[]
   pingSpark?: number[]
+  pingLoss?: number[]
   pingStats?: { avg?: number; loss: number; taskName?: string }
   onClick?: (uuid: string) => void
   selected?: boolean
@@ -38,6 +39,7 @@ export function NodeCard({
   record,
   netSpark,
   pingSpark,
+  pingLoss,
   pingStats,
   onClick,
   selected,
@@ -85,6 +87,7 @@ export function NodeCard({
         node={node}
         record={record}
         pingSpark={pingSpark}
+        pingLoss={pingLoss}
         pingStats={pingStats}
       />
     </div>

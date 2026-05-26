@@ -10,6 +10,7 @@ interface Props {
   record?: KomariRecord
   netSpark?: number[]
   pingSpark?: number[]
+  pingLoss?: number[]
   /** Derived ping summary from history (Komari WS frame doesn't carry ping/loss). */
   pingStats?: { avg?: number; loss: number; taskName?: string }
 }
@@ -89,7 +90,7 @@ function MetricCell({
   )
 }
 
-export function NodeCardCompact({ node, record, netSpark = [], pingSpark = [], pingStats }: Props) {
+export function NodeCardCompact({ node, record, netSpark = [], pingSpark = [], pingLoss = [], pingStats }: Props) {
   const status = deriveStatus(record)
   const offline = status === 'bad'
   const statusColor = COLOR_BY_STATUS[status]
@@ -298,7 +299,7 @@ export function NodeCardCompact({ node, record, netSpark = [], pingSpark = [], p
             </span>
           </div>
         </div>
-        <PingBar data={pingSpark} />
+        <PingBar data={pingSpark} loss={pingLoss} />
       </div>
 
       <div className="seam" />
@@ -325,8 +326,8 @@ export function NodeCardCompact({ node, record, netSpark = [], pingSpark = [], p
   )
 }
 
-/** Static ping bar with subtle glow per bar. */
-function PingBar({ data }: { data: number[] }) {
+/** Static ping bar — height encodes latency, color encodes packet-loss %. */
+function PingBar({ data, loss = [] }: { data: number[]; loss?: number[] }) {
   if (!data || data.length === 0) {
     return (
       <div
@@ -339,29 +340,48 @@ function PingBar({ data }: { data: number[] }) {
       />
     )
   }
+  const lossColor = (l: number): string =>
+    l > 10 ? 'var(--signal-bad)' : l > 2 ? '#d68a3c' : l > 0 ? 'var(--signal-warn)' : 'var(--signal-good)'
   return (
     <div style={{ display: 'flex', gap: 1, alignItems: 'flex-end', height: 14 }}>
       {data.map((v, i) => {
-        // ping <= 0 (or non-finite) = packet loss / no sample, NOT low latency.
-        // Render as a dead "fault" cell: hollow, gray-outlined, no glow.
-        const dead = !Number.isFinite(v) || v <= 0
-        if (dead) {
+        const rawLoss = loss[i]
+        // -1 = no data (outside the node's real sample span). Render empty.
+        if (rawLoss === -1) {
           return (
             <div
               key={i}
               style={{
                 flex: 1,
-                height: 5,
+                height: 2,
                 background: 'var(--bg-inset)',
-                border: '1px solid var(--fg-3)',
-                boxSizing: 'border-box',
-                opacity: 0.55,
                 borderRadius: 0.5,
+                opacity: 0.4,
               }}
             />
           )
         }
-        const color = v > 200 ? 'var(--signal-bad)' : v > 100 ? 'var(--signal-warn)' : 'var(--signal-good)'
+        const l = Number.isFinite(rawLoss) ? rawLoss : v <= 0 ? 100 : 0
+        // Full loss (≥95%) — full-height hatched fault bar.
+        if (l >= 95) {
+          return (
+            <div
+              key={i}
+              style={{
+                flex: 1,
+                height: 14,
+                backgroundColor: 'rgba(207,90,62,0.05)',
+                backgroundImage:
+                  'repeating-linear-gradient(45deg, var(--signal-bad) 0 1px, transparent 1px 3px)',
+                border: '1px solid var(--signal-bad)',
+                boxSizing: 'border-box',
+                borderRadius: 0.5,
+                opacity: 0.85,
+              }}
+            />
+          )
+        }
+        const color = lossColor(l)
         const h = Math.max(3, Math.min(14, (v / 250) * 14 + 3))
         return (
           <div
@@ -370,7 +390,7 @@ function PingBar({ data }: { data: number[] }) {
               flex: 1,
               height: h,
               background: color,
-              boxShadow: `0 0 3px ${color}`,
+              boxShadow: l > 0 ? undefined : `0 0 3px ${color}`,
               borderRadius: 0.5,
             }}
           />

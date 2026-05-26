@@ -57,6 +57,12 @@ export interface GlobalHistoryState {
   byNode: Record<string, PerNodeSeries>
   /** Per-node ping series — bucketed mean latency over windowMs (60 slots). */
   pingByNode: Record<string, number[]>
+  /**
+   * Per-node per-bucket packet-loss percent (0..100), aligned 1:1 with
+   * pingByNode buckets. Derived from sample-count vs. expected-count
+   * (bucketMs / probe interval). -1 means "interval unknown / can't compute".
+   */
+  pingLossByNode: Record<string, number[]>
   /** Per-node ping stats — current latency + loss percent. */
   pingStatsByNode: Record<string, PingNodeStats>
   aggregate: AggregateSeries
@@ -109,6 +115,7 @@ export function useGlobalHistory(
   const [state, setState] = useState<GlobalHistoryState>({
     byNode: {},
     pingByNode: {},
+    pingLossByNode: {},
     pingStatsByNode: {},
     aggregate: emptyAggregate(),
     ping: EMPTY_PING,
@@ -123,6 +130,7 @@ export function useGlobalHistory(
       setState({
         byNode: {},
         pingByNode: {},
+        pingLossByNode: {},
         pingStatsByNode: {},
         aggregate: emptyAggregate(),
         ping: EMPTY_PING,
@@ -134,6 +142,7 @@ export function useGlobalHistory(
       setState({
         byNode: {},
         pingByNode: {},
+        pingLossByNode: {},
         pingStatsByNode: {},
         aggregate: emptyAggregate(),
         ping: EMPTY_PING,
@@ -214,10 +223,20 @@ export function useGlobalHistory(
       const tasksById = new Map<number, PingTask>()
       const allRecords: PingRecord[] = []
       const pingByNode: Record<string, number[]> = {}
+      const pingLossByNode: Record<string, number[]> = {}
       const pingStatsByNode: Record<string, PingNodeStats> = {}
       const now = Date.now()
       const start = now - windowMs
       const bucketMs = windowMs / BUCKETS
+      // The ping/loss meter wants to show SHORT-TERM fluctuation, not a long
+      // smoothed average. With a 30s probe interval, a 30-min window over 60
+      // buckets gives ~1 sample/bucket — effectively per-probe resolution, so
+      // spikes and per-minute loss show up instead of being averaged away.
+      // Decoupled from windowMs so cpu/ram/traffic charts keep their range.
+      const PING_WINDOW_MS = 30 * 60 * 1000
+      const pingWindowMs = Math.min(windowMs, PING_WINDOW_MS)
+      const pingStart = now - pingWindowMs
+      const pingBucketMs = pingWindowMs / BUCKETS
       for (const { uuid, ping } of histories) {
         for (const t of ping.tasks ?? []) {
           if (!tasksById.has(t.id)) tasksById.set(t.id, t)
@@ -237,8 +256,8 @@ export function useGlobalHistory(
           allRecords.push({ ...r, client: r.client ?? uuid })
           if (primaryId == null || r.task_id !== primaryId) continue
           const tsec = new Date(r.time).getTime()
-          if (!Number.isFinite(tsec) || tsec < start) continue
-          const idx = Math.min(BUCKETS - 1, Math.max(0, Math.floor((tsec - start) / bucketMs)))
+          if (!Number.isFinite(tsec) || tsec < pingStart) continue
+          const idx = Math.min(BUCKETS - 1, Math.max(0, Math.floor((tsec - pingStart) / pingBucketMs)))
           // Treat 0/negative ping (timeout/error sentinel) as no-data; otherwise
           // it drags the mean toward 0 and the sparkline lies.
           if (r.value > 0) {
@@ -247,6 +266,42 @@ export function useGlobalHistory(
           }
         }
         pingByNode[uuid] = sum.map((s, i) => (cnt[i] > 0 ? s / cnt[i] : 0))
+
+        // Per-bucket packet loss %, reverse-derived from sample density:
+        //   expected samples per bucket = bucketMs / (interval * 1000)
+        //   loss% = (1 - actual/expected) * 100
+        // CRITICAL: buckets *outside* the node's actual data span (before its
+        // first sample, or after its last — e.g. the current still-filling
+        // bucket) must NOT count as loss. Those are "no data yet", not a
+        // dropped probe. We mark them -1 so the meter renders them empty
+        // instead of a false full-loss bar. Only GAPS *between* real samples
+        // are genuine packet loss.
+        const intervalSec =
+          primary && typeof primary.interval === 'number' && primary.interval > 0
+            ? primary.interval
+            : 0
+        const expectedPerBucket = intervalSec > 0 ? pingBucketMs / (intervalSec * 1000) : 0
+        // Find the data span [firstIdx, lastIdx] where this node actually
+        // reported samples within the window.
+        let firstIdx = -1
+        let lastIdx = -1
+        for (let i = 0; i < BUCKETS; i++) {
+          if (cnt[i] > 0) {
+            if (firstIdx === -1) firstIdx = i
+            lastIdx = i
+          }
+        }
+        pingLossByNode[uuid] = cnt.map((c, i) => {
+          // Outside the real data span → no data, not loss.
+          if (firstIdx === -1 || i < firstIdx || i > lastIdx) return -1
+          if (expectedPerBucket <= 0) {
+            // interval unknown → binary: any sample = up (0%), none = full loss
+            return c > 0 ? 0 : 100
+          }
+          const expected = Math.max(1, expectedPerBucket)
+          const ratio = c / expected
+          return Math.max(0, Math.min(100, (1 - ratio) * 100))
+        })
 
         // Headline number: trust backend's avg/loss for the primary task.
         // These are pre-computed per node per task across the queried window,
@@ -267,7 +322,7 @@ export function useGlobalHistory(
         records: allRecords,
       }
 
-      setState({ byNode, pingByNode, pingStatsByNode, aggregate: agg, ping, loading: false })
+      setState({ byNode, pingByNode, pingLossByNode, pingStatsByNode, aggregate: agg, ping, loading: false })
     }
 
     setState((prev) => ({ ...prev, loading: prev.loading || Object.keys(prev.byNode).length === 0 }))

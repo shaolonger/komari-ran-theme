@@ -516,6 +516,7 @@ export function NodesV2Page({
                         record={records[n.uuid]}
                         netSpark={netSpark}
                         pingSpark={history1h.pingByNode[n.uuid]}
+                        pingLoss={history1h.pingLossByNode[n.uuid]}
                         pingStats={history1h.pingStatsByNode[n.uuid]}
                         onClick={handleNodeClick}
                         selected={effectiveSelectedUuid === n.uuid}

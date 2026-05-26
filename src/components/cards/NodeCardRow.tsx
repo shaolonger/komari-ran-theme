@@ -19,6 +19,7 @@ interface Props {
   record?: KomariRecord
   netSpark?: number[]
   pingSpark?: number[]
+  pingLoss?: number[]
   /** Derived ping summary from history (Komari WS frame doesn't carry ping/loss). */
   pingStats?: { avg?: number; loss: number; taskName?: string }
 }
@@ -27,7 +28,7 @@ interface Props {
  * NodeCardRow — single-row layout. Wide horizontal: status / name+os /
  * region / CPU / MEM / DISK / NET / PING+LOSS / status badge + uptime.
  */
-export function NodeCardRow({ node, record, netSpark = [], pingSpark = [], pingStats }: Props) {
+export function NodeCardRow({ node, record, netSpark = [], pingSpark = [], pingLoss = [], pingStats }: Props) {
   const online = record?.online === true
   const cpu = record?.cpu ?? 0
   const ramPct = resolveRamPercent(record?.memory_used, record?.memory_total) ?? 0
@@ -157,7 +158,7 @@ export function NodeCardRow({ node, record, netSpark = [], pingSpark = [], pingS
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 3, minWidth: 0 }}>
         <Etch>PING · LOSS</Etch>
-        <PingMiniBar data={pingSpark.slice(0, 18)} />
+        <PingMiniBar data={pingSpark.slice(0, 18)} loss={pingLoss.slice(0, 18)} />
         <span
           className="mono tnum"
           style={{
@@ -188,7 +189,7 @@ export function NodeCardRow({ node, record, netSpark = [], pingSpark = [], pingS
   )
 }
 
-function PingMiniBar({ data }: { data: number[] }) {
+function PingMiniBar({ data, loss = [] }: { data: number[]; loss?: number[] }) {
   if (!data || data.length === 0) {
     return (
       <div
@@ -201,30 +202,51 @@ function PingMiniBar({ data }: { data: number[] }) {
       />
     )
   }
+  // Bar HEIGHT encodes latency; bar COLOR encodes packet-loss %.
+  // Loss tiers: 0%=good, ≤2%=warn, ≤10%=mid, >10%=bad, full-loss=hatched bad.
+  const lossColor = (l: number): string =>
+    l > 10 ? 'var(--signal-bad)' : l > 2 ? '#d68a3c' : l > 0 ? 'var(--signal-warn)' : 'var(--signal-good)'
   return (
     <div style={{ display: 'flex', gap: 1, alignItems: 'flex-end', height: 12 }}>
       {data.map((v, i) => {
-        // ping <= 0 (or non-finite) = packet loss / no sample, NOT low latency.
-        // Render as a dead "fault" cell: hollow, gray-outlined, no glow.
-        const dead = !Number.isFinite(v) || v <= 0
-        if (dead) {
+        const rawLoss = loss[i]
+        // -1 = no data in this bucket (before first / after last sample, e.g.
+        // the still-filling current bucket). Render empty, NOT as loss.
+        if (rawLoss === -1) {
           return (
             <div
               key={i}
               style={{
                 flex: 1,
-                height: 4,
+                height: 2,
                 background: 'var(--bg-inset)',
-                border: '1px solid var(--fg-3)',
-                boxSizing: 'border-box',
-                opacity: 0.55,
                 borderRadius: 0.5,
+                opacity: 0.4,
               }}
             />
           )
         }
-        const color =
-          v > 200 ? 'var(--signal-bad)' : v > 100 ? 'var(--signal-warn)' : 'var(--signal-good)'
+        const l = Number.isFinite(rawLoss) ? rawLoss : v <= 0 ? 100 : 0
+        // Full loss (≥95%) — render a full-height hatched fault bar.
+        if (l >= 95) {
+          return (
+            <div
+              key={i}
+              style={{
+                flex: 1,
+                height: 12,
+                backgroundColor: 'rgba(207,90,62,0.05)',
+                backgroundImage:
+                  'repeating-linear-gradient(45deg, var(--signal-bad) 0 1px, transparent 1px 3px)',
+                border: '1px solid var(--signal-bad)',
+                boxSizing: 'border-box',
+                borderRadius: 0.5,
+                opacity: 0.85,
+              }}
+            />
+          )
+        }
+        const color = lossColor(l)
         const h = Math.max(2, Math.min(12, (v / 250) * 12 + 2))
         return (
           <div
@@ -233,7 +255,7 @@ function PingMiniBar({ data }: { data: number[] }) {
               flex: 1,
               height: h,
               background: color,
-              boxShadow: `0 0 2px ${color}`,
+              boxShadow: l > 0 ? undefined : `0 0 2px ${color}`,
               borderRadius: 0.5,
             }}
           />
