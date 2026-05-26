@@ -204,12 +204,13 @@ export function AlertSummaryPanel({
               >
                 {a.name}
               </span>
-              <span style={{ color: 'var(--fg-1)' }}>{a.title}</span>
+              <span style={{ color: 'var(--fg-1)', whiteSpace: 'nowrap' }}>{a.title}</span>
               {a.detail && (
                 <span
                   style={{
                     color: 'var(--fg-3)',
                     fontSize: contentFs(10),
+                    whiteSpace: 'nowrap',
                   }}
                 >
                   {a.detail}

@@ -135,7 +135,18 @@ export function RecentEventsPanel({
               >
                 {e.name}
               </span>
-              <span style={{ color: 'var(--fg-1)', flex: 1 }}>{e.message}</span>
+              <span
+                style={{
+                  color: 'var(--fg-1)',
+                  flex: 1,
+                  minWidth: 0,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}
+              >
+                {e.message}
+              </span>
               <span
                 style={{
                   color: 'var(--fg-3)',

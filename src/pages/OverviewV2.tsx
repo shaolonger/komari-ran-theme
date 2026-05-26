@@ -270,7 +270,7 @@ export function OverviewV2Page({
               display: 'grid',
               gridTemplateColumns: isMobile
                 ? '1fr 1fr'
-                : 'repeat(5, minmax(0, 1fr))',
+                : 'repeat(auto-fit, minmax(160px, 1fr))',
               gap,
             }}
           >
@@ -315,7 +315,7 @@ export function OverviewV2Page({
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: isMobile ? '1fr' : 'repeat(4, minmax(0, 1fr))',
+              gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(230px, 1fr))',
               gap,
             }}
           >
@@ -340,7 +340,7 @@ export function OverviewV2Page({
               display: 'grid',
               gridTemplateColumns: isMobile
                 ? '1fr'
-                : 'minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1.4fr)',
+                : 'repeat(auto-fit, minmax(280px, 1fr))',
               gap,
             }}
           >
