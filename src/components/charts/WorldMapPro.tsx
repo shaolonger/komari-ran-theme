@@ -1,3 +1,4 @@
+import { memo } from 'react'
 /**
  * WorldMapPro — 独立 map.html 页面专属的"华丽版"世界地图。
  *
@@ -63,7 +64,7 @@ interface PlottedNode {
   y: number
 }
 
-export function WorldMapPro({
+function WorldMapPro_({
   nodes,
   records,
   activeUuid,
@@ -658,3 +659,5 @@ function ZoomBtn({
     </button>
   )
 }
+
+export const WorldMapPro = memo(WorldMapPro_)

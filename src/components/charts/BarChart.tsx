@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { useElementWidth } from '@/hooks/useElementWidth'
 
 interface Props {
@@ -13,7 +14,7 @@ interface Props {
  * BarChart — vertical bars with subtle glow. Static, no animation.
  * Adapts to parent container width via ResizeObserver.
  */
-export function BarChart({
+function BarChart_({
   data,
   width: initialWidth = 360,
   height = 100,
@@ -76,3 +77,5 @@ export function BarChart({
     </div>
   )
 }
+
+export const BarChart = memo(BarChart_)

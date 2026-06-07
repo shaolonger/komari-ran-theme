@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Etch } from '@/components/atoms/Etch'
 import { SerialPlate } from '@/components/atoms/SerialPlate'
 import { StatusDot } from '@/components/atoms/StatusDot'
@@ -28,7 +29,7 @@ interface Props {
  * NodeCardRow — single-row layout. Wide horizontal: status / name+os /
  * region / CPU / MEM / DISK / NET / PING+LOSS / status badge + uptime.
  */
-export function NodeCardRow({ node, record, netSpark = [], pingSpark = [], pingLoss = [], pingStats }: Props) {
+function NodeCardRow_({ node, record, netSpark = [], pingSpark = [], pingLoss = [], pingStats }: Props) {
   const online = record?.online === true
   const cpu = record?.cpu ?? 0
   const ramPct = resolveRamPercent(record?.memory_used, record?.memory_total) ?? 0
@@ -264,3 +265,5 @@ function PingMiniBar({ data, loss = [] }: { data: number[]; loss?: number[] }) {
     </div>
   )
 }
+
+export const NodeCardRow = memo(NodeCardRow_)

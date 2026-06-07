@@ -24,7 +24,7 @@
  * Mobile: side panel is hidden (falls back to NodeDetailDrawer pop-up).
  */
 
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { PingHistory } from '@/api/client'
 import { Sidebar } from '@/components/panels/Sidebar'
 import { Topbar } from '@/components/panels/Topbar'
@@ -110,6 +110,18 @@ export function NodesV2Page({
   // 1h history for sparklines
   const uuids = useMemo(() => nodes.map((n) => n.uuid), [nodes])
   const history1h = useGlobalHistory(uuids, 1, 60_000)
+
+  // Precompute per-node combined net throughput sparkline arrays, keyed by
+  // uuid. Memoized on history1h.byNode (refreshes ~60s) so each array keeps a
+  // stable reference between renders — required for React.memo on NodeCard to
+  // skip the 1Hz WS re-render storm.
+  const netSparkByNode = useMemo(() => {
+    const out: Record<string, number[]> = {}
+    for (const [uuid, series] of Object.entries(history1h.byNode)) {
+      out[uuid] = series.netIn.map((v, i) => v + (series.netOut[i] ?? 0))
+    }
+    return out
+  }, [history1h.byNode])
 
   // ── Filter option sets ──
   const regionOptions = useMemo(() => {
@@ -311,13 +323,16 @@ export function NodesV2Page({
     : null
   const drawerRecord = drawerUuid ? records[drawerUuid] : undefined
 
-  const handleNodeClick = (uuid: string) => {
-    if (isMobile) {
-      setDrawerUuid(uuid)
-    } else {
-      setSelectedUuid(uuid)
-    }
-  }
+  const handleNodeClick = useCallback(
+    (uuid: string) => {
+      if (isMobile) {
+        setDrawerUuid(uuid)
+      } else {
+        setSelectedUuid(uuid)
+      }
+    },
+    [isMobile],
+  )
 
   // Grid template
   const gridMinWidth = viewMode === 'compact' ? 280 : 300
@@ -504,10 +519,7 @@ export function NodesV2Page({
                   }}
                 >
                   {paginated.map((n) => {
-                    const series = history1h.byNode[n.uuid]
-                    const netSpark = series
-                      ? series.netIn.map((v, i) => v + (series.netOut[i] ?? 0))
-                      : undefined
+                    const netSpark = netSparkByNode[n.uuid]
                     return (
                       <NodeCard
                         key={n.uuid}

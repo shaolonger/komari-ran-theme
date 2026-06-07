@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { useMemo } from 'react'
 import { geoNaturalEarth1, geoPath, geoGraticule10 } from 'd3-geo'
 import { feature } from 'topojson-client'
@@ -31,7 +32,7 @@ interface Props {
  * 使用场景:被 VisitorAlert iframe 嵌入,通过 ./map.html?embed=visitor&lat=&lon=
  * 触发 MapApp 短路渲染到这个组件。
  */
-export function VisitorFocusMap({ lat, lon, width = 1000, height = 500 }: Props) {
+function VisitorFocusMap_({ lat, lon, width = 1000, height = 500 }: Props) {
   const projection = useMemo(
     () => geoNaturalEarth1().fitSize([width, height], { type: 'Sphere' }),
     [width, height],
@@ -178,3 +179,5 @@ export function VisitorFocusMap({ lat, lon, width = 1000, height = 500 }: Props)
     </svg>
   )
 }
+
+export const VisitorFocusMap = memo(VisitorFocusMap_)

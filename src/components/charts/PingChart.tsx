@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { useCallback } from 'react'
 import { useElementWidth } from '@/hooks/useElementWidth'
 import {
@@ -46,7 +47,7 @@ const DEFAULT_X_LABELS = ['-1h', '-50m', '-40m', '-30m', '-20m', '-10m', 'now']
  *
  * Adapts to parent container width via ResizeObserver.
  */
-export function PingChart({
+function PingChart_({
   series,
   width: initialWidth = 480,
   height = 160,
@@ -258,3 +259,5 @@ export function PingChart({
     </div>
   )
 }
+
+export const PingChart = memo(PingChart_)

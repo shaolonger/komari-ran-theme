@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Etch } from '@/components/atoms/Etch'
 import { StatusDot } from '@/components/atoms/StatusDot'
 import { Sparkline } from '@/components/charts/Sparkline'
@@ -90,7 +91,7 @@ function MetricCell({
   )
 }
 
-export function NodeCardCompact({ node, record, netSpark = [], pingSpark = [], pingLoss = [], pingStats }: Props) {
+function NodeCardCompact_({ node, record, netSpark = [], pingSpark = [], pingLoss = [], pingStats }: Props) {
   const status = deriveStatus(record)
   const offline = status === 'bad'
   const statusColor = COLOR_BY_STATUS[status]
@@ -399,3 +400,5 @@ function PingBar({ data, loss = [] }: { data: number[]; loss?: number[] }) {
     </div>
   )
 }
+
+export const NodeCardCompact = memo(NodeCardCompact_)

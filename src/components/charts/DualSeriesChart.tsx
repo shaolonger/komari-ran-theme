@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { useCallback } from 'react'
 import { useElementWidth } from '@/hooks/useElementWidth'
 import {
@@ -43,7 +44,7 @@ function bytesShort(bytes: number): string {
  * Used for "↑ TX / ↓ RX" style network charts where you need both lines visible
  * but with a single, accurate tooltip (not the broken stacked-AreaChart trick).
  */
-export function DualSeriesChart({
+function DualSeriesChart_({
   series,
   width: initialWidth = 400,
   height = 150,
@@ -238,3 +239,5 @@ export function DualSeriesChart({
     </div>
   )
 }
+
+export const DualSeriesChart = memo(DualSeriesChart_)

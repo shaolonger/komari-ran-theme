@@ -1,3 +1,4 @@
+import { memo } from 'react'
 interface Props {
   /** Each entry: 0..100 representing health/quality at that tick */
   data: number[]
@@ -10,7 +11,7 @@ interface Props {
  * Heartbeat — discrete vertical bars colored by quality.
  * Used for "last N minutes ping" or "uptime trail".
  */
-export function Heartbeat({ data, width = 240, height = 24, bars }: Props) {
+function Heartbeat_({ data, width = 240, height = 24, bars }: Props) {
   if (!data || data.length === 0) {
     return (
       <svg width={width} height={height}>
@@ -51,3 +52,5 @@ export function Heartbeat({ data, width = 240, height = 24, bars }: Props) {
     </svg>
   )
 }
+
+export const Heartbeat = memo(Heartbeat_)

@@ -1,3 +1,4 @@
+import { memo } from 'react'
 /**
  * NodeCard — style-aware node card dispatcher.
  *
@@ -33,7 +34,7 @@ interface Props {
   selected?: boolean
 }
 
-export function NodeCard({
+function NodeCard_({
   style,
   node,
   record,
@@ -93,3 +94,5 @@ export function NodeCard({
     </div>
   )
 }
+
+export const NodeCard = memo(NodeCard_)

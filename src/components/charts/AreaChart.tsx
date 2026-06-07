@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { useCallback } from 'react'
 import { useElementWidth } from '@/hooks/useElementWidth'
 import {
@@ -34,7 +35,7 @@ interface Props {
  * area fill gradient, current-value dot, optional threshold dashed line,
  * and a hover tooltip showing value (+ time when `times` is provided).
  */
-export function AreaChart({
+function AreaChart_({
   data,
   width: initialWidth = 400,
   height = 140,
@@ -233,3 +234,5 @@ export function AreaChart({
     </div>
   )
 }
+
+export const AreaChart = memo(AreaChart_)

@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Etch } from '@/components/atoms/Etch'
 import { Numeric } from '@/components/atoms/Numeric'
 
@@ -23,7 +24,7 @@ const COLOR: Record<Status, string> = {
  * RadialGauge — 270° arc, ticks every 10%, value path with glow.
  * Center shows the numeric value + unit, label below.
  */
-export function RadialGauge({
+function RadialGauge_({
   value,
   max = 100,
   size = 140,
@@ -129,3 +130,5 @@ export function RadialGauge({
     </div>
   )
 }
+
+export const RadialGauge = memo(RadialGauge_)

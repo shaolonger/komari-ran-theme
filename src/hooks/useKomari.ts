@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { fetchMe, fetchNodes, fetchPingHistory, fetchPublic, openLiveSocket } from '@/api/client'
 import type { PingHistory } from '@/api/client'
-import { makeOfflineRecord, normalizeNode, normalizeWsRecord } from '@/api/normalize'
+import { makeOfflineRecord, normalizeNode, normalizeWsRecord, wsRecordEqual } from '@/api/normalize'
 import type {
   KomariMe,
   KomariNode,
@@ -71,21 +71,23 @@ function mergePingIntoRecords(
 
   if (byUuid.size === 0) return records
 
-  // Build a new map only when at least one uuid actually picked up data —
-  // otherwise return the original to keep referential equality where
-  // possible (avoids spurious renders downstream).
-  const out: Record<string, KomariRecord> = { ...records }
+  // Allocate a new map only when a value actually changes — and only replace
+  // a node's record object when its ping/loss differs. This keeps referential
+  // equality for unchanged nodes so memoized consumers skip re-rendering.
+  let out: Record<string, KomariRecord> | null = null
   for (const [uuid, slot] of byUuid) {
-    const existing = out[uuid]
+    const existing = records[uuid]
     if (!existing) continue
     const avg =
       slot.values.length === 0
         ? undefined
         : slot.values.reduce((a, b) => a + b, 0) / slot.values.length
     const loss = slot.total > 0 ? (slot.lost / slot.total) * 100 : undefined
+    if (existing.ping === avg && existing.loss === loss) continue
+    if (!out) out = { ...records }
     out[uuid] = { ...existing, ping: avg, loss }
   }
-  return out
+  return out ?? records
 }
 
 /**
@@ -150,11 +152,21 @@ export function useKomari(): KomariState {
           const onlineSet = new Set(payload.online ?? [])
 
           for (const [uuid, raw] of Object.entries(payload.data ?? {})) {
-            records[uuid] = normalizeWsRecord(uuid, raw as KomariRecordRaw, onlineSet.has(uuid))
+            const next = normalizeWsRecord(uuid, raw as KomariRecordRaw, onlineSet.has(uuid))
+            const prevRec = prev.records[uuid]
+            // Preserve referential equality when nothing visible changed, so
+            // memoized cards/charts can skip re-rendering this node.
+            records[uuid] = prevRec && wsRecordEqual(prevRec, next) ? prevRec : next
           }
           for (const n of prev.nodes) {
             if (!onlineSet.has(n.uuid)) {
-              records[n.uuid] = makeOfflineRecord(n.uuid, prev.records[n.uuid])
+              const prevRec = prev.records[n.uuid]
+              // Already-offline node: reuse the prior placeholder reference
+              // (makeOfflineRecord only carries totals copied from prev).
+              records[n.uuid] =
+                prevRec && prevRec.online === false
+                  ? prevRec
+                  : makeOfflineRecord(n.uuid, prevRec)
             }
           }
           return { ...prev, records, lastUpdate: Date.now() }

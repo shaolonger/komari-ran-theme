@@ -1,3 +1,4 @@
+import { memo } from 'react'
 /**
  * NodeCardCompactV2 — dense node card for the v2 redesign.
  *
@@ -172,7 +173,7 @@ function fmtUptime(seconds?: number): string {
   return `${h}h`
 }
 
-export function NodeCardCompactV2({
+function NodeCardCompactV2_({
   node,
   record,
   netSpark,
@@ -477,3 +478,5 @@ export function NodeCardCompactV2({
     </div>
   )
 }
+
+export const NodeCardCompactV2 = memo(NodeCardCompactV2_)

@@ -1,3 +1,4 @@
+import { memo } from 'react'
 interface Props {
   data: number[]
   width?: number
@@ -23,7 +24,7 @@ interface Props {
  *   only. Use this when the parent is flex/grid and we want the line to
  *   stretch with available width (HeroStats mobile single-col layout).
  */
-export function Sparkline({
+function Sparkline_({
   data,
   width = 120,
   height = 28,
@@ -99,3 +100,5 @@ export function Sparkline({
     </svg>
   )
 }
+
+export const Sparkline = memo(Sparkline_)
