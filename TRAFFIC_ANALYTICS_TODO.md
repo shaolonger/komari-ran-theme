@@ -4,7 +4,7 @@
 
 ## Status
 
-- [ ] 1. Create the implementation todo list and commit the baseline plan.
+- [x] 1. Create the implementation todo list and commit the baseline plan.
 - [ ] 2. Add a Komari backend traffic analytics service/API that supports all nodes, selected nodes, today/3d/7d/custom ranges, bucketed series, reset detection, and data quality metadata.
 - [ ] 3. Add backend unit/API tests for traffic delta calculation, counter resets, selected-node filtering, and public hidden-node visibility.
 - [ ] 4. Add theme API types and a traffic analytics hook with graceful fallback/error states.
