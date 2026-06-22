@@ -243,7 +243,7 @@ export default function MapApp() {
     >
       <Sidebar
         active="map"
-        version="v2.0.3"
+        version="v2.1.0"
         hubTargetUuid={hubTargetUuid}
         crossPage
         mobileOpen={drawer.open}
@@ -419,7 +419,7 @@ export default function MapApp() {
           </div>
         </main>
 
-        <Footer version="v2.0.3" config={config} />
+        <Footer version="v2.1.0" config={config} />
       </div>
     </div>
   )
