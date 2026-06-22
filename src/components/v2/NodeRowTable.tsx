@@ -85,23 +85,23 @@ export function NodeRowTable({
     color: 'var(--fg-3)',
     fontWeight: 500,
     padding: '8px 10px',
-    borderBottom: '1px solid var(--edge-engrave)',
+    borderBottom: '1px solid var(--liquid-border, var(--edge-engrave))',
     textAlign: 'left',
     whiteSpace: 'nowrap',
-    background: 'var(--bg-1)',
+    background: 'var(--liquid-surface-soft, var(--bg-1))',
   }
   const bodyCell: React.CSSProperties = {
     padding: cellPad,
     fontFamily: 'var(--font-mono)',
     fontVariantNumeric: 'tabular-nums',
     fontSize: contentFs(11),
-    borderBottom: '1px solid var(--edge-engrave)',
+    borderBottom: '1px solid var(--liquid-border, var(--edge-engrave))',
     whiteSpace: 'nowrap',
   }
 
   return (
     <div
-      className="precision-card"
+      className="liquid-surface"
       style={{
         padding: 0,
         overflow: 'hidden',
@@ -188,14 +188,14 @@ export function NodeRowTable({
                     style={{
                       cursor: onNodeClick ? 'pointer' : 'default',
                       background: isSelected
-                        ? 'rgba(160,104,32,0.08)'
+                        ? 'color-mix(in srgb, var(--accent) 13%, transparent)'
                         : 'transparent',
                       opacity: online ? 1 : 0.7,
                     }}
                     onMouseEnter={(e) => {
                       if (onNodeClick && !isSelected)
                         (e.currentTarget as HTMLTableRowElement).style.background =
-                          'rgba(160,104,32,0.04)'
+                          'color-mix(in srgb, var(--accent) 7%, transparent)'
                     }}
                     onMouseLeave={(e) => {
                       if (onNodeClick && !isSelected)
@@ -234,8 +234,9 @@ export function NodeRowTable({
                             fontSize: contentFs(8.5),
                             letterSpacing: '0.1em',
                             color: 'var(--fg-3)',
-                            border: '1px solid var(--edge-engrave)',
-                            borderRadius: 1,
+                            border: '1px solid var(--liquid-border, var(--edge-engrave))',
+                            borderRadius: 999,
+                            background: 'var(--liquid-surface-soft, transparent)',
                           }}
                         >
                           {n.region}

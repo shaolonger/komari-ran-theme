@@ -344,9 +344,10 @@ export function NodesV2Page({
     <div
       style={{
         display: 'flex',
-        background: 'var(--bg-0)',
+        background: 'transparent',
         color: 'var(--fg-0)',
         fontFamily: 'var(--font-sans)',
+        minHeight: '100vh',
       }}
     >
       {/* Sidebar + system status footer */}
@@ -489,7 +490,7 @@ export function NodesV2Page({
             <div style={{ minWidth: 0 }}>
               {paginated.length === 0 ? (
                 <div
-                  className="precision-card"
+                  className="liquid-surface"
                   style={{
                     padding: 40,
                     textAlign: 'center',
@@ -551,7 +552,7 @@ export function NodesV2Page({
           {/* Pagination */}
           {filteredNodes.length > pageSize && (
             <div
-              className="precision-card"
+              className="liquid-surface"
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -593,9 +594,9 @@ export function NodesV2Page({
                 <div
                   style={{
                     display: 'inline-flex',
-                    background: 'var(--bg-inset)',
-                    border: '1px solid var(--edge-engrave)',
-                    borderRadius: 3,
+                    background: 'var(--liquid-surface-soft, var(--bg-inset))',
+                    border: '1px solid var(--liquid-border, var(--edge-engrave))',
+                    borderRadius: 999,
                     padding: 1,
                   }}
                 >
@@ -607,9 +608,9 @@ export function NodesV2Page({
                       style={{
                         padding: '3px 9px',
                         background:
-                          pageSize === s ? 'var(--bg-2)' : 'transparent',
+                          pageSize === s ? 'var(--liquid-surface-strong, var(--bg-2))' : 'transparent',
                         border: 'none',
-                        borderRadius: 2,
+                        borderRadius: 999,
                         fontFamily: 'var(--font-mono)',
                         fontSize: contentFs(10),
                         color:
@@ -631,9 +632,9 @@ export function NodesV2Page({
                   disabled={safePage <= 1}
                   style={{
                     padding: '4px 8px',
-                    background: 'var(--bg-1)',
-                    border: '1px solid var(--edge-engrave)',
-                    borderRadius: 3,
+                    background: 'var(--liquid-surface-soft, var(--bg-1))',
+                    border: '1px solid var(--liquid-border, var(--edge-engrave))',
+                    borderRadius: 999,
                     fontFamily: 'var(--font-mono)',
                     fontSize: contentFs(10),
                     color: 'var(--fg-1)',
@@ -661,9 +662,9 @@ export function NodesV2Page({
                   disabled={safePage >= totalPages}
                   style={{
                     padding: '4px 8px',
-                    background: 'var(--bg-1)',
-                    border: '1px solid var(--edge-engrave)',
-                    borderRadius: 3,
+                    background: 'var(--liquid-surface-soft, var(--bg-1))',
+                    border: '1px solid var(--liquid-border, var(--edge-engrave))',
+                    borderRadius: 999,
                     fontFamily: 'var(--font-mono)',
                     fontSize: contentFs(10),
                     color: 'var(--fg-1)',

@@ -117,13 +117,13 @@ function InlineProgress({
       </div>
       <div
         style={{
-          height: 4,
-          background: 'var(--bg-inset)',
-          border: '1px solid var(--edge-engrave)',
-          borderRadius: 1,
+          height: 5,
+          background: 'var(--liquid-surface-soft, var(--bg-inset))',
+          border: '1px solid var(--liquid-border, var(--edge-engrave))',
+          borderRadius: 999,
           position: 'relative',
           overflow: 'hidden',
-          boxShadow: 'inset 0 1px 1px var(--edge-deep)',
+          boxShadow: 'var(--shadow-inset)',
         }}
       >
         {valid && (
@@ -221,22 +221,22 @@ function NodeCardCompactV2_({
           handleClick()
         }
       }}
-      className="precision-card"
+      className="liquid-surface liquid-surface--interactive"
       style={{
-        padding: '11px 13px 12px',
+        padding: '12px 14px 13px',
         display: 'flex',
         flexDirection: 'column',
         gap: 7,
         cursor: onClick ? 'pointer' : 'default',
         opacity: isOnline ? 1 : 0.6,
-        outline: selected ? '1px solid var(--accent)' : 'none',
-        outlineOffset: selected ? -1 : 0,
-        transition: 'background 0.12s',
+        outline: selected ? '1px solid color-mix(in srgb, var(--accent) 62%, white)' : 'none',
+        outlineOffset: selected ? 2 : 0,
+        transition: 'transform 0.16s cubic-bezier(0.22, 1, 0.36, 1), background 0.16s, border-color 0.16s',
         position: 'relative',
       }}
       onMouseEnter={(e) => {
         if (onClick)
-          (e.currentTarget as HTMLDivElement).style.background = 'var(--bg-2)'
+          (e.currentTarget as HTMLDivElement).style.background = 'var(--liquid-surface-strong, var(--bg-2))'
       }}
       onMouseLeave={(e) => {
         if (onClick)
@@ -259,7 +259,7 @@ function NodeCardCompactV2_({
               height: 7,
               borderRadius: '50%',
               background: dotColor,
-              boxShadow: status === 'good' ? `0 0 4px ${dotColor}` : undefined,
+              boxShadow: status === 'good' ? `0 0 12px ${dotColor}` : undefined,
               flexShrink: 0,
             }}
           />
@@ -285,8 +285,9 @@ function NodeCardCompactV2_({
                 fontSize: contentFs(8.5),
                 letterSpacing: '0.1em',
                 color: 'var(--accent-bright)',
-                border: '1px solid var(--edge-engrave)',
-                borderRadius: 1,
+                border: '1px solid var(--liquid-border, var(--edge-engrave))',
+                borderRadius: 999,
+                background: 'var(--liquid-surface-soft, transparent)',
                 flexShrink: 0,
               }}
             >
@@ -301,8 +302,9 @@ function NodeCardCompactV2_({
                 fontSize: contentFs(8.5),
                 letterSpacing: '0.1em',
                 color: 'var(--fg-3)',
-                border: '1px solid var(--edge-engrave)',
-                borderRadius: 1,
+                border: '1px solid var(--liquid-border, var(--edge-engrave))',
+                borderRadius: 999,
+                background: 'var(--liquid-surface-soft, transparent)',
                 flexShrink: 0,
               }}
             >
@@ -371,7 +373,7 @@ function NodeCardCompactV2_({
           gap: 10,
           marginTop: 3,
           paddingTop: 7,
-          borderTop: '1px solid var(--edge-engrave)',
+          borderTop: '1px solid var(--liquid-border, var(--edge-engrave))',
         }}
       >
         <div
@@ -449,9 +451,9 @@ function NodeCardCompactV2_({
                 color: labels.bandwidth.color
                   ? `var(--label-${labels.bandwidth.color}, var(--info))`
                   : 'var(--info)',
-                background: 'rgba(58,93,143,0.06)',
-                border: '1px solid var(--edge-engrave)',
-                borderRadius: 1,
+                background: 'var(--liquid-surface-soft, rgba(58,93,143,0.06))',
+                border: '1px solid var(--liquid-border, var(--edge-engrave))',
+                borderRadius: 999,
               }}
             >
               {labels.bandwidth.value}
@@ -465,9 +467,9 @@ function NodeCardCompactV2_({
                 fontSize: contentFs(8.5),
                 letterSpacing: '0.1em',
                 color: 'var(--accent-bright)',
-                background: 'rgba(160,104,32,0.06)',
-                border: '1px solid var(--edge-engrave)',
-                borderRadius: 1,
+                background: 'var(--liquid-surface-soft, rgba(160,104,32,0.06))',
+                border: '1px solid var(--liquid-border, var(--edge-engrave))',
+                borderRadius: 999,
               }}
             >
               {labels.traffic.value}
