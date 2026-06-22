@@ -17,7 +17,7 @@
 - [x] `todo-06` 改造 OverviewV2 核心首页，让状态条、总览卡和内容面板进入 Liquid Glass 视觉体系。
 - [x] `todo-07` 改造节点卡片和节点列表核心组件，加入柔和玻璃表面、流动高光和更清晰的在线状态反馈。
 - [x] `todo-08` 改造详情/Traffic/Billing/Hub 的共享外壳和主要卡片，使多页面体验保持一致。
-- [ ] `todo-09` 更新主题配置、README 说明和 preview/cover 相关文案，使发布包描述与新设计一致。
+- [x] `todo-09` 更新主题配置、README 说明和 preview/cover 相关文案，使发布包描述与新设计一致。
 - [ ] `todo-10` 完成构建、自审和最终 QA，记录剩余风险或后续增强项。
 
 ## Acceptance Checklist

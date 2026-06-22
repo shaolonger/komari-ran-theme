@@ -11,14 +11,11 @@ interface Props {
 /**
  * ThemeCover — 460x230 thumbnail card for Komari's theme manager.
  *
- * Layout language: poetry + precision instrument.
- * - Thin top/bottom rule with serial stamps (the "instrument" half)
- * - Negative space + a single oversized 岚 character on the right (the "poem")
- * - Distant mountain silhouettes in the lower third — "岚" means
- *   mist drifting through mountains, so the cover should feel that way,
- *   not look like a dashboard screenshot
- * - One small vital sign in the lower-left corner so it still reads
- *   as "monitoring tool", not pure typography
+ * Layout language: Liquid Glass monitoring console.
+ * - Ambient Siri-like stream light
+ * - Floating translucent cover surface
+ * - Oversized glass glyph on the right
+ * - One small vital sign so it still reads as a monitoring theme
  */
 export function ThemeCover({ theme, width = 460, height = 230 }: Props) {
   const wrapperStyle: CSSProperties = {
@@ -26,12 +23,12 @@ export function ThemeCover({ theme, width = 460, height = 230 }: Props) {
     height,
     position: 'relative',
     overflow: 'hidden',
-    background: 'var(--bg-0)',
+    background: 'var(--liquid-page-bg, var(--bg-0))',
     color: 'var(--fg-0)',
     fontFamily: 'var(--font-sans)',
-    borderRadius: 6,
+    borderRadius: 28,
     boxShadow:
-      'inset 0 0 0 1px var(--edge-mid), inset 0 1px 0 var(--edge-bright), 0 4px 16px rgba(0,0,0,0.18)',
+      'var(--liquid-shadow, inset 0 0 0 1px var(--edge-mid), 0 4px 16px rgba(0,0,0,0.18))',
   }
 
   return (
@@ -84,9 +81,11 @@ export function ThemeCover({ theme, width = 460, height = 230 }: Props) {
           fill="url(#ran-cover-mountain-near)"
         />
 
-        {/* Tiny accent moon — small amber dot above the mountains */}
-        <circle cx="80" cy="76" r="4" fill="var(--accent)" opacity="0.85" />
-        <circle cx="80" cy="76" r="9" fill="var(--accent)" opacity="0.18" />
+        {/* Stream light nodes */}
+        <circle cx="80" cy="76" r="4" fill="var(--accent)" opacity="0.9" />
+        <circle cx="80" cy="76" r="18" fill="var(--accent)" opacity="0.16" />
+        <circle cx="330" cy="58" r="34" fill="var(--liquid-glow-violet, var(--accent))" opacity="0.5" />
+        <circle cx="390" cy="165" r="46" fill="var(--liquid-glow-cyan, var(--accent))" opacity="0.44" />
       </svg>
 
       {/* Top rule — KMR · MONITOR · RAN | SN-7A4F2D */}
@@ -114,7 +113,7 @@ export function ThemeCover({ theme, width = 460, height = 230 }: Props) {
               boxShadow: '0 0 6px var(--accent)',
             }}
           />
-          KMR · MONITOR · RAN
+          KMR · MONITOR · LIQUID
         </div>
         <span>SN-7A4F2D</span>
       </div>
@@ -127,11 +126,11 @@ export function ThemeCover({ theme, width = 460, height = 230 }: Props) {
           left: 18,
           right: 18,
           height: 1,
-          background: 'var(--edge-engrave)',
+          background: 'linear-gradient(90deg, transparent, var(--liquid-border, var(--edge-engrave)), transparent)',
         }}
       />
 
-      {/* Big calligraphic 岚 character on the right — the poem */}
+      {/* Big glass glyph on the right */}
       <div
         style={{
           position: 'absolute',
@@ -143,15 +142,16 @@ export function ThemeCover({ theme, width = 460, height = 230 }: Props) {
           alignItems: 'center',
           justifyContent: 'center',
           fontFamily: '"Inter Tight", "Songti SC", "Noto Serif SC", serif',
-          fontSize: 140,
+          fontSize: 136,
           fontWeight: 300,
           lineHeight: 1,
           color: 'var(--fg-0)',
-          opacity: 0.92,
+          opacity: 0.84,
           letterSpacing: '-0.05em',
+          textShadow: '0 0 38px var(--liquid-glow-cyan, transparent)',
         }}
       >
-        岚
+        璃
       </div>
 
       {/* Wordmark + tagline on the left */}
@@ -175,6 +175,7 @@ export function ThemeCover({ theme, width = 460, height = 230 }: Props) {
           }}
         >
           Ran
+          <span style={{ color: 'var(--accent-bright)' }}> Liquid</span>
         </span>
         <span
           style={{
@@ -186,7 +187,7 @@ export function ThemeCover({ theme, width = 460, height = 230 }: Props) {
             textTransform: 'uppercase',
           }}
         >
-          Precision Probe
+          Liquid Probe
         </span>
         <span
           style={{
@@ -198,7 +199,7 @@ export function ThemeCover({ theme, width = 460, height = 230 }: Props) {
             opacity: 0.85,
           }}
         >
-          Mountain mist · server signal
+          Siri stream · server signal
         </span>
       </div>
 
@@ -213,10 +214,10 @@ export function ThemeCover({ theme, width = 460, height = 230 }: Props) {
           gap: 14,
           fontFamily: 'var(--font-mono)',
           padding: '4px 10px',
-          background: 'color-mix(in oklab, var(--bg-0) 75%, transparent)',
-          border: '1px solid var(--edge-engrave)',
-          borderRadius: 3,
-          backdropFilter: 'blur(2px)',
+          background: 'var(--liquid-surface, color-mix(in oklab, var(--bg-0) 75%, transparent))',
+          border: '1px solid var(--liquid-border, var(--edge-engrave))',
+          borderRadius: 999,
+          backdropFilter: 'var(--liquid-blur, blur(8px))',
         }}
       >
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>

@@ -1,7 +1,7 @@
-# 岚 (Ran) · Komari Probe Theme
+# Ran Liquid · Komari Probe Theme
 
-> 精密金工质感的 Komari 探针面板主题
-> Precision-machined hi-fi gear, rendered as a server monitoring panel.
+> 受 iOS Liquid Glass、Siri 暗流光与横屏边栏生态启发的 Komari 探针面板主题。
+> Liquid glass surfaces, ambient stream light, and landscape-first monitoring.
 
 [![version](https://img.shields.io/badge/version-2.0.3-c8a86c?style=flat-square)](https://github.com/saladinxp/komari-ran-theme/releases)
 [![demo](https://img.shields.io/badge/demo-obsr.net-2d6a4f?style=flat-square)](https://obsr.net)
@@ -59,24 +59,25 @@ v1.0 起全面支持手机访问。Sidebar 在 < 768px 改为汉堡抽屉(slide-
 
 ## 设计理念
 
-灵感来自 Astell&Kern 等精密 HiFi 器材的 CNC 数控加工外观:阶梯倒角、蚀刻铭牌、凹陷显示窗、真 1px 发丝线。**每一根边线都有理由**。
+Ran Liquid 保留原 Ran 的高信息密度和多页面监控能力,但把视觉语言从“精密金工仪表盘”重塑为更现代的 Liquid Glass 控制台:内容层保持清晰,导航/控制/卡片层使用半透明玻璃材质,Siri 式暗流光作为低干扰环境背景。
 
-- **双 hairline 倒角** — 外亮内暗,模拟金属倒角
-- **凹陷读数窗(precision-inset)** — 数据展示区下沉,有阴影
-- **蚀刻铭牌字(Etch)** — 9px 等宽 uppercase wide-tracking
-- **接缝装饰(seam)** — 模拟硬件拼接缝
-- **GPU 友好的微动效** — 状态点呼吸、scan 等轻量动画,无重资源消耗
-- **`prefers-reduced-motion`** — 尊重无障碍设置
-- **真响应式** — 桌面 / 平板 / 手机三段断点,sidebar 抽屉化、HeroStats 自适应列数、Top Talkers 卡片重排、iOS safe-area
+- **Liquid Glass surfaces** — 主要卡片、导航、搜索、状态条使用透明材质、模糊和细高光。
+- **Siri stream background** — 默认暗色主题带蓝/紫/青流光,不承载文字,只提供环境氛围。
+- **Landscape-first shell** — 桌面与横屏优先使用左侧浮动玻璃边栏,窄屏继续使用抽屉。
+- **Dynamic animations** — hover、状态点、卡片浮动使用轻量微动效,避免抢走数据注意力。
+- **Readable content layer** — 指标、表格、图表仍以可读性优先,避免 glass-on-glass 过度堆叠。
+- **Accessibility fallbacks** — 支持 `prefers-reduced-motion` 和高对比偏好,降低动画与透明度。
 
 ## 主题变体
 
 | | 名称 | 用途 |
 |---|---|---|
+| 🫧 | **流体玻璃 ran-liquid** | 默认暗色,Siri 暗流光 |
+| 💠 | **清透玻璃 ran-liquid-light** | 浅色 Liquid Glass |
 | 🌑 | **墨石 ran-night** | 深色 |
-| 🌫️ | **雾色 ran-mist** | 暖奶油浅色,默认 |
+| 🌫️ | **雾色 ran-mist** | 暖奶油浅色 |
 
-切换可在右上角 NIGHT/MIST 按钮,或由 Komari 主题设置默认值。
+切换可在右上角主题选择器,或由 Komari 主题设置默认值。旧 Ran 主题仍保留为回退选项。
 
 ## 路由
 
@@ -115,7 +116,7 @@ Komari 后台 → 主题管理 → 岚 → 配置面板,支持以下后台开关
 
 | 配置项 | 选项 | 默认 | 说明 |
 |---|---|---|---|
-| `default_theme` | `ran-night` / `ran-mist` | `ran-night` | 首次加载默认主题,墨石(深) / 雾色(浅);用户切换后浏览器记忆偏好 |
+| `default_theme` | `ran-liquid` / `ran-liquid-light` / legacy Ran themes | `ran-liquid` | 首次加载默认主题。Liquid 为默认暗色流体玻璃;用户切换后浏览器记忆偏好 |
 | `font_scale` | `standard` / `large` / `xlarge` | `standard` | 字体大小三档,内容字按 1× / 1.18× / 1.36× 缩放;装饰字与布局尺寸不变 |
 | `version_tag` | string | `v2.0.3` | 页脚显示的版本标识 |
 
