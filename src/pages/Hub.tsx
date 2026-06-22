@@ -44,6 +44,7 @@ import { useNodeHistory } from '@/hooks/useNodeHistory'
 import { useElementWidth } from '@/hooks/useElementWidth'
 import { hashFor } from '@/router/route'
 import { useMobileDrawer } from '@/hooks/useMediaQuery'
+import { useI18n, type Translator } from '@/i18n'
 import { type Theme } from '@/components/atoms/ThemePicker'
 
 type Conn = 'connecting' | 'open' | 'closed' | 'error' | 'idle'
@@ -143,6 +144,7 @@ function deriveHeartbeat7d(pingHistory: PingHistory): HeartbeatCell[] {
 function deriveAlertsForNode(
   node: KomariNode,
   record: KomariRecord | undefined,
+  t: Translator,
 ): AlertItem[] {
   const out: AlertItem[] = []
   let i = 1
@@ -165,7 +167,7 @@ function deriveAlertsForNode(
   }
 
   if (!record || record.online === false) {
-    push('bad', 'OFFLINE', `${hostName} · 探针离线`)
+    push('bad', t('status.offline').toUpperCase(), t('pages.hub.alerts.probeOffline', { name: hostName }))
     return out
   }
   if ((record.cpu ?? 0) > 90) push('bad', 'CRIT', `CPU ${Math.round(record.cpu ?? 0)}%`)
@@ -182,12 +184,12 @@ function deriveAlertsForNode(
   if (diskPct > 90) push('bad', 'CRIT', `DISK ${diskPct.toFixed(0)}%`)
   else if (diskPct > 80) push('warn', 'WARN', `DISK ${diskPct.toFixed(0)}%`)
 
-  if ((record.loss ?? 0) > 5) push('warn', 'LOSS', `丢包 ${(record.loss ?? 0).toFixed(1)}%`)
+  if ((record.loss ?? 0) > 5) push('warn', 'LOSS', t('pages.hub.alerts.packetLoss', { loss: (record.loss ?? 0).toFixed(1) }))
 
   const expDays = node.expired_at ? daysUntil(node.expired_at) : undefined
   if (expDays != null) {
-    if (expDays <= 7) push('bad', 'EXPIRE', `订阅 ${expDays} 天后到期`)
-    else if (expDays <= 30) push('warn', 'EXPIRE', `订阅 ${expDays} 天后到期`)
+    if (expDays <= 7) push('bad', 'EXPIRE', t('pages.hub.alerts.subscriptionExpires', { days: expDays }))
+    else if (expDays <= 30) push('warn', 'EXPIRE', t('pages.hub.alerts.subscriptionExpires', { days: expDays }))
   }
 
   if (out.length === 0) {
@@ -195,7 +197,7 @@ function deriveAlertsForNode(
       code: 'H·00',
       level: 'good',
       levelLabel: 'OK',
-      message: '所有指标正常',
+      message: t('pages.hub.alerts.allMetricsNormal'),
       target,
       time: 'live',
     })
@@ -562,6 +564,7 @@ function AllocationBar({
 
 /** Heartbeat strip — 28 cells representing the past 7 days. */
 function HeartbeatStrip({ cells }: { cells: HeartbeatCell[] }) {
+  const { t } = useI18n()
   const upPct =
     cells.filter((c) => c.state === 1).length /
     Math.max(1, cells.filter((c) => c.state !== -1).length)
@@ -584,7 +587,7 @@ function HeartbeatStrip({ cells }: { cells: HeartbeatCell[] }) {
             <div
               key={i}
               title={`${c.label} · ${
-                c.state === 1 ? 'OK' : c.state === 0 ? 'LOSS' : 'no data'
+                c.state === 1 ? 'OK' : c.state === 0 ? 'LOSS' : t('common.empty')
               }`}
               style={{
                 flex: 1,
@@ -608,7 +611,7 @@ function HeartbeatStrip({ cells }: { cells: HeartbeatCell[] }) {
           letterSpacing: '0.16em',
         }}
       >
-        <Etch>UPTIME {haveData ? `${(upPct * 100).toFixed(1)}%` : '—'}</Etch>
+        <Etch>{t('monitoring.labels.uptime').toUpperCase()} {haveData ? `${(upPct * 100).toFixed(1)}%` : '—'}</Etch>
         <Etch>FAILS · {fails}</Etch>
         <Etch>DERIVED · PING</Etch>
       </div>
@@ -622,6 +625,7 @@ function TargetLatencyList({
 }: {
   targets: { name: string; value: number; loss: number }[]
 }) {
+  const { t } = useI18n()
   if (targets.length === 0) {
     return (
       <div
@@ -634,7 +638,7 @@ function TargetLatencyList({
           letterSpacing: '0.16em',
         }}
       >
-        NO PING TARGETS
+        {t('pages.hub.empty.noPingTargets').toUpperCase()}
       </div>
     )
   }
@@ -840,6 +844,7 @@ export function HubPage({
   hubTargetUuid,
 }: Props) {
   const drawer = useMobileDrawer()
+  const { t } = useI18n()
   // Live UTC clock for the command bar.
   const [now, setNow] = useState<number>(() => Date.now())
   useEffect(() => {
@@ -938,8 +943,8 @@ export function HubPage({
 
   // Alerts derived from current state.
   const alerts = useMemo(
-    () => (node ? deriveAlertsForNode(node, record) : []),
-    [node, record],
+    () => (node ? deriveAlertsForNode(node, record, t) : []),
+    [node, record, t],
   )
 
   // CRITICAL / WARNING / INFO 三联计数 — 给 ALERT CENTER 卡顶部的大数字面板用。
@@ -989,7 +994,7 @@ export function HubPage({
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
           <Topbar
             title={siteName}
-            subtitle={stillLoading ? 'LOADING PROBE …' : 'UNKNOWN PROBE'}
+            subtitle={stillLoading ? t('pages.hub.loadingProbe').toUpperCase() : t('pages.hub.unknownProbe').toUpperCase()}
             theme={theme}
             onTheme={onTheme}
             online={globalOnline}
@@ -1001,7 +1006,7 @@ export function HubPage({
                       records={records}
           />
           <main style={{ padding: 24 }}>
-            <CardFrame title={stillLoading ? 'Loading hub …' : 'Node not found'} code="…">
+            <CardFrame title={stillLoading ? t('pages.hub.loadingHub') : t('pages.hub.nodeNotFound')} code="…">
               <div
                 style={{
                   padding: '40px 16px',
@@ -1011,8 +1016,8 @@ export function HubPage({
                 }}
               >
                 {stillLoading
-                  ? 'WAITING FOR PROBE ROSTER …'
-                  : `UUID ${uuid.slice(0, 8)} · NOT IN ROSTER`}
+                  ? t('pages.hub.waitingRoster').toUpperCase()
+                  : `UUID ${uuid.slice(0, 8)} · ${t('pages.hub.notInRoster').toUpperCase()}`}
               </div>
             </CardFrame>
           </main>
@@ -1051,12 +1056,12 @@ export function HubPage({
     : '—'
 
   const opStateText: string = !online
-    ? 'OFFLINE'
+    ? t('pages.hub.status.offline').toUpperCase()
     : resStatus === 'bad'
-      ? 'CRITICAL'
+      ? t('pages.hub.status.critical').toUpperCase()
       : resStatus === 'warn'
-        ? 'DEGRADED'
-        : 'STABLE'
+        ? t('pages.hub.status.degraded').toUpperCase()
+        : t('pages.hub.status.stable').toUpperCase()
   const opStateDot: 'good' | 'warn' | 'bad' = !online
     ? 'bad'
     : resStatus === 'bad'
@@ -1067,16 +1072,16 @@ export function HubPage({
 
   const uplinkText: string =
     conn === 'open'
-      ? 'ACTIVE'
+      ? t('pages.hub.status.active').toUpperCase()
       : conn === 'connecting'
-        ? 'LINKING'
-        : 'LOST'
+        ? t('pages.hub.status.linking').toUpperCase()
+        : t('pages.hub.status.lost').toUpperCase()
   const uplinkDot: 'good' | 'warn' | 'bad' =
     conn === 'open' ? 'good' : conn === 'connecting' ? 'warn' : 'bad'
 
   const subtitle = `${
     labels.raw.length > 0 ? labels.raw.map((l) => l.value).join(' · ') + ' · ' : ''
-  }HUB · COCKPIT VIEW`
+  }${t('nav.hub').toUpperCase()} · ${t('pages.hub.cockpitSubtitle').toUpperCase()}`
   const utcTime = new Date(now).toISOString().slice(11, 19) + ' UTC'
 
   return (
@@ -1175,7 +1180,7 @@ export function HubPage({
           {/* Back to detail */}
           <a
             href={hashFor({ name: 'nodes', uuid })}
-            title="返回标准详情"
+            title={t('pages.hub.backToDetail')}
             style={{
               fontFamily: 'var(--font-mono)',
               fontSize: contentFs(10),
@@ -1206,9 +1211,9 @@ export function HubPage({
             flexWrap: 'wrap',
           }}
         >
-          <StatusPlate label="NODE TIER" value={nodeTierText} />
-          <StatusPlate label="OPERATIONAL STATE" value={opStateText} dot={opStateDot} />
-          <StatusPlate label="UPLINK STATUS" value={uplinkText} dot={uplinkDot} />
+          <StatusPlate label={t('pages.hub.status.nodeTier')} value={nodeTierText} />
+          <StatusPlate label={t('pages.hub.status.operationalState')} value={opStateText} dot={opStateDot} />
+          <StatusPlate label={t('pages.hub.status.uplinkStatus')} value={uplinkText} dot={uplinkDot} />
         </div>
 
         <main
@@ -1240,11 +1245,11 @@ export function HubPage({
           >
             {/* ── COL 1: identity + system + allocation ── */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <CardFrame title="System Identity" code="SYS · 01">
+              <CardFrame title={t('pages.hub.cards.systemIdentity')} code="SYS · 01">
                 <div style={{ padding: '4px 12px 10px' }}>
                   <InfoRow label="Host" value={node.name ?? '—'} />
                   <InfoRow label="IPv4" value={node.ip ?? '—'} />
-                  <InfoRow label="Region" value={node.region ?? '—'} />
+                  <InfoRow label={t('common.region')} value={node.region ?? '—'} />
                   <InfoRow label="OS" value={record?.os || node.os || '—'} />
                   <InfoRow label="CPU" value={record?.cpu_model || node.cpu_model || '—'} />
                   <InfoRow
@@ -1253,21 +1258,21 @@ export function HubPage({
                   />
                   <InfoRow label="Arch" value={node.arch ?? '—'} />
                   <InfoRow
-                    label="Uptime"
+                    label={t('monitoring.labels.uptime')}
                     value={online && record?.uptime != null ? formatUptime(record.uptime) : '—'}
                   />
                 </div>
               </CardFrame>
 
-              <CardFrame title="Allocation" code="ALC · 02">
+              <CardFrame title={t('pages.hub.cards.allocation')} code="ALC · 02">
                 <div style={{ padding: '4px 12px 10px' }}>
                   <AllocationBar
-                    label="Memory"
+                    label={t('monitoring.labels.memory')}
                     used={record?.memory_used}
                     total={record?.memory_total}
                   />
                   <AllocationBar
-                    label="Disk"
+                    label={t('monitoring.labels.disk')}
                     used={record?.disk_used}
                     total={record?.disk_total}
                   />
@@ -1279,7 +1284,7 @@ export function HubPage({
                 </div>
               </CardFrame>
 
-              <CardFrame title="Resources" code="RES · 03">
+              <CardFrame title={t('pages.hub.cards.resources')} code="RES · 03">
                 <div style={{ padding: '8px 12px 10px' }}>
                   <ResourceRow
                     label="CPU"
@@ -1346,7 +1351,7 @@ export function HubPage({
                   padding: '4px 2px',
                 }}
               >
-                <Etch>WINDOW</Etch>
+                <Etch>{t('monitoring.labels.window').toUpperCase()}</Etch>
                 <Segmented
                   size="sm"
                   value={activeWindowKey}
@@ -1391,7 +1396,7 @@ export function HubPage({
                   </div>
                 </CardFrame>
                 <CardFrame
-                  title={`Memory · ${windowSpec.label}`}
+                  title={`${t('monitoring.labels.memory')} · ${windowSpec.label}`}
                   code="C · 05"
                   action={
                     <span
@@ -1419,7 +1424,7 @@ export function HubPage({
                   </div>
                 </CardFrame>
                 <CardFrame
-                  title={`Net · ${windowSpec.label}`}
+                  title={`${t('monitoring.labels.network')} · ${windowSpec.label}`}
                   code="C · 06"
                   action={
                     online ? (
@@ -1450,7 +1455,7 @@ export function HubPage({
                   </div>
                 </CardFrame>
                 <CardFrame
-                  title={`Latency · ${windowSpec.label}`}
+                  title={`${t('monitoring.labels.latency')} · ${windowSpec.label}`}
                   code="C · 07"
                   action={
                     online && record?.ping != null ? (
@@ -1484,7 +1489,7 @@ export function HubPage({
                           letterSpacing: '0.16em',
                         }}
                       >
-                        NO PING DATA
+                        {t('pages.hub.empty.noPingData').toUpperCase()}
                       </div>
                     )}
                   </div>
@@ -1495,11 +1500,11 @@ export function HubPage({
                   这样 index.html 完全不背地图代码体积,真地图直接走外置入口。
                   iframe 上盖一个透明 <a>,把整块卡片变成跳转入口(也防止 iframe
                   内部 React 抢点击)。 */}
-              <CardFrame title="Geographic Position" code="GEO · 08">
+              <CardFrame title={t('pages.hub.cards.geographicPosition')} code="GEO · 08">
                 <div style={{ position: 'relative' }}>
                   <iframe
                     src="./map.html?embed=1"
-                    title="Geographic Position Preview"
+                    title={t('pages.hub.mapPreviewTitle')}
                     loading="lazy"
                     style={{
                       display: 'block',
@@ -1516,7 +1521,7 @@ export function HubPage({
                   {/* 透明蒙层:接管所有点击 → 跳完整 map 页 */}
                   <a
                     href="./map.html"
-                    title="跳转到完整地图视图"
+                    title={t('pages.hub.mapOpenTitle')}
                     style={{
                       position: 'absolute',
                       inset: 0,
@@ -1544,7 +1549,7 @@ export function HubPage({
                         boxShadow: 'inset 0 1px 0 var(--edge-bright)',
                       }}
                     >
-                      OPEN FULL MAP →
+                      {t('monitoring.actions.openFullMap').toUpperCase()} →
                     </span>
                   </a>
                 </div>
@@ -1556,7 +1561,7 @@ export function HubPage({
                 >
                   <Etch>
                     {node.region ?? '—'} ·{' '}
-                    {labels.raw.find((l) => /[A-Z]{2}/.test(l.value))?.value ?? 'UNMAPPED'}
+                    {labels.raw.find((l) => /[A-Z]{2}/.test(l.value))?.value ?? t('pages.hub.unmapped').toUpperCase()}
                   </Etch>
                 </div>
               </CardFrame>
@@ -1566,12 +1571,12 @@ export function HubPage({
             {layoutMode === 'wide' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 <CardFrame
-                  title="Alert Center"
+                  title={t('pages.hub.cards.alertCenter')}
                   code="ALT · 09"
                   action={
                     <StatusBadge
                       status={online ? 'good' : 'bad'}
-                      label={online ? 'OK' : 'OFFLINE'}
+                      label={online ? 'OK' : t('status.offline').toUpperCase()}
                     />
                   }
                 >
@@ -1579,13 +1584,13 @@ export function HubPage({
                   <AlertsList alerts={alerts} />
                 </CardFrame>
 
-                <CardFrame title="Heartbeat · 7d" code="HRT · 10">
+                <CardFrame title={`${t('pages.hub.cards.heartbeat')} · 7d`} code="HRT · 10">
                   <div style={{ padding: 12 }}>
                     <HeartbeatStrip cells={heartbeatCells} />
                   </div>
                 </CardFrame>
 
-                <CardFrame title="Ping Targets" code="LAT · 11">
+                <CardFrame title={t('pages.hub.cards.pingTargets')} code="LAT · 11">
                   <div style={{ padding: 12 }}>
                     <TargetLatencyList targets={targetSummaries} />
                   </div>
@@ -1607,12 +1612,12 @@ export function HubPage({
               }}
             >
               <CardFrame
-                title="Alert Center"
+                title={t('pages.hub.cards.alertCenter')}
                 code="ALT · 09"
                 action={
                   <StatusBadge
                     status={online ? 'good' : 'bad'}
-                    label={online ? 'OK' : 'OFFLINE'}
+                    label={online ? 'OK' : t('status.offline').toUpperCase()}
                   />
                 }
               >
@@ -1620,13 +1625,13 @@ export function HubPage({
                 <AlertsList alerts={alerts} />
               </CardFrame>
 
-              <CardFrame title="Heartbeat · 7d" code="HRT · 10">
+              <CardFrame title={`${t('pages.hub.cards.heartbeat')} · 7d`} code="HRT · 10">
                 <div style={{ padding: 12 }}>
                   <HeartbeatStrip cells={heartbeatCells} />
                 </div>
               </CardFrame>
 
-              <CardFrame title="Ping Targets" code="LAT · 11">
+              <CardFrame title={t('pages.hub.cards.pingTargets')} code="LAT · 11">
                 <div style={{ padding: 12 }}>
                   <TargetLatencyList targets={targetSummaries} />
                 </div>

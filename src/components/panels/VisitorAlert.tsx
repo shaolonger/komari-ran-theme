@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useVisitorInfo } from '@/hooks/useVisitorInfo'
+import { useI18n } from '@/i18n'
 import { contentFs } from '@/utils/fontScale'
 
 const SESSION_KEY = 'ran.visitor_alert_shown'
@@ -65,6 +66,7 @@ export function VisitorAlert({ enabled }: Props) {
 }
 
 function VisitorAlertInner({ onDismiss }: { onDismiss: () => void }) {
+  const { t } = useI18n()
   const { data, loading } = useVisitorInfo(true)
   const [visible, setVisible] = useState(false)
   /** 入场扫描线动画是否已完成 — 完成后倒计时才开始走、字段才算"激活" */
@@ -144,16 +146,16 @@ function VisitorAlertInner({ onDismiss }: { onDismiss: () => void }) {
   }, [data])
 
   const tierLabel = {
-    good: 'TIER I · CLEAN',
-    warn: 'TIER II · OBSERVE',
-    bad: 'TIER III · BLOCK',
-    unknown: 'PROBING …',
+    good: `TIER I · ${t('visitor.clean').toUpperCase()}`,
+    warn: `TIER II · ${t('visitor.observe').toUpperCase()}`,
+    bad: `TIER III · ${t('visitor.block').toUpperCase()}`,
+    unknown: t('visitor.probing').toUpperCase(),
   }[tier]
 
   const stateLabel = {
-    good: 'VERIFIED',
-    warn: data?.proxy === 'yes' ? 'RELAYED' : 'FLAGGED',
-    bad: 'ELEVATED',
+    good: t('visitor.verified').toUpperCase(),
+    warn: data?.proxy === 'yes' ? t('visitor.relayed').toUpperCase() : t('visitor.flagged').toUpperCase(),
+    bad: t('visitor.elevated').toUpperCase(),
     unknown: '— — —',
   }[tier]
 
@@ -171,17 +173,23 @@ function VisitorAlertInner({ onDismiss }: { onDismiss: () => void }) {
     Math.ceil((AUTO_DISMISS_MS - (AUTO_DISMISS_MS * progress) / 100) / 1000),
   )
 
-  const ipText = data?.ip || (loading ? '— · — · — · —' : 'UNKNOWN')
-  const location = data ? [data.city, data.country].filter(Boolean).join(', ') || '—' : 'resolving …'
+  const ipText = data?.ip || (loading ? '— · — · — · —' : t('common.unknown').toUpperCase())
+  const location = data ? [data.city, data.country].filter(Boolean).join(', ') || '—' : `${t('common.loading')} …`
   const coords =
     data?.lat !== undefined && data?.lon !== undefined
       ? `${data.lat.toFixed(3)} / ${data.lon.toFixed(3)}`
       : loading
         ? '— / —'
         : '—'
-  const isp = data?.isp || (loading ? 'querying …' : '—')
-  const linkType = !data ? '—' : data.proxy === 'yes' ? 'RELAYED' : 'DIRECT'
-  const routeZh = !data ? '—' : tier === 'good' ? '直连验证' : data.proxy === 'yes' ? '链路异常' : '已标记'
+  const isp = data?.isp || (loading ? `${t('common.loading')} …` : '—')
+  const linkType = !data ? '—' : data.proxy === 'yes' ? t('visitor.relayed').toUpperCase() : t('visitor.direct').toUpperCase()
+  const routeLabel = !data
+    ? '—'
+    : tier === 'good'
+      ? t('visitor.routeDirect')
+      : data.proxy === 'yes'
+        ? t('visitor.routeRelayed')
+        : t('visitor.routeFlagged')
   const ipv4Tag = data?.ip && data.ip.includes(':') ? 'IPv6' : data?.ip ? 'IPv4' : '—'
 
   return (
@@ -329,11 +337,11 @@ function VisitorAlertInner({ onDismiss }: { onDismiss: () => void }) {
                 letterSpacing: '0.18em',
               }}
             >
-              EXTERNAL CONNECTION · OBSERVED
+              {t('visitor.connectionObserved').toUpperCase()}
             </span>
           </div>
           <button
-            aria-label="Close"
+            aria-label={t('common.close')}
             onClick={handleClose}
             style={{
               width: 16,
@@ -408,7 +416,7 @@ function VisitorAlertInner({ onDismiss }: { onDismiss: () => void }) {
               letterSpacing: '0.15em',
             }}
           >
-            RISK · <span style={{ color: 'var(--fg-1)' }}>{data?.risk ?? '—'}</span>/100
+            {t('visitor.risk').toUpperCase()} · <span style={{ color: 'var(--fg-1)' }}>{data?.risk ?? '—'}</span>/100
           </span>
         </div>
 
@@ -427,7 +435,7 @@ function VisitorAlertInner({ onDismiss }: { onDismiss: () => void }) {
             <div className="precision-inset" style={{ overflow: 'hidden' }}>
               <iframe
                 src={`./map.html?embed=visitor&lat=${data.lat}&lon=${data.lon}`}
-                title="Visitor Location"
+                title={t('visitor.mapTitle')}
                 loading="lazy"
                 style={{
                   display: 'block',
@@ -456,7 +464,7 @@ function VisitorAlertInner({ onDismiss }: { onDismiss: () => void }) {
                   marginBottom: 4,
                 }}
               >
-                SOURCE ADDRESS
+                {t('visitor.sourceAddress').toUpperCase()}
               </div>
               <div
                 style={{
@@ -508,7 +516,7 @@ function VisitorAlertInner({ onDismiss }: { onDismiss: () => void }) {
                   letterSpacing: '0.18em',
                 }}
               >
-                STATE
+                {t('visitor.state').toUpperCase()}
               </span>
               <span
                 style={{
@@ -538,18 +546,18 @@ function VisitorAlertInner({ onDismiss }: { onDismiss: () => void }) {
         >
           {/* LOCATION + COORDS */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <Field label="LOCATION" value={location} />
-            <Field label="COORDS" value={coords} mono />
+            <Field label={t('visitor.location').toUpperCase()} value={location} />
+            <Field label={t('visitor.coords').toUpperCase()} value={coords} mono />
           </div>
 
           {/* CARRIER */}
-          <Field label="CARRIER" value={isp} title={data?.isp} />
+          <Field label={t('visitor.carrier').toUpperCase()} value={isp} title={data?.isp} />
 
           {/* ROUTE + LINK TYPE */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <Field label="ROUTE" value={routeZh} />
+            <Field label={t('visitor.route').toUpperCase()} value={routeLabel} />
             <Field
-              label="LINK TYPE"
+              label={t('visitor.linkType').toUpperCase()}
               value={linkType}
               mono
               valueColor={data?.proxy === 'yes' ? 'var(--signal-warn)' : 'var(--accent-bright)'}
@@ -570,14 +578,14 @@ function VisitorAlertInner({ onDismiss }: { onDismiss: () => void }) {
               marginTop: 2,
             }}
           >
-            <ReadCell label="TIER" value={tier === 'unknown' ? '—' : tier === 'good' ? 'I' : tier === 'warn' ? 'II' : 'III'} valueColor={accent} />
+            <ReadCell label={t('visitor.tier').toUpperCase()} value={tier === 'unknown' ? '—' : tier === 'good' ? 'I' : tier === 'warn' ? 'II' : 'III'} valueColor={accent} />
             <ReadCell
-              label="RISK"
+              label={t('visitor.risk').toUpperCase()}
               value={data ? `${data.risk}` : '—'}
               border
               valueColor={accent}
             />
-            <ReadCell label="SESSION" value={sessionStartRef.current} border />
+            <ReadCell label={t('visitor.session').toUpperCase()} value={sessionStartRef.current} border />
           </div>
         </div>
 
@@ -601,7 +609,7 @@ function VisitorAlertInner({ onDismiss }: { onDismiss: () => void }) {
                 letterSpacing: '0.15em',
               }}
             >
-              {hovered ? 'PAUSED' : 'AUTO DISMISS'}
+              {(hovered ? t('common.paused') : t('visitor.autoDismiss')).toUpperCase()}
             </span>
             <div
               style={{

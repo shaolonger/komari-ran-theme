@@ -20,6 +20,7 @@ import { contentFs } from '@/utils/fontScale'
 import { hashFor } from '@/router/route'
 import { useMobileDrawer } from '@/hooks/useMediaQuery'
 import { type Theme } from '@/components/atoms/ThemePicker'
+import { useI18n } from '@/i18n'
 
 type Conn = 'connecting' | 'open' | 'closed' | 'error' | 'idle'
 type SortBy = 'total' | 'tx' | 'rx' | 'live'
@@ -114,6 +115,7 @@ export function TrafficPage({
   config,
   hubTargetUuid,
 }: Props) {
+  const { t } = useI18n()
   const drawer = useMobileDrawer()
   const [sortBy, setSortBy] = useState<SortBy>('total')
   const [timeKey, setTimeKey] = useState<TimeKey>('1h')
@@ -199,7 +201,7 @@ export function TrafficPage({
     const totalSpark = agg ? agg.netOut.map((v, i) => v + (agg.netIn[i] ?? 0)) : []
     return [
       {
-        label: 'CUMULATIVE TOTAL',
+        label: `${t('common.total')} ${t('nav.traffic')}`,
         code: 'T01',
         value: totalStr[0] || '0',
         unit: totalStr[1] || 'B',
@@ -223,7 +225,7 @@ export function TrafficPage({
         sparkColor: 'var(--signal-good)',
       },
       {
-        label: 'LIVE THROUGHPUT',
+        label: t('monitoring.labels.globalThroughput'),
         code: 'T04',
         value: liveStr[0] || '0',
         unit: liveStr[1] ? liveStr[1].replace('/s', '') : 'B',
@@ -231,7 +233,7 @@ export function TrafficPage({
         sparkColor: 'var(--signal-info)',
       },
     ]
-  }, [stats, effectiveHistory])
+  }, [stats, effectiveHistory, t])
 
   // Trend chart data — summed bytes/s across all nodes for the selected window.
   const trendData = useMemo(() => {
@@ -250,8 +252,8 @@ export function TrafficPage({
   }, [win.hours])
 
   const subtitle = useMemo(() => {
-    return `${nodes.length} PROBES · ${formatBytes(stats.total)} CUMULATIVE`
-  }, [nodes.length, stats.total])
+    return `${nodes.length} ${t('common.nodes')} · ${formatBytes(stats.total)} ${t('common.total')}`
+  }, [nodes.length, stats.total, t])
 
   // Topbar online count
   const globalOnline = stats.online
@@ -306,7 +308,7 @@ export function TrafficPage({
                   color: 'var(--fg-0)',
                 }}
               >
-                Traffic
+                {t('pages.traffic.title')}
               </h2>
               <SerialPlate>NETWORK · WIDE</SerialPlate>
               <Etch>SINCE BOOT · UPDATED LIVE</Etch>
@@ -317,11 +319,11 @@ export function TrafficPage({
 
           {/* Trend — windowed aggregate from per-node history */}
           <CardFrame
-            title={`全网流量趋势 · ${win.titleSuffix}`}
+            title={`${t('monitoring.labels.globalThroughput')} · ${win.titleSuffix}`}
             code="T · 06"
             action={
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Etch>WINDOW</Etch>
+                <Etch>{t('monitoring.labels.window')}</Etch>
                 <Segmented
                   size="sm"
                   value={activeKey}
@@ -355,10 +357,10 @@ export function TrafficPage({
                   value={sortBy}
                   onChange={(v) => setSortBy(v as SortBy)}
                   options={[
-                    { value: 'total', label: 'TOTAL' },
+                    { value: 'total', label: t('common.total') },
                     { value: 'tx', label: '↑ TX' },
                     { value: 'rx', label: '↓ RX' },
-                    { value: 'live', label: 'LIVE' },
+                    { value: 'live', label: t('topbar.live') },
                   ]}
                 />
               </div>
@@ -377,7 +379,7 @@ export function TrafficPage({
                   textTransform: 'uppercase',
                 }}
               >
-                NO PROBES
+                {t('monitoring.empty.noNodesConfigured')}
               </div>
             ) : (
               <div>
@@ -558,6 +560,7 @@ function ShareBar({ tx, rx, max }: { tx: number; rx: number; max: number }) {
 
 /** Per-region traffic distribution as a horizontal bar chart. */
 function RegionDistribution({ traffic }: { traffic: NodeTraffic[] }) {
+  const { t } = useI18n()
   const byRegion = useMemo(() => {
     const map = new Map<string, { total: number; nodes: number }>()
     for (const t of traffic) {
@@ -575,7 +578,7 @@ function RegionDistribution({ traffic }: { traffic: NodeTraffic[] }) {
   if (byRegion.length === 0) return null
 
   return (
-    <CardFrame title="按区域分布" code="R · 06" action={<Etch>{byRegion.length} REGIONS</Etch>}>
+    <CardFrame title={t('monitoring.labels.regionDistribution')} code="R · 06" action={<Etch>{byRegion.length} {t('common.regions')}</Etch>}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <BarChart
           data={byRegion.map((r) => r.total)}

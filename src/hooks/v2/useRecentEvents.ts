@@ -19,6 +19,7 @@
 import { useEffect, useState } from 'react'
 import type { KomariNode, KomariRecord } from '@/types/komari'
 import { isRecordDegraded } from './useAggregateStats'
+import { useI18n } from '@/i18n'
 
 export type EventKind = 'down' | 'up' | 'degraded' | 'recovered'
 
@@ -66,12 +67,12 @@ function saveEvents(events: NodeEvent[]): void {
   }
 }
 
-function describe(kind: EventKind): string {
+function describe(kind: EventKind, t: ReturnType<typeof useI18n>['t']): string {
   switch (kind) {
-    case 'down': return '节点离线'
-    case 'up': return '节点恢复在线'
-    case 'degraded': return '节点进入降级'
-    case 'recovered': return '节点恢复正常'
+    case 'down': return t('events.nodeOffline')
+    case 'up': return t('events.nodeOnline')
+    case 'degraded': return t('events.degraded')
+    case 'recovered': return t('events.recovered')
   }
 }
 
@@ -85,6 +86,7 @@ export function useRecentEvents(
   records: Record<string, KomariRecord>,
   options: UseRecentEventsOptions = {},
 ): NodeEvent[] {
+  const { t } = useI18n()
   const maxEvents = options.maxEvents ?? DEFAULT_MAX_EVENTS
   const retentionMs = options.retentionMs ?? DEFAULT_RETENTION_MS
   const [events, setEvents] = useState<NodeEvent[]>(() => loadEvents())
@@ -118,7 +120,7 @@ export function useRecentEvents(
           uuid: node.uuid,
           name,
           kind,
-          message: describe(kind),
+          message: describe(kind, t),
         })
       } else if (isOnline) {
         // Online both before and after — check degraded transition
@@ -129,7 +131,7 @@ export function useRecentEvents(
             uuid: node.uuid,
             name,
             kind,
-            message: describe(kind),
+            message: describe(kind, t),
           })
         }
       }
@@ -156,7 +158,10 @@ export function useRecentEvents(
     setEvents(merged)
     saveEvents(merged)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nodes, records, maxEvents, retentionMs])
+  }, [nodes, records, maxEvents, retentionMs, t])
 
-  return events
+  return events.map((event) => ({
+    ...event,
+    message: describe(event.kind, t),
+  }))
 }

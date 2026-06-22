@@ -11,6 +11,7 @@
 
 import { useMemo } from 'react'
 import type { KomariNode } from '@/types/komari'
+import { useI18n } from '@/i18n'
 
 export interface RegionSlice {
   /** Region name (e.g. "深圳", "香港", or "其他") */
@@ -35,8 +36,6 @@ const DEFAULT_PALETTE = [
 ]
 
 const OTHER_COLOR = '#807866'
-const UNASSIGNED_NAME = '未分配'
-
 export interface UseRegionDistributionOptions {
   /** Min fraction to keep as own slice (default 0.05 = 5%) */
   minRatio?: number
@@ -48,6 +47,7 @@ export function useRegionDistribution(
   nodes: KomariNode[],
   options: UseRegionDistributionOptions = {},
 ): RegionSlice[] {
+  const { t } = useI18n()
   const minRatio = options.minRatio ?? 0.05
   const palette = options.palette ?? DEFAULT_PALETTE
 
@@ -56,7 +56,7 @@ export function useRegionDistribution(
 
     const buckets: Record<string, number> = {}
     for (const n of nodes) {
-      const key = (n.region ?? '').trim() || UNASSIGNED_NAME
+      const key = (n.region ?? '').trim() || t('region.unassigned')
       buckets[key] = (buckets[key] ?? 0) + 1
     }
 
@@ -79,7 +79,7 @@ export function useRegionDistribution(
     if (small.length > 0) {
       const otherCount = small.reduce((s, e) => s + e.count, 0)
       slices.push({
-        name: '其他',
+        name: t('region.other'),
         count: otherCount,
         ratio: otherCount / total,
         color: OTHER_COLOR,
@@ -88,5 +88,5 @@ export function useRegionDistribution(
     }
 
     return slices
-  }, [nodes, minRatio, palette])
+  }, [nodes, minRatio, palette, t])
 }

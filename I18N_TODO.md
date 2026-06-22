@@ -8,7 +8,7 @@ Goal: add complete, high-quality `zh-CN` and `en-US` internationalization suppor
 - [x] 2. Add typed i18n foundations, locale detection, persisted language preference, formatters, and theme configuration defaults.
 - [x] 3. Localize the app shell and shared UI: navigation, topbar, footer, theme/version controls, error states, and the language switcher.
 - [x] 4. Localize core monitoring surfaces: overview dashboards, node lists, node cards/tables, node detail drawer/side panel, and status panels.
-- [ ] 5. Localize secondary surfaces and generated text: traffic, billing, hub, map app, visitor alert, recent events, regions, billing cycles, and summaries.
+- [x] 5. Localize secondary surfaces and generated text: traffic, billing, hub, map app, visitor alert, recent events, regions, billing cycles, and summaries.
 - [ ] 6. Run full QA, remove user-facing hardcoded leftovers where appropriate, update documentation, and verify builds.
 
 ## Acceptance Checks

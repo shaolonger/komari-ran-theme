@@ -30,7 +30,7 @@ import { nodeToCityLabel } from '@/utils/cities'
 import { applyFontScale, parseFontScale } from '@/utils/fontScale'
 import { setBpsUnitMode, parseBpsUnitMode } from '@/utils/format'
 import { type Theme } from '@/components/atoms/ThemePicker'
-import { useThemeDefaultLocale } from '@/i18n'
+import { useI18n, useThemeDefaultLocale } from '@/i18n'
 
 
 const THEME_KEY = 'ran.theme'
@@ -52,6 +52,7 @@ export default function MapApp() {
   const [theme, setTheme] = useState<Theme>(loadTheme)
   const drawer = useMobileDrawer()
   const isMobile = useIsMobile()
+  const { t } = useI18n()
   const { nodes, records, config, conn, lastUpdate } = useKomari()
   useThemeDefaultLocale(config?.theme_settings?.default_locale)
 
@@ -166,7 +167,10 @@ export default function MapApp() {
   }, [displayNodes, displayRecords])
 
   const siteName = (config?.theme_settings?.site_name as string | undefined) || config?.sitename || '岚 · Komari'
-  const subtitle = `${displayNodes.length} NODES · ${regionCount} REGIONS · GEO TRACKING`
+  const subtitle = t('pages.map.subtitle', {
+    nodes: displayNodes.length,
+    regions: regionCount,
+  })
 
   // embed 模式短路:只渲染地图本体,无 sidebar/topbar/footer/底部 stats。
   //   - hub:   Hub 卡片用,完整 WorldMapPro
@@ -214,7 +218,7 @@ export default function MapApp() {
               textAlign: 'center',
             }}
           >
-            DESKTOP RECOMMENDED · TAP TO OPEN
+            {t('common.desktopRecommended')} · {t('pages.map.tapToOpen')}
           </div>
         ) : (
           <WorldMapPro
@@ -273,7 +277,7 @@ export default function MapApp() {
           }}
         >
           <CardFrame
-            title="Global Fleet Map"
+            title={t('pages.map.title')}
             code="GEO · 01"
             action={
               <span
@@ -289,7 +293,7 @@ export default function MapApp() {
                 }}
               >
                 <span style={{ color: 'var(--accent-bright)' }}>{Icon.globe}</span>
-                {onlineCount}/{displayNodes.length} ACTIVE
+                {onlineCount}/{displayNodes.length} {t('common.online')}
               </span>
             }
           >
@@ -337,7 +341,7 @@ export default function MapApp() {
                     textTransform: 'uppercase',
                   }}
                 >
-                  DESKTOP RECOMMENDED
+                  {t('common.desktopRecommended')}
                 </div>
                 <div
                   style={{
@@ -347,8 +351,7 @@ export default function MapApp() {
                     lineHeight: 1.5,
                   }}
                 >
-                  地图视图针对桌面端拖拽与缩放优化。窄屏触控环境下节点密集会重叠,
-                  且滑动手势会与页面滚动冲突。建议在桌面端访问以获得完整体验。
+                  {t('pages.map.desktopHint')}
                 </div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
                   <a
@@ -367,7 +370,7 @@ export default function MapApp() {
                       boxShadow: 'inset 0 1px 0 var(--edge-bright)',
                     }}
                   >
-                    ← Back to Overview
+                    ← {t('nav.overview')}
                   </a>
                 </div>
                 <div
@@ -379,7 +382,7 @@ export default function MapApp() {
                     letterSpacing: '0.14em',
                   }}
                 >
-                  {onlineCount}/{displayNodes.length} ACTIVE · {regionCount} REGIONS · {cityCount} CITIES
+                  {onlineCount}/{displayNodes.length} {t('common.online')} · {regionCount} {t('common.regions')} · {cityCount} {t('common.cities')}
                 </div>
               </div>
             ) : (
@@ -401,7 +404,7 @@ export default function MapApp() {
               minWidth: 0,
             }}
           >
-            <CardFrame title="Fleet Stats" code="GEO · 02">
+            <CardFrame title={t('pages.map.fleetStats')} code="GEO · 02">
               <FleetStats
                 total={displayNodes.length}
                 online={onlineCount}
@@ -410,7 +413,7 @@ export default function MapApp() {
                 isoSet={isoSet}
               />
             </CardFrame>
-            <CardFrame title="Nodes by Region" code="GEO · 03">
+            <CardFrame title={t('pages.map.nodesByRegion')} code="GEO · 03">
               <NodesByRegion nodes={displayNodes} records={displayRecords} />
             </CardFrame>
           </div>
@@ -437,14 +440,15 @@ function FleetStats({
   cities: number
   isoSet: Set<string>
 }) {
+  const { t } = useI18n()
   const offline = total - online
   const onlinePct = total ? Math.round((online / total) * 100) : 0
   const items: Array<[string, string, string]> = [
-    ['NODES TOTAL', String(total), 'var(--fg-0)'],
-    ['ONLINE', `${online} · ${onlinePct}%`, 'var(--signal-good)'],
-    ['OFFLINE', String(offline), offline > 0 ? 'var(--signal-bad)' : 'var(--fg-3)'],
-    ['REGIONS', String(regions), 'var(--fg-0)'],
-    ['CITIES MAPPED', String(cities), 'var(--fg-0)'],
+    [`${t('common.nodes')} ${t('common.total')}`, String(total), 'var(--fg-0)'],
+    [t('common.online'), `${online} · ${onlinePct}%`, 'var(--signal-good)'],
+    [t('common.offline'), String(offline), offline > 0 ? 'var(--signal-bad)' : 'var(--fg-3)'],
+    [t('common.regions'), String(regions), 'var(--fg-0)'],
+    [t('common.cities'), String(cities), 'var(--fg-0)'],
     ['ISO COVERAGE', `${isoSet.size}`, 'var(--fg-0)'],
   ]
   return (

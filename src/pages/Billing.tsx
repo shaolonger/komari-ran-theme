@@ -26,6 +26,7 @@ import {
 } from '@/utils/billing'
 import { contentFs } from '@/utils/fontScale'
 import { type Theme } from '@/components/atoms/ThemePicker'
+import { useI18n } from '@/i18n'
 
 type Conn = 'connecting' | 'open' | 'closed' | 'error' | 'idle'
 type DisplayCode = 'USD' | 'CNY' | 'EUR' | 'GBP' | 'NATIVE'
@@ -56,7 +57,7 @@ const CURRENCY_OPTIONS: { value: DisplayCode; label: string }[] = [
   { value: 'CNY', label: 'CNY' },
   { value: 'EUR', label: 'EUR' },
   { value: 'GBP', label: 'GBP' },
-  { value: 'NATIVE', label: '原始' },
+  { value: 'NATIVE', label: 'Native' },
 ]
 
 /** Two-letter region prefix → continent label (rough; falls through to OTHER). */
@@ -127,6 +128,7 @@ export function BillingPage({
   config,
   hubTargetUuid,
 }: Props) {
+  const { t, locale } = useI18n()
   const drawer = useMobileDrawer()
   const [displayCode, setDisplayCode] = useState<DisplayCode>('USD')
   const { rates, fallback } = useExchangeRates()
@@ -135,7 +137,7 @@ export function BillingPage({
   const rows = useMemo<BillingRow[]>(() => {
     const list: BillingRow[] = []
     for (const node of nodes) {
-      const parsed = parseBilling(node)
+      const parsed = parseBilling(node, locale)
       if (!parsed) continue
       const record = records[node.uuid]
       const fromCode = symbolToCode(parsed.currency, parsed.monthly)
@@ -148,7 +150,7 @@ export function BillingPage({
       })
     }
     return list
-  }, [nodes, records])
+  }, [nodes, records, locale])
 
   // ALL aggregations happen AFTER currency conversion, per-row.
   // (Don't sum first then convert — would mix currencies.)
@@ -247,10 +249,13 @@ export function BillingPage({
   // Topbar subtitle
   const subtitle =
     rows.length === 0
-      ? `${nodes.length} PROBES · NO BILLING DATA`
+      ? `${nodes.length} ${t('common.nodes')} · ${t('billing.noData')}`
       : `${rows.length} SUBSCRIPTIONS · ${fmtMoney(totalMonthly, statCode)}/MO · NEXT ${
           byExpiry[0]?.parsed.daysLeft != null ? byExpiry[0].parsed.daysLeft + 'D' : '—'
         }`
+  const currencyOptions = CURRENCY_OPTIONS.map((option) =>
+    option.value === 'NATIVE' ? { ...option, label: t('billing.native') } : option,
+  )
 
   // Empty state — no priced nodes at all
   if (rows.length === 0) {
@@ -280,21 +285,21 @@ export function BillingPage({
                       records={records}
           />
           <main className="app-main" style={{ padding: 20, flex: 1 }}>
-            <CardFrame title="Billing & Renewal" code="B · 00">
+            <CardFrame title={t('billing.title')} code="B · 00">
               <div style={{ padding: '60px 20px', textAlign: 'center' }}>
-                <Etch size={11}>NO BILLING DATA</Etch>
+                <Etch size={11}>{t('billing.noData')}</Etch>
                 <div style={{ marginTop: 12, color: 'var(--fg-2)', fontSize: contentFs(12), lineHeight: 1.7 }}>
-                  在 Komari 节点设置里填入 <span style={{ color: 'var(--accent-bright)', fontFamily: 'var(--font-mono)' }}>price</span>
+                  {t('billing.noData')} · <span style={{ color: 'var(--accent-bright)', fontFamily: 'var(--font-mono)' }}>price</span>
                   {' / '}
                   <span style={{ color: 'var(--accent-bright)', fontFamily: 'var(--font-mono)' }}>billing_cycle</span>
                   {' / '}
                   <span style={{ color: 'var(--accent-bright)', fontFamily: 'var(--font-mono)' }}>currency</span>
                   {' / '}
                   <span style={{ color: 'var(--accent-bright)', fontFamily: 'var(--font-mono)' }}>expired_at</span>
-                  ,本页将自动汇总成本与续期。
+                  .
                 </div>
                 <div style={{ marginTop: 8, color: 'var(--fg-3)', fontSize: contentFs(11) }}>
-                  共扫描 {nodes.length} 个探针 · 0 个含订阅信息
+                  {nodes.length} {t('common.nodes')} · 0 {t('billing.noData')}
                 </div>
               </div>
             </CardFrame>
@@ -346,14 +351,14 @@ export function BillingPage({
             }}
           >
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
-              <Etch>DISPLAY · CURRENCY</Etch>
+              <Etch>{t('billing.displayCurrency')}</Etch>
               <SerialPlate>FX · 01</SerialPlate>
               <span style={{ fontSize: contentFs(10), color: 'var(--fg-3)', fontFamily: 'var(--font-mono)' }}>
-                {fallback ? '使用离线汇率表' : '汇率 · open.er-api.com'}
+                {fallback ? t('billing.exchangeFallback') : t('billing.exchangeLive')}
               </span>
             </div>
             <Segmented
-              options={CURRENCY_OPTIONS}
+              options={currencyOptions}
               value={displayCode}
               onChange={(v) => setDisplayCode(v as DisplayCode)}
             />
@@ -365,13 +370,13 @@ export function BillingPage({
               {
                 label: 'MONTHLY COST',
                 code: 'B01',
-                value: displayCode === 'NATIVE' ? '混合' : fmtMoney(totalMonthly, statCode),
+                value: displayCode === 'NATIVE' ? t('billing.mixed') : fmtMoney(totalMonthly, statCode),
                 unit: '/mo',
               },
               {
                 label: 'ANNUAL ESTIMATE',
                 code: 'B02',
-                value: displayCode === 'NATIVE' ? '混合' : fmtMoney(totalAnnual, statCode),
+                value: displayCode === 'NATIVE' ? t('billing.mixed') : fmtMoney(totalAnnual, statCode),
                 unit: '/yr',
               },
               {
@@ -383,7 +388,7 @@ export function BillingPage({
               {
                 label: 'AVG / NODE',
                 code: 'B04',
-                value: displayCode === 'NATIVE' ? '混合' : fmtMoney(avgPerNode, statCode),
+                value: displayCode === 'NATIVE' ? t('billing.mixed') : fmtMoney(avgPerNode, statCode),
                 unit: '/mo',
               },
             ]}
@@ -447,7 +452,7 @@ export function BillingPage({
                             letterSpacing: '0.06em',
                           }}
                         >
-                          {r.node.region || '—'} · 到期 {fmtExpiry(r.node.expired_at)}
+                          {r.node.region || '—'} · {t('billing.expires')} {fmtExpiry(r.node.expired_at)}
                         </span>
                       </div>
                       <span
@@ -629,7 +634,7 @@ export function BillingPage({
                         fontVariantNumeric: 'tabular-nums',
                       }}
                     >
-                      {r.parsed.free ? '免费' : fmtRow(m, r)}
+                      {r.parsed.free ? t('billing.free') : fmtRow(m, r)}
                     </span>
                     <span
                       style={{
@@ -693,14 +698,14 @@ export function BillingPage({
                 </span>
                 <span style={{ textAlign: 'right' }}>
                   <Numeric
-                    value={displayCode === 'NATIVE' ? '混合' : fmtMoney(totalMonthly, statCode)}
+                    value={displayCode === 'NATIVE' ? t('billing.mixed') : fmtMoney(totalMonthly, statCode)}
                     unit="/mo"
                     size={15}
                   />
                 </span>
                 <span style={{ textAlign: 'right' }}>
                   <Numeric
-                    value={displayCode === 'NATIVE' ? '混合' : fmtMoney(totalAnnual, statCode)}
+                    value={displayCode === 'NATIVE' ? t('billing.mixed') : fmtMoney(totalAnnual, statCode)}
                     unit="/yr"
                     size={15}
                     color="var(--accent-bright)"
@@ -735,7 +740,7 @@ export function BillingPage({
                   <Etch>12M AVG</Etch>
                   <div>
                     <Numeric
-                      value={displayCode === 'NATIVE' ? '混合' : fmtMoney(trendAvg, statCode)}
+                      value={displayCode === 'NATIVE' ? t('billing.mixed') : fmtMoney(trendAvg, statCode)}
                       unit="/mo"
                       size={13}
                     />
@@ -745,7 +750,7 @@ export function BillingPage({
                   <Etch>PEAK</Etch>
                   <div>
                     <Numeric
-                      value={displayCode === 'NATIVE' ? '混合' : fmtMoney(trendPeak, statCode)}
+                      value={displayCode === 'NATIVE' ? t('billing.mixed') : fmtMoney(trendPeak, statCode)}
                       unit="/mo"
                       size={13}
                     />
@@ -755,7 +760,7 @@ export function BillingPage({
                   <Etch>CURRENT</Etch>
                   <div>
                     <Numeric
-                      value={displayCode === 'NATIVE' ? '混合' : fmtMoney(totalMonthly, statCode)}
+                      value={displayCode === 'NATIVE' ? t('billing.mixed') : fmtMoney(totalMonthly, statCode)}
                       unit="/mo"
                       size={13}
                       color="var(--accent-bright)"
@@ -772,7 +777,7 @@ export function BillingPage({
                   letterSpacing: '0.06em',
                 }}
               >
-                ※ 由当前订阅状态倒推,反映承诺成本 · 非真实账单
+                ※ {t('billing.estimatedCostNote')}
               </div>
             </CardFrame>
 
@@ -812,7 +817,7 @@ export function BillingPage({
                         </span>
                         <span style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
                           <Numeric
-                            value={displayCode === 'NATIVE' ? '混合' : fmtMoney(cr.cost, statCode)}
+                            value={displayCode === 'NATIVE' ? t('billing.mixed') : fmtMoney(cr.cost, statCode)}
                             size={13}
                           />
                           <Etch>{pct.toFixed(1)}%</Etch>
@@ -860,6 +865,7 @@ interface DonutProps {
 
 /** SVG segmented donut — slice per row, sized by share of monthlyTotal. */
 function CostDonut({ rows, monthlyOf, totalMonthly, statCode, displayCode }: DonutProps) {
+  const { t } = useI18n()
   const size = 120
   const r = (size - 14) / 2
   const c = 2 * Math.PI * r
@@ -911,7 +917,7 @@ function CostDonut({ rows, monthlyOf, totalMonthly, statCode, displayCode }: Don
         }}
       >
         <Numeric
-          value={displayCode === 'NATIVE' ? '混合' : fmtMoney(totalMonthly, statCode)}
+          value={displayCode === 'NATIVE' ? t('billing.mixed') : fmtMoney(totalMonthly, statCode)}
           size={size * 0.16}
         />
         <Etch size={8}>MONTHLY</Etch>
@@ -1100,6 +1106,7 @@ interface TimelineBodyProps {
  * into the urgent tier so it gets visual weight.
  */
 function RenewalTimelineBody({ byExpiry, monthlyOf, fmtRow }: TimelineBodyProps) {
+  const { t } = useI18n()
   const urgent: BillingRow[] = []
   const warn: BillingRow[] = []
   const safe: BillingRow[] = []
@@ -1134,7 +1141,7 @@ function RenewalTimelineBody({ byExpiry, monthlyOf, fmtRow }: TimelineBodyProps)
       {warn.length > 0 && (
         <>
           <SectionHeader
-            label="临近 · ≤90 days"
+            label={`${t('billing.renewalSoon')} · ≤90 days`}
             count={warn.length}
             tone="warn"
             open
@@ -1155,7 +1162,7 @@ function RenewalTimelineBody({ byExpiry, monthlyOf, fmtRow }: TimelineBodyProps)
       {safe.length > 0 && (
         <>
           <SectionHeader
-            label="安全 · >90 days"
+            label={`${t('billing.renewalSafe')} · >90 days`}
             count={safe.length}
             tone="good"
             open={safeOpen}
@@ -1177,7 +1184,7 @@ function RenewalTimelineBody({ byExpiry, monthlyOf, fmtRow }: TimelineBodyProps)
       {noExpiry.length > 0 && (
         <>
           <SectionHeader
-            label="无到期信息"
+            label={t('common.unknown')}
             count={noExpiry.length}
             tone="good"
             open={noExpiryOpen}

@@ -4,6 +4,7 @@
  * and a per-month figure for cost aggregation.
  */
 import type { KomariNode } from '@/types/komari'
+import type { Locale } from '@/i18n'
 
 export interface ParsedBilling {
   /** Price in node's native currency, normalized to per-month */
@@ -26,7 +27,7 @@ export interface ParsedBilling {
  * Parse the billing fields off a node. Returns null if no priced subscription
  * (no price, or price === 0).
  */
-export function parseBilling(node: KomariNode): ParsedBilling | null {
+export function parseBilling(node: KomariNode, locale: Locale = 'zh-CN'): ParsedBilling | null {
   const price = Number(node.price)
   if (!Number.isFinite(price) || price === 0) return null
 
@@ -38,9 +39,9 @@ export function parseBilling(node: KomariNode): ParsedBilling | null {
   if (price === -1) {
     return {
       monthly: 0,
-      cycleStr: '免费',
+      cycleStr: locale === 'zh-CN' ? '免费' : 'Free',
       currency: '',
-      display: '免费',
+      display: locale === 'zh-CN' ? '免费' : 'Free',
       free: true,
       daysLeft,
       months: 0,
@@ -50,23 +51,23 @@ export function parseBilling(node: KomariNode): ParsedBilling | null {
   let cycleStr: string
   let months: number
   if (days <= 31) {
-    cycleStr = '/月'
+    cycleStr = locale === 'zh-CN' ? '/月' : '/mo'
     months = 1
   } else if (days <= 93) {
-    cycleStr = '/季'
+    cycleStr = locale === 'zh-CN' ? '/季' : '/quarter'
     months = 3
   } else if (days <= 186) {
-    cycleStr = '/半年'
+    cycleStr = locale === 'zh-CN' ? '/半年' : '/half-year'
     months = 6
   } else if (days <= 366) {
-    cycleStr = '/年'
+    cycleStr = locale === 'zh-CN' ? '/年' : '/yr'
     months = 12
   } else if (days <= 1096) {
-    cycleStr = '/三年'
+    cycleStr = locale === 'zh-CN' ? '/三年' : '/3yr'
     months = 36
   } else {
     const yrs = Math.max(1, Math.round(days / 365))
-    cycleStr = `/${yrs}年`
+    cycleStr = locale === 'zh-CN' ? `/${yrs}年` : `/${yrs}yr`
     months = yrs * 12
   }
 
