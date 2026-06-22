@@ -152,6 +152,105 @@ export async function fetchNodeLoadHistory(uuid: string, hours = 1): Promise<Loa
   }
 }
 
+export type TrafficRangePreset = 'today' | '3d' | '7d'
+export type TrafficRangeGroupBy = 'auto' | 'hour' | 'day' | 'none'
+export type TrafficQuality = 'exact' | 'estimated' | 'partial' | 'empty'
+
+export interface TrafficBucket {
+  time: string
+  up: number
+  down: number
+  total: number
+}
+
+export interface TrafficSummary {
+  up: number
+  down: number
+  total: number
+  avg_bps: number
+  peak_bps: number
+  nodes: number
+  samples: number
+  coverage: number
+  resets: number
+  estimated: boolean
+  quality: TrafficQuality
+}
+
+export interface TrafficNodeSummary {
+  uuid: string
+  name: string
+  region?: string
+  group?: string
+  up: number
+  down: number
+  total: number
+  avg_bps: number
+  peak_bps: number
+  samples: number
+  coverage: number
+  resets: number
+  estimated: boolean
+  quality: TrafficQuality
+  first_sample?: string
+  last_sample?: string
+  series?: TrafficBucket[]
+}
+
+export interface TrafficRangeResponse {
+  from: string
+  to: string
+  timezone: string
+  group_by: 'hour' | 'day' | 'none'
+  bucket_size_seconds: number
+  summary: TrafficSummary
+  nodes: TrafficNodeSummary[]
+  series?: TrafficBucket[]
+}
+
+export interface TrafficRangeParams {
+  preset?: TrafficRangePreset
+  from?: string | Date
+  to?: string | Date
+  uuids?: string[]
+  timezone?: string
+  groupBy?: TrafficRangeGroupBy
+  includeNodeSeries?: boolean
+}
+
+function formatTrafficTime(value: string | Date): string {
+  return value instanceof Date ? value.toISOString() : value
+}
+
+export function trafficTimezone(): string | undefined {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone
+  } catch {
+    return undefined
+  }
+}
+
+function trafficRangeQuery(params: TrafficRangeParams): string {
+  const qs = new URLSearchParams()
+  if (params.preset) qs.set('preset', params.preset)
+  if (params.from) qs.set('from', formatTrafficTime(params.from))
+  if (params.to) qs.set('to', formatTrafficTime(params.to))
+  if (params.uuids && params.uuids.length > 0) {
+    qs.set('uuids', params.uuids.join(','))
+  }
+  if (params.timezone) qs.set('timezone', params.timezone)
+  if (params.groupBy) qs.set('group_by', params.groupBy)
+  if (params.includeNodeSeries) qs.set('include_node_series', '1')
+  const query = qs.toString()
+  return query ? `?${query}` : ''
+}
+
+export async function fetchTrafficRange(
+  params: TrafficRangeParams = {},
+): Promise<TrafficRangeResponse> {
+  return getJson<TrafficRangeResponse>(`/api/traffic/range${trafficRangeQuery(params)}`)
+}
+
 export interface LiveSocket {
   close: () => void
 }
