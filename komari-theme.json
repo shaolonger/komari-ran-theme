@@ -31,6 +31,14 @@
         "help": "页面首次加载时的默认主题。liquid=暗色流体玻璃,liquid-light=浅色流体玻璃,night=墨石,mist=雾,ember=烬,sakura=樱,lavender=薰,tomcat=凤凰,teal=松石,midnight=午夜,mint=薄荷,butter=奶油,ji=霁。用户切换后浏览器会记住偏好。"
       },
       {
+        "key": "default_locale",
+        "name": "[ LANG ] 默认语言",
+        "type": "select",
+        "options": "auto,zh-CN,en-US",
+        "default": "auto",
+        "help": "页面首次加载时的默认语言。auto = 跟随浏览器(默认),zh-CN = 简体中文,en-US = English。用户在界面中手动切换后浏览器会记住偏好。"
+      },
+      {
         "key": "font_scale",
         "name": "[ SIZE ] 字体大小",
         "type": "select",

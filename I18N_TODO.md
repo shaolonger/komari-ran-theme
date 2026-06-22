@@ -5,7 +5,7 @@ Goal: add complete, high-quality `zh-CN` and `en-US` internationalization suppor
 ## Tasks
 
 - [x] 1. Create this tracked i18n implementation todo list.
-- [ ] 2. Add typed i18n foundations, locale detection, persisted language preference, formatters, and theme configuration defaults.
+- [x] 2. Add typed i18n foundations, locale detection, persisted language preference, formatters, and theme configuration defaults.
 - [ ] 3. Localize the app shell and shared UI: navigation, topbar, footer, theme/version controls, error states, and the language switcher.
 - [ ] 4. Localize core monitoring surfaces: overview dashboards, node lists, node cards/tables, node detail drawer/side panel, and status panels.
 - [ ] 5. Localize secondary surfaces and generated text: traffic, billing, hub, map app, visitor alert, recent events, regions, billing cycles, and summaries.

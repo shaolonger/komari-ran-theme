@@ -30,6 +30,7 @@ import { nodeToCityLabel } from '@/utils/cities'
 import { applyFontScale, parseFontScale } from '@/utils/fontScale'
 import { setBpsUnitMode, parseBpsUnitMode } from '@/utils/format'
 import { type Theme } from '@/components/atoms/ThemePicker'
+import { useThemeDefaultLocale } from '@/i18n'
 
 
 const THEME_KEY = 'ran.theme'
@@ -52,6 +53,7 @@ export default function MapApp() {
   const drawer = useMobileDrawer()
   const isMobile = useIsMobile()
   const { nodes, records, config, conn, lastUpdate } = useKomari()
+  useThemeDefaultLocale(config?.theme_settings?.default_locale)
 
   // embed 模式:被 iframe 嵌入时的精简渲染。
   //   ?embed=1                 — Hub 卡片用,完整 WorldMapPro

@@ -19,6 +19,7 @@ import { useRoute } from '@/router/route'
 import { applyFontScale, parseFontScale } from '@/utils/fontScale'
 import { applyUiScale, parseUiScale } from '@/utils/uiScale'
 import { setBpsUnitMode, parseBpsUnitMode } from '@/utils/format'
+import { useThemeDefaultLocale } from '@/i18n'
 
 const THEME_KEY = 'ran.theme'
 /** Set to '1' when the user has explicitly picked a theme via the ThemePicker. */
@@ -69,6 +70,7 @@ export default function App() {
   }
   const route = useRoute()
   const { nodes, records, config, conn, ping, lastUpdate } = useKomari()
+  useThemeDefaultLocale(config?.theme_settings?.default_locale)
 
   // View version (v1 classic vs v2 modern). Reads:
   //   1. user's localStorage preference (highest)
