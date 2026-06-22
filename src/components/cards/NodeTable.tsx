@@ -341,9 +341,9 @@ function NodeCardSlim({ node, record }: NodeCardSlimProps) {
                   fontWeight: expDays <= 30 ? 600 : 400,
                   fontVariantNumeric: 'tabular-nums',
                 }}
-                title="天数到期"
+                title={t('billing.expires')}
               >
-                · EXP {expDays}d
+                · {t('billing.expires').toUpperCase()} {expDays}d
               </span>
             )}
           </div>
@@ -372,6 +372,27 @@ interface SortBarProps {
  * chip again to flip direction.
  */
 function SortBar({ sortKey, sortDir, onSort }: SortBarProps) {
+  const { t } = useI18n()
+  const sortLabel = (key: SortKey) => {
+    switch (key) {
+      case 'default':
+        return t('common.default')
+      case 'name':
+        return t('common.node')
+      case 'region':
+        return t('common.region')
+      case 'mem':
+        return t('monitoring.labels.memory')
+      case 'load':
+        return t('monitoring.labels.loadAvg')
+      case 'net':
+        return t('monitoring.labels.network')
+      case 'expire':
+        return t('billing.expires')
+      default:
+        return key.toUpperCase()
+    }
+  }
   return (
     <div
       style={{
@@ -385,7 +406,7 @@ function SortBar({ sortKey, sortDir, onSort }: SortBarProps) {
         boxShadow: 'inset 0 1px 0 var(--edge-bright)',
       }}
     >
-      <Etch>SORT</Etch>
+      <Etch>{t('monitoring.labels.sort').toUpperCase()}</Etch>
       {SORT_OPTIONS.map((opt) => {
         const active = opt.key === sortKey
         return (
@@ -407,7 +428,7 @@ function SortBar({ sortKey, sortDir, onSort }: SortBarProps) {
               userSelect: 'none',
             }}
           >
-            {opt.label}
+            {sortLabel(opt.key)}
             {active ? (sortDir === 'asc' ? ' ▲' : ' ▼') : ''}
           </button>
         )

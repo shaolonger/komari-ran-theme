@@ -250,7 +250,7 @@ export function BillingPage({
   const subtitle =
     rows.length === 0
       ? `${nodes.length} ${t('common.nodes')} · ${t('billing.noData')}`
-      : `${rows.length} SUBSCRIPTIONS · ${fmtMoney(totalMonthly, statCode)}/MO · NEXT ${
+      : `${rows.length} ${t('billing.subscriptions').toUpperCase()} · ${fmtMoney(totalMonthly, statCode)}${t('billing.perMonth').toUpperCase()} · ${t('billing.next').toUpperCase()} ${
           byExpiry[0]?.parsed.daysLeft != null ? byExpiry[0].parsed.daysLeft + 'D' : '—'
         }`
   const currencyOptions = CURRENCY_OPTIONS.map((option) =>
@@ -368,44 +368,44 @@ export function BillingPage({
           <HeroStats
             stats={[
               {
-                label: 'MONTHLY COST',
+                label: t('billing.monthlyCost'),
                 code: 'B01',
                 value: displayCode === 'NATIVE' ? t('billing.mixed') : fmtMoney(totalMonthly, statCode),
-                unit: '/mo',
+                unit: t('billing.perMonth'),
               },
               {
-                label: 'ANNUAL ESTIMATE',
+                label: t('billing.annualEstimate'),
                 code: 'B02',
                 value: displayCode === 'NATIVE' ? t('billing.mixed') : fmtMoney(totalAnnual, statCode),
-                unit: '/yr',
+                unit: t('billing.perYear'),
               },
               {
-                label: 'EXPIRING · 30D',
+                label: t('billing.expiring30'),
                 code: 'B03',
                 value: String(expiring30.length),
                 unit: 'svr',
               },
               {
-                label: 'AVG / NODE',
+                label: t('billing.avgPerNode'),
                 code: 'B04',
                 value: displayCode === 'NATIVE' ? t('billing.mixed') : fmtMoney(avgPerNode, statCode),
-                unit: '/mo',
+                unit: t('billing.perMonth'),
               },
             ]}
           />
 
           {/* Renewal urgency rail */}
           <div className="billing-2col-renewal" style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: 16 }}>
-            <CardFrame title="Renewal Timeline" code="R · 01" action={<Etch>BY DAYS LEFT</Etch>}>
+            <CardFrame title={t('billing.renewalTimeline')} code="R · 01" action={<Etch>{t('billing.byDaysLeft').toUpperCase()}</Etch>}>
               <RenewalTimelineBody byExpiry={byExpiry} monthlyOf={monthlyOf} fmtRow={fmtRow} />
             </CardFrame>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <CardFrame title="Critical · ≤7 days" code="R · 02">
+              <CardFrame title={t('billing.criticalSoon')} code="R · 02">
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {critical.length === 0 && (
                     <div style={{ padding: '14px 4px' }}>
-                      <Etch>NO IMMEDIATE RENEWALS</Etch>
+                      <Etch>{t('billing.noImmediateRenewals').toUpperCase()}</Etch>
                     </div>
                   )}
                   {critical.map((r) => (
@@ -472,7 +472,7 @@ export function BillingPage({
                 </div>
               </CardFrame>
 
-              <CardFrame title="Cost Breakdown" code="R · 03">
+              <CardFrame title={t('billing.costBreakdown')} code="R · 03">
                 <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                   <CostDonut rows={byCost} monthlyOf={monthlyOf} totalMonthly={totalMonthly} statCode={statCode} displayCode={displayCode} />
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6, minWidth: 0 }}>
@@ -539,7 +539,7 @@ export function BillingPage({
           </div>
 
           {/* Detailed table */}
-          <CardFrame title="Subscriptions · Detailed" code="B · 11" inset>
+          <CardFrame title={`${t('billing.subscriptions')} · ${t('monitoring.actions.full')}`} code="B · 11" inset>
             <div style={{ overflow: 'auto' }}>
               <div
                 style={{
@@ -554,13 +554,13 @@ export function BillingPage({
                 }}
               >
                 <span></span>
-                <Etch>HOST</Etch>
-                <Etch>REGION</Etch>
-                <Etch>PROVIDER</Etch>
-                <Etch style={{ textAlign: 'right' }}>PRICE/MO</Etch>
-                <Etch style={{ textAlign: 'right' }}>YEARLY</Etch>
-                <Etch style={{ textAlign: 'center' }}>EXPIRES</Etch>
-                <Etch style={{ textAlign: 'right' }}>DAYS LEFT</Etch>
+                <Etch>{t('billing.host')}</Etch>
+                <Etch>{t('common.region')}</Etch>
+                <Etch>{t('billing.provider')}</Etch>
+                <Etch style={{ textAlign: 'right' }}>{t('billing.pricePerMonth')}</Etch>
+                <Etch style={{ textAlign: 'right' }}>{t('billing.yearly')}</Etch>
+                <Etch style={{ textAlign: 'center' }}>{t('billing.expires')}</Etch>
+                <Etch style={{ textAlign: 'right' }}>{t('billing.daysLeft')}</Etch>
               </div>
               {byExpiry.map((r) => {
                 const dl = r.parsed.daysLeft
@@ -719,7 +719,7 @@ export function BillingPage({
 
           {/* Bottom row: 12-month committed-cost trend + continent spend */}
           <div className="billing-2col-trend" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-            <CardFrame title="Cost Trend · 12M" code="T · 04" action={<Etch>COMMITTED</Etch>}>
+            <CardFrame title={`${t('billing.costTrend')} · 12M`} code="T · 04" action={<Etch>{t('billing.committed').toUpperCase()}</Etch>}>
               <BarChart
                 data={costTrend.map((p) => p.total)}
                 labels={costTrend.map((p) => p.label)}
@@ -737,31 +737,31 @@ export function BillingPage({
                 }}
               >
                 <div>
-                  <Etch>12M AVG</Etch>
+                  <Etch>{t('billing.monthAverage').toUpperCase()}</Etch>
                   <div>
                     <Numeric
                       value={displayCode === 'NATIVE' ? t('billing.mixed') : fmtMoney(trendAvg, statCode)}
-                      unit="/mo"
+                      unit={t('billing.perMonth')}
                       size={13}
                     />
                   </div>
                 </div>
                 <div>
-                  <Etch>PEAK</Etch>
+                  <Etch>{t('billing.peak').toUpperCase()}</Etch>
                   <div>
                     <Numeric
                       value={displayCode === 'NATIVE' ? t('billing.mixed') : fmtMoney(trendPeak, statCode)}
-                      unit="/mo"
+                      unit={t('billing.perMonth')}
                       size={13}
                     />
                   </div>
                 </div>
                 <div>
-                  <Etch>CURRENT</Etch>
+                  <Etch>{t('billing.current').toUpperCase()}</Etch>
                   <div>
                     <Numeric
                       value={displayCode === 'NATIVE' ? t('billing.mixed') : fmtMoney(totalMonthly, statCode)}
-                      unit="/mo"
+                      unit={t('billing.perMonth')}
                       size={13}
                       color="var(--accent-bright)"
                     />
@@ -781,7 +781,7 @@ export function BillingPage({
               </div>
             </CardFrame>
 
-            <CardFrame title="By Continent · Spend" code="T · 05">
+            <CardFrame title={t('billing.byContinentSpend')} code="T · 05">
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {continentRows.map((cr, i) => {
                   const pct = totalMonthly > 0 ? (cr.cost / totalMonthly) * 100 : 0
@@ -920,7 +920,7 @@ function CostDonut({ rows, monthlyOf, totalMonthly, statCode, displayCode }: Don
           value={displayCode === 'NATIVE' ? t('billing.mixed') : fmtMoney(totalMonthly, statCode)}
           size={size * 0.16}
         />
-        <Etch size={8}>MONTHLY</Etch>
+        <Etch size={8}>{t('billing.monthlyCost').toUpperCase()}</Etch>
       </div>
     </div>
   )

@@ -675,10 +675,10 @@ export function NodeDetailPage({
                   action={
                     <Etch>
                       {haveLoadHistory
-                        ? `${history.load.count} SAMPLES`
+                        ? `${history.load.count} ${t('monitoring.labels.samples').toUpperCase()}`
                         : history.loading
-                          ? 'LOADING'
-                          : 'NO DATA'}
+                          ? t('common.loading').toUpperCase()
+                          : t('common.empty').toUpperCase()}
                     </Etch>
                   }
                 >
@@ -697,7 +697,7 @@ export function NodeDetailPage({
                     />
                   </ChartOrEmpty>
                 </CardFrame>
-                <CardFrame title={`Memory · ${windowSpec.titleSuffix}`} code="C · 02">
+                <CardFrame title={`${t('monitoring.labels.memory')} · ${windowSpec.titleSuffix}`} code="C · 02">
                   <ChartOrEmpty empty={!haveLoadHistory}>
                     <AreaChart
                       data={memHist}
@@ -714,9 +714,9 @@ export function NodeDetailPage({
                   </ChartOrEmpty>
                 </CardFrame>
                 <CardFrame
-                  title={`Disk · ${windowSpec.titleSuffix}`}
+                  title={`${t('monitoring.labels.disk')} · ${windowSpec.titleSuffix}`}
                   code="C · 03"
-                  action={<Etch>USAGE %</Etch>}
+                  action={<Etch>{t('monitoring.labels.usage').toUpperCase()} %</Etch>}
                 >
                   <ChartOrEmpty empty={!haveLoadHistory}>
                     <AreaChart
@@ -734,7 +734,7 @@ export function NodeDetailPage({
                   </ChartOrEmpty>
                 </CardFrame>
                 <CardFrame
-                  title={`Network · ${windowSpec.titleSuffix}`}
+                  title={`${t('monitoring.labels.network')} · ${windowSpec.titleSuffix}`}
                   code="C · 04"
                   action={<Etch>↑ / ↓ BYTES/S</Etch>}
                 >
@@ -752,7 +752,7 @@ export function NodeDetailPage({
                   gap: 16,
                 }}
               >
-                <CardFrame title="Connections" code="P · 11" action={<Etch>BY KIND</Etch>}>
+                <CardFrame title={t('monitoring.labels.connections')} code="P · 11" action={<Etch>{t('monitoring.labels.byKind').toUpperCase()}</Etch>}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     {[
                       {
@@ -766,7 +766,7 @@ export function NodeDetailPage({
                         s: 'info',
                       },
                       {
-                        l: 'PROCESSES',
+                        l: t('monitoring.labels.processes').toUpperCase(),
                         v: record?.process != null ? record.process.toLocaleString() : '—',
                         s: (record?.process ?? 0) > 500 ? 'warn' : 'good',
                       },
@@ -796,7 +796,7 @@ export function NodeDetailPage({
                         alignItems: 'baseline',
                       }}
                     >
-                      <Etch>TOTAL</Etch>
+                      <Etch>{t('common.total').toUpperCase()}</Etch>
                       <Numeric
                         value={(
                           (record?.tcp ?? 0) +
@@ -808,7 +808,7 @@ export function NodeDetailPage({
                   </div>
                 </CardFrame>
 
-                <CardFrame title="Traffic" code="T · 11" action={<Etch>SINCE BOOT</Etch>}>
+                <CardFrame title={t('pages.traffic.title')} code="T · 11" action={<Etch>{t('monitoring.labels.sinceBoot').toUpperCase()}</Etch>}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                     <ConnRow
                       label="↑ TX"
@@ -827,7 +827,7 @@ export function NodeDetailPage({
                         alignItems: 'baseline',
                       }}
                     >
-                      <Etch>TOTAL</Etch>
+                      <Etch>{t('common.total').toUpperCase()}</Etch>
                       <Numeric
                         value={formatBytes(
                           (record?.network_total_up ?? 0) + (record?.network_total_down ?? 0),
@@ -838,7 +838,7 @@ export function NodeDetailPage({
                   </div>
                 </CardFrame>
 
-                <CardFrame title="Latency" code="L · 11">
+                <CardFrame title={t('monitoring.labels.latency')} code="L · 11">
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                     {(() => {
                       // Komari WS frame doesn't carry ping/loss — fall back to
@@ -859,11 +859,11 @@ export function NodeDetailPage({
                       return (
                         <>
                           <ConnRow
-                            label="LATENCY"
+                            label={t('monitoring.labels.latency').toUpperCase()}
                             value={online && latency != null ? `${Math.round(latency)} ms` : '—'}
                           />
                           <div style={{ borderTop: '1px solid var(--edge-engrave)' }} />
-                          <ConnRow label="PACKET LOSS" value={formatPercent(loss, 1)} />
+                          <ConnRow label={t('monitoring.labels.packetLoss').toUpperCase()} value={formatPercent(loss, 1)} />
                         </>
                       )
                     })()}
@@ -875,7 +875,7 @@ export function NodeDetailPage({
                         alignItems: 'baseline',
                       }}
                     >
-                      <Etch>UPTIME</Etch>
+                      <Etch>{t('monitoring.labels.uptime').toUpperCase()}</Etch>
                       <Numeric
                         value={online ? formatUptime(record?.uptime) : '—'}
                         size={14}

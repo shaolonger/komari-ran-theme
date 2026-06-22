@@ -15,6 +15,7 @@
 import { useMemo } from 'react'
 import type { KomariNode, KomariRecord } from '@/types/komari'
 import { daysUntil, resolveRamPercent } from '@/utils/format'
+import { useI18n, type Translator } from '@/i18n'
 
 export type AlertLevel = 'critical' | 'warning' | 'info'
 
@@ -50,18 +51,18 @@ interface AlertCandidate {
   score: number
 }
 
-function evalNode(node: KomariNode, record: KomariRecord | undefined): AlertCandidate | null {
+function evalNode(node: KomariNode, record: KomariRecord | undefined, t: Translator): AlertCandidate | null {
   // Offline = critical
   if (!record || !record.online) {
-    return { level: 'critical', title: '节点离线', detail: undefined, score: 100 }
+    return { level: 'critical', title: t('events.nodeOffline'), detail: undefined, score: 100 }
   }
 
   // High packet loss
   if (typeof record.loss === 'number' && record.loss > 20) {
     return {
       level: 'critical',
-      title: '高丢包率',
-      detail: `丢包 ${record.loss.toFixed(1)}%`,
+      title: t('events.highLoss'),
+      detail: `${t('monitoring.labels.packetLoss')} ${record.loss.toFixed(1)}%`,
       score: 90,
     }
   }
@@ -70,8 +71,8 @@ function evalNode(node: KomariNode, record: KomariRecord | undefined): AlertCand
   if (typeof record.ping === 'number' && record.ping > 500) {
     return {
       level: 'critical',
-      title: '高延迟',
-      detail: `延迟 ${Math.round(record.ping)}ms`,
+      title: t('events.highLatency'),
+      detail: `${t('monitoring.labels.latency')} ${Math.round(record.ping)}ms`,
       score: 85,
     }
   }
@@ -80,7 +81,7 @@ function evalNode(node: KomariNode, record: KomariRecord | undefined): AlertCand
   if (typeof record.cpu === 'number' && record.cpu > 95) {
     return {
       level: 'warning',
-      title: 'CPU 使用率高',
+      title: t('events.highCpu'),
       detail: `${Math.round(record.cpu)}%`,
       score: 60,
     }
@@ -91,7 +92,7 @@ function evalNode(node: KomariNode, record: KomariRecord | undefined): AlertCand
   if (typeof memPct === 'number' && memPct > 95) {
     return {
       level: 'warning',
-      title: '内存接近满载',
+      title: t('events.highMemory'),
       detail: `${Math.round(memPct)}%`,
       score: 55,
     }
@@ -101,7 +102,7 @@ function evalNode(node: KomariNode, record: KomariRecord | undefined): AlertCand
   if (typeof record.ping === 'number' && record.ping > 200) {
     return {
       level: 'warning',
-      title: '延迟升高',
+      title: t('events.highLatency'),
       detail: `${Math.round(record.ping)}ms`,
       score: 50,
     }
@@ -109,7 +110,7 @@ function evalNode(node: KomariNode, record: KomariRecord | undefined): AlertCand
   if (typeof record.loss === 'number' && record.loss > 5) {
     return {
       level: 'warning',
-      title: '丢包率偏高',
+      title: t('events.highLoss'),
       detail: `${record.loss.toFixed(1)}%`,
       score: 48,
     }
@@ -119,7 +120,7 @@ function evalNode(node: KomariNode, record: KomariRecord | undefined): AlertCand
   if (typeof record.load1 === 'number' && record.load1 > 4) {
     return {
       level: 'warning',
-      title: '负载偏高',
+      title: t('events.highLoad'),
       detail: `load ${record.load1.toFixed(2)}`,
       score: 40,
     }
@@ -131,16 +132,16 @@ function evalNode(node: KomariNode, record: KomariRecord | undefined): AlertCand
     if (days < 7) {
       return {
         level: 'warning',
-        title: '即将到期',
-        detail: `${days} 天`,
+        title: t('monitoring.labels.expiringSoon'),
+        detail: `${days}${t('units.dayShort')}`,
         score: 45,
       }
     }
     if (days < 30) {
       return {
         level: 'info',
-        title: '即将到期',
-        detail: `${days} 天`,
+        title: t('monitoring.labels.expiringSoon'),
+        detail: `${days}${t('units.dayShort')}`,
         score: 20,
       }
     }
@@ -158,6 +159,7 @@ export function useAlertSummary(
   records: Record<string, KomariRecord>,
   options: UseAlertSummaryOptions = {},
 ): AlertSummary {
+  const { t } = useI18n()
   const topN = options.topN ?? 5
 
   return useMemo(() => {
@@ -166,7 +168,7 @@ export function useAlertSummary(
 
     for (const node of nodes) {
       const r = records[node.uuid]
-      const c = evalNode(node, r)
+      const c = evalNode(node, r, t)
       if (!c) continue
 
       counts[c.level] += 1
@@ -194,5 +196,5 @@ export function useAlertSummary(
     }))
 
     return { counts, alerts }
-  }, [nodes, records, topN])
+  }, [nodes, records, topN, t])
 }

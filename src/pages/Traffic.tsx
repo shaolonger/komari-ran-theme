@@ -311,7 +311,7 @@ export function TrafficPage({
                 {t('pages.traffic.title')}
               </h2>
               <SerialPlate>NETWORK · WIDE</SerialPlate>
-              <Etch>SINCE BOOT · UPDATED LIVE</Etch>
+              <Etch>{t('monitoring.labels.sinceBoot').toUpperCase()} · {t('topbar.live').toUpperCase()}</Etch>
             </div>
           </div>
 
@@ -401,11 +401,11 @@ export function TrafficPage({
                   }}
                 >
                   <span className="traffic-col-rank">#</span>
-                  <span>NODE</span>
-                  <span className="traffic-col-region">REGION</span>
+                  <span>{t('common.node').toUpperCase()}</span>
+                  <span className="traffic-col-region">{t('common.region').toUpperCase()}</span>
                   <span style={{ textAlign: 'right' }}>↑ TX</span>
                   <span style={{ textAlign: 'right' }}>↓ RX</span>
-                  <span className="traffic-col-share">SHARE</span>
+                  <span className="traffic-col-share">{t('monitoring.labels.share').toUpperCase()}</span>
                 </div>
                 {topTalkers.map((t, i) => (
                   <a
@@ -614,7 +614,7 @@ function RegionDistribution({ traffic }: { traffic: NodeTraffic[] }) {
                 }}
               >
                 <SerialPlate>{r.region}</SerialPlate>
-                <Etch>{r.nodes} NODE{r.nodes === 1 ? '' : 'S'}</Etch>
+                <Etch>{r.nodes} {t('common.nodes').toUpperCase()}</Etch>
               </div>
               <Numeric value={formatBytes(r.total)} size={14} weight={500} />
             </div>

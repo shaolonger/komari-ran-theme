@@ -187,11 +187,11 @@ function NodeCardCompact_({ node, record, netSpark = [], pingSpark = [], pingLos
         <MetricCell
           label="CPU"
           percent={offline ? undefined : record?.cpu}
-          sub={cpuModel ?? `${node.cpu_cores ?? '—'} 核`}
+          sub={cpuModel ?? (node.cpu_cores != null ? t('monitoring.detail.cores', { count: node.cpu_cores }) : '—')}
           color="var(--signal-info)"
         />
         <MetricCell
-          label="内存"
+          label={t('monitoring.labels.memory')}
           percent={offline ? undefined : memPct}
           sub={
             offline
@@ -207,7 +207,7 @@ function NodeCardCompact_({ node, record, netSpark = [], pingSpark = [], pingLos
       {/* DISK + LOAD */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
         <MetricCell
-          label="磁盘"
+          label={t('monitoring.labels.disk')}
           percent={offline ? undefined : diskPct}
           sub={
             offline
@@ -290,7 +290,7 @@ function NodeCardCompact_({ node, record, netSpark = [], pingSpark = [], pingLos
             </span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <span style={{ fontSize: contentFs(11), color: 'var(--fg-2)', fontFamily: 'var(--font-mono)' }}>丢包率</span>
+            <span style={{ fontSize: contentFs(11), color: 'var(--fg-2)', fontFamily: 'var(--font-mono)' }}>{t('monitoring.labels.packetLoss')}</span>
             <span
               className="mono tnum"
               style={{
@@ -310,11 +310,11 @@ function NodeCardCompact_({ node, record, netSpark = [], pingSpark = [], pingLos
       {/* footer */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, fontSize: contentFs(11) }}>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <span style={{ color: 'var(--fg-2)', fontFamily: 'var(--font-mono)' }}>到期</span>
-          <span className="mono tnum" style={{ color: 'var(--fg-1)' }}>{days != null ? `${days} 天` : '—'}</span>
+          <span style={{ color: 'var(--fg-2)', fontFamily: 'var(--font-mono)' }}>{t('billing.expires')}</span>
+          <span className="mono tnum" style={{ color: 'var(--fg-1)' }}>{days != null ? `${days}${t('units.dayShort')}` : '—'}</span>
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <span style={{ color: 'var(--fg-2)', fontFamily: 'var(--font-mono)' }}>在线</span>
+          <span style={{ color: 'var(--fg-2)', fontFamily: 'var(--font-mono)' }}>{t('common.online')}</span>
           <span className="mono tnum" style={{ color: 'var(--accent-bright)' }}>{formatUptimeShort(record?.uptime)}</span>
         </div>
       </div>

@@ -24,6 +24,7 @@
 import { useMemo } from 'react'
 import type { KomariNode, KomariRecord } from '@/types/komari'
 import { daysUntil, resolveRamPercent } from '@/utils/format'
+import { useI18n, type Translator } from '@/i18n'
 
 export type AttentionSeverity = 'critical' | 'warning' | 'info'
 
@@ -57,7 +58,7 @@ function fmt(v: number, decimals = 1): string {
   return v.toFixed(decimals).replace(/\.?0+$/, '')
 }
 
-function scoreNode(node: KomariNode, record: KomariRecord | undefined): {
+function scoreNode(node: KomariNode, record: KomariRecord | undefined, t: Translator): {
   score: number
   reasons: string[]
 } {
@@ -65,53 +66,54 @@ function scoreNode(node: KomariNode, record: KomariRecord | undefined): {
 
   // Offline trumps everything else
   if (!record || !record.online) {
-    return { score: 100, reasons: ['离线'] }
+    return { score: 100, reasons: [t('common.offline')] }
   }
 
   // CPU
   if (typeof record.cpu === 'number') {
-    if (record.cpu > 95) hits.push({ score: 40, reason: `CPU 使用率高 (${fmt(record.cpu, 0)}%)` })
-    else if (record.cpu > 80) hits.push({ score: 20, reason: `CPU 偏高 (${fmt(record.cpu, 0)}%)` })
+    if (record.cpu > 95) hits.push({ score: 40, reason: `${t('events.highCpu')} (${fmt(record.cpu, 0)}%)` })
+    else if (record.cpu > 80) hits.push({ score: 20, reason: `${t('events.highCpu')} (${fmt(record.cpu, 0)}%)` })
   }
 
   // Memory
   const memPct = resolveRamPercent(record.memory_used, record.memory_total)
   if (typeof memPct === 'number') {
-    if (memPct > 95) hits.push({ score: 35, reason: `内存接近满载 (${fmt(memPct, 0)}%)` })
-    else if (memPct > 85) hits.push({ score: 18, reason: `内存偏高 (${fmt(memPct, 0)}%)` })
+    if (memPct > 95) hits.push({ score: 35, reason: `${t('events.highMemory')} (${fmt(memPct, 0)}%)` })
+    else if (memPct > 85) hits.push({ score: 18, reason: `${t('events.highMemory')} (${fmt(memPct, 0)}%)` })
   }
 
   // Load
   if (typeof record.load1 === 'number') {
-    if (record.load1 > 8) hits.push({ score: 30, reason: `负载过高 (load ${fmt(record.load1)})` })
-    else if (record.load1 > 4) hits.push({ score: 15, reason: `负载偏高 (load ${fmt(record.load1)})` })
+    if (record.load1 > 8) hits.push({ score: 30, reason: `${t('events.highLoad')} (load ${fmt(record.load1)})` })
+    else if (record.load1 > 4) hits.push({ score: 15, reason: `${t('events.highLoad')} (load ${fmt(record.load1)})` })
   }
 
   // Disk
   if (record.disk_used && record.disk_total && record.disk_total > 0) {
     const diskPct = (record.disk_used / record.disk_total) * 100
-    if (diskPct > 95) hits.push({ score: 25, reason: `磁盘接近满 (${fmt(diskPct, 0)}%)` })
-    else if (diskPct > 85) hits.push({ score: 12, reason: `磁盘偏满 (${fmt(diskPct, 0)}%)` })
+    if (diskPct > 95) hits.push({ score: 25, reason: `${t('events.highDisk')} (${fmt(diskPct, 0)}%)` })
+    else if (diskPct > 85) hits.push({ score: 12, reason: `${t('events.highDisk')} (${fmt(diskPct, 0)}%)` })
   }
 
   // Ping latency
   if (typeof record.ping === 'number' && record.ping > 0) {
-    if (record.ping > 500) hits.push({ score: 60, reason: `高延迟 (${fmt(record.ping, 0)}ms)` })
-    else if (record.ping > 200) hits.push({ score: 30, reason: `延迟偏高 (${fmt(record.ping, 0)}ms)` })
+    if (record.ping > 500) hits.push({ score: 60, reason: `${t('events.highLatency')} (${fmt(record.ping, 0)}ms)` })
+    else if (record.ping > 200) hits.push({ score: 30, reason: `${t('events.highLatency')} (${fmt(record.ping, 0)}ms)` })
   }
 
   // Packet loss (percent 0..100)
   if (typeof record.loss === 'number') {
-    if (record.loss > 20) hits.push({ score: 50, reason: `高丢包率 (${fmt(record.loss)}%)` })
-    else if (record.loss > 5) hits.push({ score: 25, reason: `丢包率偏高 (${fmt(record.loss)}%)` })
+    if (record.loss > 20) hits.push({ score: 50, reason: `${t('events.highLoss')} (${fmt(record.loss)}%)` })
+    else if (record.loss > 5) hits.push({ score: 25, reason: `${t('events.highLoss')} (${fmt(record.loss)}%)` })
   }
 
   // Expiry
   const days = daysUntil(node.expired_at)
   if (typeof days === 'number' && days >= 0) {
-    if (days < 3) hits.push({ score: 20, reason: `即将到期 (${days} 天)` })
-    else if (days < 7) hits.push({ score: 10, reason: `即将到期 (${days} 天)` })
-    else if (days < 14) hits.push({ score: 5, reason: `即将到期 (${days} 天)` })
+    const expiringReason = `${t('monitoring.labels.expiringSoon')} (${days}${t('units.dayShort')})`
+    if (days < 3) hits.push({ score: 20, reason: expiringReason })
+    else if (days < 7) hits.push({ score: 10, reason: expiringReason })
+    else if (days < 14) hits.push({ score: 5, reason: expiringReason })
   }
 
   // Sort reasons by severity (most severe first) for nicer display
@@ -133,6 +135,7 @@ export function useAttentionNeeded(
   records: Record<string, KomariRecord>,
   options: UseAttentionNeededOptions = {},
 ): AttentionItem[] {
+  const { t } = useI18n()
   const topN = options.topN ?? 5
 
   return useMemo(() => {
@@ -140,7 +143,7 @@ export function useAttentionNeeded(
 
     for (const node of nodes) {
       const record = records[node.uuid]
-      const { score, reasons } = scoreNode(node, record)
+      const { score, reasons } = scoreNode(node, record, t)
       if (score <= 0) continue
 
       items.push({
@@ -155,5 +158,5 @@ export function useAttentionNeeded(
 
     items.sort((a, b) => b.score - a.score)
     return items.slice(0, topN)
-  }, [nodes, records, topN])
+  }, [nodes, records, topN, t])
 }

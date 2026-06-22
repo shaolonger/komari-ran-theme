@@ -31,6 +31,7 @@ import type { KomariNode, KomariRecord } from '@/types/komari'
 import { nodeToLonLat, nodeToCityLabel } from '@/utils/cities'
 import { regionToISO } from '@/utils/region'
 import { Etch } from '@/components/atoms/Etch'
+import { useI18n } from '@/i18n'
 
 interface Props {
   nodes: KomariNode[]
@@ -71,6 +72,7 @@ function WorldMapPro_({
   width = 1000,
   height = 500,
 }: Props) {
+  const { t } = useI18n()
   // === 平移 / 缩放状态 ===
   const [zoom, setZoom] = useState(1)
   const [pan, setPan] = useState({ x: 0, y: 0 })
@@ -256,13 +258,13 @@ function WorldMapPro_({
       >
         <span>
           <span style={{ color: 'var(--accent-bright)' }}>● </span>
-          GEO TRACKING · GLOBAL FLEET
+          {t('pages.map.geoTracking').toUpperCase()} · {t('pages.map.globalFleet').toUpperCase()}
         </span>
         <span style={{ display: 'flex', gap: 16 }}>
-          <span>ZOOM · {zoom.toFixed(2)}×</span>
-          <span>PROJECTION · NATURAL EARTH</span>
+          <span>{t('pages.map.zoom').toUpperCase()} · {zoom.toFixed(2)}×</span>
+          <span>{t('pages.map.projection').toUpperCase()} · {t('pages.map.naturalEarth').toUpperCase()}</span>
           <span style={{ color: 'var(--accent-bright)' }}>
-            NODES · {plotted.length}/{nodes.length}
+            {t('common.nodes').toUpperCase()} · {plotted.length}/{nodes.length}
           </span>
         </span>
       </div>
@@ -482,14 +484,14 @@ function WorldMapPro_({
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 2, color: 'var(--fg-2)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
-              <span style={{ color: 'var(--fg-3)' }}>REGION</span>
+              <span style={{ color: 'var(--fg-3)' }}>{t('common.region').toUpperCase()}</span>
               <span>
                 {hovered.region ?? '—'} · {regionToISO(hovered.region) ?? '—'}
               </span>
             </div>
             {hovered.city && (
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
-                <span style={{ color: 'var(--fg-3)' }}>CITY</span>
+                <span style={{ color: 'var(--fg-3)' }}>{t('common.city').toUpperCase()}</span>
                 <span>{hovered.city}</span>
               </div>
             )}
@@ -564,7 +566,7 @@ function WorldMapPro_({
             zIndex: 2,
           }}
         >
-          <Etch>POINTER · LON {pointerLonLat[0].toFixed(2)} · LAT {pointerLonLat[1].toFixed(2)}</Etch>
+          <Etch>{t('pages.map.pointer').toUpperCase()} · LON {pointerLonLat[0].toFixed(2)} · LAT {pointerLonLat[1].toFixed(2)}</Etch>
         </div>
       )}
 

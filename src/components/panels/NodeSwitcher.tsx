@@ -4,6 +4,7 @@ import { StatusDot } from '@/components/atoms/StatusDot'
 import { Etch } from '@/components/atoms/Etch'
 import { hashFor, type Route } from '@/router/route'
 import { contentFs } from '@/utils/fontScale'
+import { useI18n } from '@/i18n'
 
 interface Props {
   /** Currently-displayed node — its name is the dropdown trigger label. */
@@ -33,6 +34,7 @@ export function NodeSwitcher({
   records,
   targetRoute = 'hub',
 }: Props) {
+  const { t } = useI18n()
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const wrapRef = useRef<HTMLDivElement | null>(null)
@@ -89,7 +91,7 @@ export function NodeSwitcher({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        title="点击切换节点"
+        title={t('monitoring.empty.selectNode')}
         style={{
           display: 'inline-flex',
           alignItems: 'center',
@@ -115,7 +117,7 @@ export function NodeSwitcher({
           if (!open) e.currentTarget.style.background = 'transparent'
         }}
       >
-        <span>{current.name ?? 'Unnamed'}</span>
+        <span>{current.name ?? t('common.unnamed')}</span>
         <span
           aria-hidden
           style={{
@@ -163,7 +165,7 @@ export function NodeSwitcher({
               ref={inputRef}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="搜索节点 / region / group"
+              placeholder={t('monitoring.filters.searchNodes')}
               style={{
                 width: '100%',
                 padding: '6px 10px',

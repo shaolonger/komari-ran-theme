@@ -29,6 +29,7 @@ import { useI18n } from '@/i18n'
 type Conn = 'connecting' | 'open' | 'closed' | 'error' | 'idle'
 type ViewMode = 'grid' | 'row'
 type Filter = 'all' | 'on' | 'warn' | 'off'
+const UNGROUPED_VALUE = '__ungrouped__'
 
 interface Props {
   nodes: KomariNode[]
@@ -68,7 +69,7 @@ export function OverviewPage({
   const [group, setGroup] = useState<string>('ALL')
 
   // Group options — derived from node.group field (user-defined grouping in Komari admin).
-  // Nodes without a group land in "未分组" so they're never invisible.
+  // Nodes without a group land in a stable sentinel so they're never invisible.
   const groupOptions = useMemo(() => {
     const seen = new Set<string>()
     let hasUngrouped = false
@@ -77,14 +78,14 @@ export function OverviewPage({
       else hasUngrouped = true
     }
     const groups = Array.from(seen).sort((a, b) => a.localeCompare(b))
-    if (hasUngrouped) groups.push('未分组')
+    if (hasUngrouped) groups.push(UNGROUPED_VALUE)
     // Only show the picker when there are at least two distinct groups.
     if (groups.length < 2) return null
     return [
       { value: 'ALL', label: t('common.all') },
       ...groups.map((g) => ({
         value: g,
-        label: g === '未分组' ? t('monitoring.filters.ungrouped') : g,
+        label: g === UNGROUPED_VALUE ? t('monitoring.filters.ungrouped') : g,
       })),
     ]
   }, [nodes, t])
@@ -178,7 +179,7 @@ export function OverviewPage({
       // Group filter
       if (group !== 'ALL') {
         const ng = (n.group ?? '').trim()
-        if (group === '未分组' ? ng !== '' : ng !== group) return false
+        if (group === UNGROUPED_VALUE ? ng !== '' : ng !== group) return false
       }
       // Status filter
       if (filter === 'all') return true

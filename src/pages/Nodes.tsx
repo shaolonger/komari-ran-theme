@@ -18,6 +18,7 @@ import { useI18n } from '@/i18n'
 
 type Conn = 'connecting' | 'open' | 'closed' | 'error' | 'idle'
 type Filter = 'all' | 'on' | 'warn' | 'off'
+const UNGROUPED_VALUE = '__ungrouped__'
 
 interface Props {
   nodes: KomariNode[]
@@ -76,13 +77,13 @@ export function NodesPage({
       else hasUngrouped = true
     }
     const groups = Array.from(seen).sort((a, b) => a.localeCompare(b))
-    if (hasUngrouped) groups.push('未分组')
+    if (hasUngrouped) groups.push(UNGROUPED_VALUE)
     if (groups.length < 2) return null
     return [
       { value: 'ALL', label: t('common.all') },
       ...groups.map((g) => ({
         value: g,
-        label: g === '未分组' ? t('monitoring.filters.ungrouped') : g,
+        label: g === UNGROUPED_VALUE ? t('monitoring.filters.ungrouped') : g,
       })),
     ]
   }, [nodes, t])
@@ -118,7 +119,7 @@ export function NodesPage({
       if (!nodeMatchesQuery(n, searchQuery)) return false
       if (group !== 'ALL') {
         const ng = (n.group ?? '').trim()
-        if (group === '未分组' ? ng !== '' : ng !== group) return false
+        if (group === UNGROUPED_VALUE ? ng !== '' : ng !== group) return false
       }
       const r = records[n.uuid]
       if (filter === 'all') return true
@@ -178,8 +179,8 @@ export function NodesPage({
 
   const subtitle = useMemo(() => {
     const regions = new Set(nodes.map((n) => n.region?.split('-')[0]).filter(Boolean))
-    return `${nodes.length} NODES · ${regions.size} REGIONS · TABLE VIEW`
-  }, [nodes])
+    return `${nodes.length} ${t('common.nodes').toUpperCase()} · ${regions.size} ${t('common.regions').toUpperCase()} · ${t('pages.nodes.title').toUpperCase()}`
+  }, [nodes, t])
 
   return (
     <div
@@ -234,7 +235,7 @@ export function NodesPage({
               </h2>
               <SerialPlate>{`SHOWN ${filtered.length}/${nodes.length}`}</SerialPlate>
               <Etch>
-                BY {sortKey.toUpperCase()} · {sortDir === 'asc' ? '▲' : '▼'}
+                {t('monitoring.labels.sort').toUpperCase()} {sortKey.toUpperCase()} · {sortDir === 'asc' ? '▲' : '▼'}
               </Etch>
             </div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>

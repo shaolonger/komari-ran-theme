@@ -116,9 +116,19 @@ Komari 后台 → 主题管理 → 岚 → 配置面板,支持以下后台开关
 
 | 配置项 | 选项 | 默认 | 说明 |
 |---|---|---|---|
+| `default_view` | `v2` / `v1` | `v2` | 首页和节点页默认页面版本。用户切换后浏览器记忆偏好 |
 | `default_theme` | `ran-liquid` / `ran-liquid-light` / legacy Ran themes | `ran-liquid` | 首次加载默认主题。Liquid 为默认暗色流体玻璃;用户切换后浏览器记忆偏好 |
+| `default_locale` | `auto` / `zh-CN` / `en-US` | `auto` | 首次加载默认语言。`auto` 跟随浏览器;用户在界面切换后浏览器记忆偏好 |
 | `font_scale` | `standard` / `large` / `xlarge` | `standard` | 字体大小三档,内容字按 1× / 1.18× / 1.36× 缩放;装饰字与布局尺寸不变 |
+| `ui_scale` | `normal` / `larger` / `large` / `xlarge` | `normal` | 整体 UI 缩放,字体、间距、卡片尺寸同步放大 |
+| `metrics_display` | `auto` / `gauge` / `numeric` | `auto` | 节点详情页指标显示形态。`auto` 桌面圆环、移动数字卡 |
 | `version_tag` | string | `v2.0.3` | 页脚显示的版本标识 |
+
+## 多语言 · i18n
+
+主题内置简体中文(`zh-CN`)和英文(`en-US`)两套界面文案。首次访问时默认遵循 `default_locale`:设为 `auto` 会跟随浏览器语言,也可在 Komari 主题设置中固定为中文或英文。
+
+界面右上角提供语言切换器。用户手动切换后会写入浏览器本地偏好,后续刷新、主入口 `index.html` 和独立地图入口 `map.html` 都会保持同一语言。日期、数字、相对时间、账单周期、状态标签和主要监控告警都已走统一 i18n/formatter 管线。
 
 ### ◇ HUD // 浮卡 + 流量
 

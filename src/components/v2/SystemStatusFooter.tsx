@@ -22,6 +22,7 @@
 import { useEffect, useState } from 'react'
 import { Etch } from '@/components/atoms/Etch'
 import { contentFs } from '@/utils/fontScale'
+import { useI18n } from '@/i18n'
 
 type Conn = 'connecting' | 'open' | 'closed' | 'error' | 'idle'
 type Status = 'operational' | 'degraded' | 'down'
@@ -37,18 +38,6 @@ const STATUS_COLOR: Record<Status, string> = {
   operational: 'var(--signal-good)',
   degraded: 'var(--signal-warn)',
   down: 'var(--signal-bad)',
-}
-
-const STATUS_LABEL: Record<Status, string> = {
-  operational: 'System Operational',
-  degraded: 'Degraded',
-  down: 'Disconnected',
-}
-
-const STATUS_SUB: Record<Status, string> = {
-  operational: 'All core services running',
-  degraded: 'Reconnecting…',
-  down: 'No live data',
 }
 
 function fmtClock(ms: number): string {
@@ -71,6 +60,7 @@ function fmtUtcOffset(): string {
 }
 
 export function SystemStatusFooter({ conn, lastUpdate }: Props) {
+  const { t } = useI18n()
   const [now, setNow] = useState(Date.now())
 
   // Tick every 5s for the clock
@@ -88,6 +78,18 @@ export function SystemStatusFooter({ conn, lastUpdate }: Props) {
         : 'down'
 
   const color = STATUS_COLOR[status]
+  const statusLabel =
+    status === 'operational'
+      ? t('common.online')
+      : status === 'degraded'
+        ? t('common.degraded')
+        : t('common.offline')
+  const statusSub =
+    status === 'operational'
+      ? t('common.healthy')
+      : status === 'degraded'
+        ? t('topbar.connecting')
+        : t('topbar.offline')
 
   return (
     <div
@@ -124,7 +126,7 @@ export function SystemStatusFooter({ conn, lastUpdate }: Props) {
             fontWeight: 500,
           }}
         >
-          {STATUS_LABEL[status]}
+          {statusLabel}
         </span>
       </div>
 
@@ -136,7 +138,7 @@ export function SystemStatusFooter({ conn, lastUpdate }: Props) {
           paddingLeft: 14,
         }}
       >
-        {STATUS_SUB[status]}
+        {statusSub}
       </div>
 
       <div
@@ -148,7 +150,7 @@ export function SystemStatusFooter({ conn, lastUpdate }: Props) {
           gap: 1,
         }}
       >
-        <Etch>Last updated</Etch>
+        <Etch>{t('topbar.lastUpdate')}</Etch>
         <span
           style={{
             fontSize: contentFs(10),
@@ -173,7 +175,7 @@ export function SystemStatusFooter({ conn, lastUpdate }: Props) {
         href="/admin"
         target="_blank"
         rel="noopener noreferrer"
-        title="Komari 后台 /admin"
+        title={t('nav.adminTitle')}
         style={{
           marginTop: 8,
           display: 'flex',
@@ -208,7 +210,7 @@ export function SystemStatusFooter({ conn, lastUpdate }: Props) {
           <span style={{ fontSize: 8, color: 'var(--accent)', letterSpacing: '0.2em', fontWeight: 700 }}>
             ◇
           </span>
-          <span style={{ fontWeight: 600 }}>ADMIN · SIGN IN</span>
+          <span style={{ fontWeight: 600 }}>{t('nav.adminSignIn').toUpperCase()}</span>
         </span>
         <span style={{ fontSize: contentFs(10), lineHeight: 1, color: 'var(--fg-3)', fontFamily: 'var(--font-sans)' }}>
           →
