@@ -18,13 +18,13 @@
 - [x] `todo-07` 改造节点卡片和节点列表核心组件，加入柔和玻璃表面、流动高光和更清晰的在线状态反馈。
 - [x] `todo-08` 改造详情/Traffic/Billing/Hub 的共享外壳和主要卡片，使多页面体验保持一致。
 - [x] `todo-09` 更新主题配置、README 说明和 preview/cover 相关文案，使发布包描述与新设计一致。
-- [ ] `todo-10` 完成构建、自审和最终 QA，记录剩余风险或后续增强项。
+- [x] `todo-10` 完成构建、自审和最终 QA，记录剩余风险或后续增强项。
 
 ## Acceptance Checklist
 
-- [ ] `npm run build` 通过。
-- [ ] 桌面宽屏下左侧边栏和顶部控制区呈现 Liquid Glass 风格。
-- [ ] 竖屏/窄屏下导航不会遮挡核心数据。
-- [ ] 动态背景不影响文字可读性。
-- [ ] `prefers-reduced-motion` 下禁用主要流动动画。
-- [ ] `prefers-contrast` 或禁用透明效果时仍能阅读核心指标。
+- [x] `npm run build` 通过。
+- [x] 桌面宽屏下左侧边栏和顶部控制区呈现 Liquid Glass 风格。
+- [x] 竖屏/窄屏下导航不会遮挡核心数据。
+- [x] 动态背景不影响文字可读性。
+- [x] `prefers-reduced-motion` 下禁用主要流动动画。
+- [x] `prefers-contrast` 或禁用透明效果时仍能阅读核心指标。
