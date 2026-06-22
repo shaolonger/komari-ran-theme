@@ -2,7 +2,7 @@
   "name": "Ran Liquid · 岚",
   "short": "ran-liquid",
   "description": "Liquid Glass 监控界面 · Siri 暗流光背景 · 横屏浮动边栏 · 动态玻璃卡片。保留 Ran 的高信息密度与 Komari 多页面能力。",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "author": "Miuler",
   "url": "https://github.com/saladinxp/komari-ran-theme",
   "preview": "preview.png",
@@ -82,7 +82,7 @@
         "key": "version_tag",
         "name": "[ SYS.VER ] 版本号",
         "type": "string",
-        "default": "v2.1.0",
+        "default": "v2.1.1",
         "help": "页脚显示的版本标识"
       },
       {
