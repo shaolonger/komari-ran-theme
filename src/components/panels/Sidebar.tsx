@@ -3,10 +3,11 @@ import { Etch } from '@/components/atoms/Etch'
 import { Icon } from '@/components/atoms/icons'
 import { useIsMobile } from '@/hooks/useMediaQuery'
 import { hashFor, type Route } from '@/router/route'
+import { useI18n, type MessageKey } from '@/i18n'
 
 interface NavItem {
   id: Route['name']
-  label: string
+  labelKey: MessageKey
   icon: ReactNode
   /** Pages that exist; others render as visible-but-disabled. */
   enabled: boolean
@@ -15,12 +16,12 @@ interface NavItem {
 }
 
 const NAV_BASE: Omit<NavItem, 'enabled' | 'uuidLink'>[] = [
-  { id: 'overview', label: 'Overview', icon: Icon.server },
-  { id: 'nodes', label: 'Nodes', icon: Icon.cpu },
-  { id: 'hub', label: 'Hub', icon: Icon.hub },
-  { id: 'traffic', label: 'Traffic', icon: Icon.net },
-  { id: 'billing', label: 'Billing', icon: Icon.settings },
-  { id: 'map', label: 'Geo Map', icon: Icon.globe },
+  { id: 'overview', labelKey: 'nav.overview', icon: Icon.server },
+  { id: 'nodes', labelKey: 'nav.nodes', icon: Icon.cpu },
+  { id: 'hub', labelKey: 'nav.hub', icon: Icon.hub },
+  { id: 'traffic', labelKey: 'nav.traffic', icon: Icon.net },
+  { id: 'billing', labelKey: 'nav.billing', icon: Icon.settings },
+  { id: 'map', labelKey: 'nav.map', icon: Icon.globe },
 ]
 
 interface Props {
@@ -60,6 +61,7 @@ export function Sidebar({
   onMobileClose,
 }: Props) {
   const isMobile = useIsMobile()
+  const { t } = useI18n()
 
   // Auto-close the drawer on route change. Hash-routes update the URL hash,
   // cross-page nav updates pathname; both should dismiss the drawer.
@@ -181,7 +183,7 @@ export function Sidebar({
         >
           <a
             href={crossPage ? './' : hashFor({ name: 'overview' })}
-            title="返回首页"
+            title={t('nav.homeTitle')}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -298,7 +300,7 @@ export function Sidebar({
                 >
                   {item.icon}
                 </span>
-                {item.label}
+                {t(item.labelKey)}
               </a>
             )
           })}
@@ -342,7 +344,7 @@ export function Sidebar({
               e.currentTarget.style.background = 'var(--liquid-surface-soft, var(--bg-1))'
               e.currentTarget.style.borderColor = 'var(--liquid-border, var(--edge-engrave))'
             }}
-            title="Komari 后台 /admin"
+            title={t('nav.adminTitle')}
           >
             <span style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
               {/* 小铭牌前缀 — 跟 OP-04A SerialPlate 视觉呼应 */}
@@ -356,7 +358,7 @@ export function Sidebar({
               >
                 ◇
               </span>
-              <span style={{ fontWeight: 600 }}>ADMIN · SIGN IN</span>
+              <span style={{ fontWeight: 600 }}>{t('nav.adminSignIn')}</span>
             </span>
             <span
               style={{

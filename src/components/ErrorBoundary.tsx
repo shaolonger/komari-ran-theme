@@ -1,4 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react'
+import { useI18n } from '@/i18n'
 
 interface Props {
   /** Where the error happened — appears in the fallback UI. */
@@ -14,6 +15,16 @@ interface State {
   err: Error | null
 }
 
+interface BoundaryCopy {
+  title: string
+  retry: string
+  home: string
+}
+
+interface InnerProps extends Props {
+  copy: BoundaryCopy
+}
+
 /**
  * ErrorBoundary — catches render-time exceptions in the subtree and shows
  * a styled fallback panel instead of leaving the user with a blank page.
@@ -25,7 +36,7 @@ interface State {
  * Reset behaviour: when `resetKey` changes (e.g. user navigates to a new
  * node uuid) we drop the error so the new subtree gets a fresh attempt.
  */
-export class ErrorBoundary extends Component<Props, State> {
+class ErrorBoundaryInner extends Component<InnerProps, State> {
   state: State = { err: null }
 
   static getDerivedStateFromError(err: Error): State {
@@ -86,7 +97,7 @@ export class ErrorBoundary extends Component<Props, State> {
               }}
             />
             <span style={{ fontWeight: 600, letterSpacing: '-0.01em' }}>
-              页面渲染出错
+              {this.props.copy.title}
             </span>
             <span
               style={{
@@ -143,7 +154,7 @@ export class ErrorBoundary extends Component<Props, State> {
                   fontSize: 12,
                 }}
               >
-                重试
+                {this.props.copy.retry}
               </button>
               <a
                 href="#/overview"
@@ -156,7 +167,7 @@ export class ErrorBoundary extends Component<Props, State> {
                   fontSize: 12,
                 }}
               >
-                返回首页
+                {this.props.copy.home}
               </a>
             </div>
           </div>
@@ -164,4 +175,18 @@ export class ErrorBoundary extends Component<Props, State> {
       </div>
     )
   }
+}
+
+export function ErrorBoundary(props: Props) {
+  const { t } = useI18n()
+  return (
+    <ErrorBoundaryInner
+      {...props}
+      copy={{
+        title: t('errorBoundary.title'),
+        retry: t('errorBoundary.retry'),
+        home: t('errorBoundary.home'),
+      }}
+    />
+  )
 }

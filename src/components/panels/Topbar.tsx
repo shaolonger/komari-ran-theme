@@ -3,6 +3,7 @@ import { Etch } from '@/components/atoms/Etch'
 import { StatusDot } from '@/components/atoms/StatusDot'
 import { ThemePicker } from '@/components/atoms/ThemePicker'
 import { ViewVersionSwitcher } from '@/components/atoms/ViewVersionSwitcher'
+import { LanguageSwitcher } from '@/components/atoms/LanguageSwitcher'
 import { Icon } from '@/components/atoms/icons'
 import { LiquidStatusChip } from '@/components/liquid/LiquidPrimitives'
 import { useIsMobile, useIsNarrow } from '@/hooks/useMediaQuery'
@@ -10,6 +11,7 @@ import { useSearchQuery, nodeMatchesQuery } from '@/hooks/useSearchQuery'
 import { contentFs } from '@/utils/fontScale'
 import type { KomariNode, KomariRecord } from '@/types/komari'
 import { type Theme } from '@/components/atoms/ThemePicker'
+import { useI18n } from '@/i18n'
 
 type Conn = 'connecting' | 'open' | 'closed' | 'error' | 'idle'
 
@@ -81,13 +83,20 @@ export function Topbar({
 }: Props) {
   const isMobile = useIsMobile()
   const isNarrow = useIsNarrow()
+  const { t, format } = useI18n()
   const connStatus =
     conn === 'open' ? 'good' : conn === 'connecting' ? 'info' : conn === 'error' ? 'bad' : 'idle'
   const connLabel =
-    conn === 'open' ? 'LIVE' : conn === 'connecting' ? 'CONNECTING' : conn === 'error' ? 'ERROR' : 'OFFLINE'
+    conn === 'open'
+      ? t('topbar.live')
+      : conn === 'connecting'
+        ? t('topbar.connecting')
+        : conn === 'error'
+          ? t('topbar.error')
+          : t('topbar.offline')
 
   // Tick once per second so the "Xs ago" badge stays current.
-  const [now, setNow] = useState(() => Date.now())
+  const [, setNow] = useState(() => Date.now())
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000)
     return () => clearInterval(t)
@@ -95,8 +104,7 @@ export function Topbar({
 
   let agoLabel: string | null = null
   if (lastUpdate && conn === 'open') {
-    const sec = Math.max(0, Math.round((now - lastUpdate) / 1000))
-    agoLabel = sec < 2 ? 'JUST NOW' : `${sec}s ago`
+    agoLabel = format.relativeFromNow(lastUpdate)
   }
 
   // ────────── Search wiring ──────────
@@ -227,7 +235,7 @@ export function Topbar({
         {showHamburger && (
           <button
             onClick={onMobileMenu}
-            aria-label="Open navigation menu"
+            aria-label={t('topbar.openNavigationMenu')}
               style={{
                 flexShrink: 0,
                 width: 34,
@@ -273,7 +281,7 @@ export function Topbar({
             <LiquidStatusChip tone={connStatus}>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
                 <StatusDot status={connStatus} size={5} pulse={conn === 'open'} />
-                {online}/{total} · {connLabel}
+                {t('topbar.onlineRatio', { online, total })} · {connLabel}
               </span>
             </LiquidStatusChip>
             {agoLabel && !isNarrow && (
@@ -310,7 +318,8 @@ export function Topbar({
                   return next
                 })
               }}
-              aria-label="Search nodes"
+              aria-label={t('topbar.searchPlaceholder')}
+              title={t('topbar.searchPlaceholder')}
               style={{
                 width: 34,
                 height: 34,
@@ -379,7 +388,7 @@ export function Topbar({
                     setTimeout(() => setFocused(false), 120)
                   }}
                   onKeyDown={onInputKeyDown}
-                  placeholder="SEARCH NODES"
+                  placeholder={t('topbar.searchPlaceholder')}
                   spellCheck={false}
                   autoComplete="off"
                   style={{
@@ -403,7 +412,7 @@ export function Topbar({
                       setQuery('')
                       desktopInputRef.current?.focus()
                     }}
-                    aria-label="Clear search"
+                    aria-label={t('topbar.clearSearch')}
                     style={{
                       width: 14,
                       height: 14,
@@ -442,11 +451,16 @@ export function Topbar({
                 <SearchDropdown
                   suggestions={suggestions}
                   records={records}
-                  activeIdx={activeIdx}
-                  onPick={(uuid) => jumpToNode(uuid)}
-                  onHover={(idx) => setActiveIdx(idx)}
-                  query={query}
-                />
+                activeIdx={activeIdx}
+                onPick={(uuid) => jumpToNode(uuid)}
+                onHover={(idx) => setActiveIdx(idx)}
+                query={query}
+                resultsLabel={t('topbar.results')}
+                jumpLabel={t('topbar.jump')}
+                escClearLabel={t('topbar.escClear')}
+                emptyLabel={t('topbar.noMatchFor', { query })}
+                unnamedLabel={t('common.unnamed')}
+              />
               )}
             </div>
           )
@@ -459,6 +473,7 @@ export function Topbar({
           />
         )}
         <ThemePicker value={theme} onChange={(v) => onTheme(v)} />
+        <LanguageSwitcher />
       </div>
 
       {/* Mobile search panel — full-width drop-down below the header. */}
@@ -502,7 +517,7 @@ export function Topbar({
               onFocus={() => setFocused(true)}
               onBlur={() => setTimeout(() => setFocused(false), 120)}
               onKeyDown={onInputKeyDown}
-              placeholder="SEARCH NODES"
+              placeholder={t('topbar.searchPlaceholder')}
               spellCheck={false}
               autoComplete="off"
               style={{
@@ -525,7 +540,7 @@ export function Topbar({
                   setQuery('')
                   mobileInputRef.current?.focus()
                 }}
-                aria-label="Clear search"
+                aria-label={t('topbar.clearSearch')}
                 style={{
                   width: 16,
                   height: 16,
@@ -553,6 +568,11 @@ export function Topbar({
                 onPick={(uuid) => jumpToNode(uuid)}
                 onHover={(idx) => setActiveIdx(idx)}
                 query={query}
+                resultsLabel={t('topbar.results')}
+                jumpLabel={t('topbar.jump')}
+                escClearLabel={t('topbar.escClear')}
+                emptyLabel={t('topbar.noMatchFor', { query })}
+                unnamedLabel={t('common.unnamed')}
                 inline
               />
             </div>
@@ -572,11 +592,29 @@ interface DropdownProps {
   onPick: (uuid: string) => void
   onHover: (idx: number) => void
   query: string
+  resultsLabel: string
+  jumpLabel: string
+  escClearLabel: string
+  emptyLabel: string
+  unnamedLabel: string
   /** When true, render in flow (mobile) instead of absolute-positioned. */
   inline?: boolean
 }
 
-function SearchDropdown({ suggestions, records, activeIdx, onPick, onHover, query, inline }: DropdownProps) {
+function SearchDropdown({
+  suggestions,
+  records,
+  activeIdx,
+  onPick,
+  onHover,
+  query,
+  resultsLabel,
+  jumpLabel,
+  escClearLabel,
+  emptyLabel,
+  unnamedLabel,
+  inline,
+}: DropdownProps) {
   const empty = suggestions.length === 0
   return (
     <div
@@ -613,8 +651,8 @@ function SearchDropdown({ suggestions, records, activeIdx, onPick, onHover, quer
           alignItems: 'center',
         }}
       >
-        <span>RESULTS · {suggestions.length}</span>
-        <span style={{ opacity: 0.7 }}>↵ JUMP · ESC CLEAR</span>
+        <span>{resultsLabel} · {suggestions.length}</span>
+        <span style={{ opacity: 0.7 }}>↵ {jumpLabel} · {escClearLabel}</span>
       </div>
 
       {empty ? (
@@ -628,7 +666,7 @@ function SearchDropdown({ suggestions, records, activeIdx, onPick, onHover, quer
             letterSpacing: '0.08em',
           }}
         >
-          NO MATCH FOR "{query.toUpperCase()}"
+          {emptyLabel}
         </div>
       ) : (
         <ul style={{ margin: 0, padding: 0, listStyle: 'none', maxHeight: 360, overflowY: 'auto' }}>
@@ -670,7 +708,7 @@ function SearchDropdown({ suggestions, records, activeIdx, onPick, onHover, quer
                       textOverflow: 'ellipsis',
                     }}
                   >
-                    {highlightMatch(n.name ?? '(unnamed)', query)}
+                    {highlightMatch(n.name ?? unnamedLabel, query)}
                   </div>
                   <div
                     style={{

@@ -1,4 +1,5 @@
 import type { KomariPublicConfig } from '@/types/komari'
+import { useI18n } from '@/i18n'
 
 /**
  * Footer — shared across all pages.
@@ -39,7 +40,7 @@ function readStr(obj: Record<string, unknown> | undefined, key: string): string 
 }
 
 /** Render a beian entry: link if url is given, plain text otherwise. */
-function BeianEntry({ text, url }: { text: string; url: string }) {
+function BeianEntry({ text, url, title }: { text: string; url: string; title: string }) {
   if (!text) return null
   if (url) {
     return (
@@ -48,7 +49,7 @@ function BeianEntry({ text, url }: { text: string; url: string }) {
         target="_blank"
         rel="noopener noreferrer"
         style={linkStyle}
-        title="点击查看备案信息"
+        title={title}
       >
         {text}
       </a>
@@ -58,12 +59,13 @@ function BeianEntry({ text, url }: { text: string; url: string }) {
 }
 
 export function Footer({ version = 'v2.0.3', config }: FooterProps) {
+  const { t } = useI18n()
   const ts = config?.theme_settings
   const icpText = readStr(ts, 'icp_text')
   const icpUrl = readStr(ts, 'icp_url')
   const policeText = readStr(ts, 'police_text')
   const policeUrl = readStr(ts, 'police_url')
-  const text = readStr(ts, 'footer_text') || config?.footer_text || 'POWERED BY KOMARI'
+  const text = readStr(ts, 'footer_text') || config?.footer_text || t('footer.poweredBy')
 
   const hasBeian = !!icpText || !!policeText
 
@@ -87,23 +89,23 @@ export function Footer({ version = 'v2.0.3', config }: FooterProps) {
       }}
     >
       <span style={{ display: 'inline-flex', alignItems: 'center', flexWrap: 'wrap' }}>
-        <span>岚 · KOMARI PROBE THEME · {version}</span>
+        <span>{t('footer.themeLine', { version })}</span>
         <span style={sepStyle}>·</span>
         <a
           href={REPO_URL}
           target="_blank"
           rel="noopener noreferrer"
           style={linkStyle}
-          title="作者 Miuler · GitHub 仓库 · 开源主题,欢迎下载使用"
+          title={t('footer.sourceTitle')}
         >
           MIULER
         </a>
         {text && <span style={sepStyle}>·</span>}
         {text && <span>{text}</span>}
         {hasBeian && <span style={sepStyle}>·</span>}
-        {icpText && <BeianEntry text={icpText} url={icpUrl} />}
+        {icpText && <BeianEntry text={icpText} url={icpUrl} title={t('footer.beianTitle')} />}
         {icpText && policeText && <span style={sepStyle}>·</span>}
-        {policeText && <BeianEntry text={policeText} url={policeUrl} />}
+        {policeText && <BeianEntry text={policeText} url={policeUrl} title={t('footer.beianTitle')} />}
       </span>
     </footer>
   )

@@ -19,6 +19,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { contentFs } from '@/utils/fontScale'
 import { Etch } from '@/components/atoms/Etch'
+import { useI18n } from '@/i18n'
 
 export type ViewVersion = 'v1' | 'v2'
 
@@ -107,20 +108,21 @@ export function ViewVersionSwitcher({
   onChange,
   size = 'sm',
 }: SwitcherProps) {
+  const { t } = useI18n()
   const fontSize = size === 'sm' ? 9 : 10
   const padX = size === 'sm' ? 7 : 9
   const padY = size === 'sm' ? 3 : 4
 
   return (
     <div
-      title={`Layout: ${value === 'v2' ? 'Modern dashboard' : 'Classic grid'}`}
+      title={`${t('viewVersion.label')}: ${value === 'v2' ? t('viewVersion.v2Description') : t('viewVersion.v1Description')}`}
       style={{
         display: 'inline-flex',
         alignItems: 'center',
         gap: 5,
       }}
     >
-      <Etch>LAYOUT</Etch>
+      <Etch>{t('viewVersion.label')}</Etch>
       <div
         style={{
           display: 'inline-flex',

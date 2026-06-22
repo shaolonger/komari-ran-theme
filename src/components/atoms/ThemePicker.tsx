@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useI18n, type MessageKey } from '@/i18n'
 
 export type Theme =
   | 'ran-liquid'
@@ -130,8 +131,10 @@ const THEMES: ThemeOption[] = [
 export function ThemePicker({ value, onChange }: Props) {
   const [open, setOpen] = useState(false)
   const wrapRef = useRef<HTMLDivElement>(null)
+  const { t, locale } = useI18n()
 
   const current = THEMES.find((t) => t.value === value) ?? THEMES[0]
+  const currentLabel = t(`theme.themes.${current.value}` as MessageKey)
 
   // Click-outside to close.
   useEffect(() => {
@@ -160,7 +163,8 @@ export function ThemePicker({ value, onChange }: Props) {
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        aria-label="切换主题"
+        aria-label={t('theme.pickerLabel')}
+        title={`${t('theme.currentTheme')}: ${currentLabel}`}
         style={{
           display: 'inline-flex',
           alignItems: 'center',
@@ -192,7 +196,7 @@ export function ThemePicker({ value, onChange }: Props) {
             flexShrink: 0,
           }}
         />
-        <span>{current.name}</span>
+        <span>{locale === 'zh-CN' ? current.name : currentLabel}</span>
         <span
           aria-hidden="true"
           style={{
@@ -211,7 +215,7 @@ export function ThemePicker({ value, onChange }: Props) {
       {open && (
         <div
           role="listbox"
-          aria-label="主题选择"
+          aria-label={t('theme.pickerLabel')}
           style={{
             position: 'absolute',
             top: 'calc(100% + 6px)',
@@ -228,6 +232,7 @@ export function ThemePicker({ value, onChange }: Props) {
         >
           {THEMES.map((opt) => {
             const active = opt.value === value
+            const optLabel = t(`theme.themes.${opt.value}` as MessageKey)
             return (
               <button
                 key={opt.value}
@@ -298,7 +303,7 @@ export function ThemePicker({ value, onChange }: Props) {
                       color: active ? 'var(--fg-0)' : 'var(--fg-1)',
                     }}
                   >
-                    {opt.name}
+                    {locale === 'zh-CN' ? opt.name : optLabel}
                   </span>
                   <span
                     style={{
@@ -307,7 +312,7 @@ export function ThemePicker({ value, onChange }: Props) {
                       color: 'var(--fg-2)',
                     }}
                   >
-                    {opt.zh}
+                    {locale === 'zh-CN' ? opt.zh : opt.name}
                   </span>
                 </span>
               </button>
