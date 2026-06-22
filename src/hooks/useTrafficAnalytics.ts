@@ -89,8 +89,13 @@ export function useTrafficAnalytics(options: UseTrafficAnalyticsOptions): UseTra
 
   useEffect(() => {
     if (!enabled) {
-      setState({ data: emptyTrafficRange(params), loading: false })
-      return
+      let cancelled = false
+      queueMicrotask(() => {
+        if (!cancelled) setState({ data: emptyTrafficRange(params), loading: false })
+      })
+      return () => {
+        cancelled = true
+      }
     }
 
     let cancelled = false
