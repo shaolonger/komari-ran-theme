@@ -9,7 +9,7 @@
 - [x] 3. Add backend unit/API tests for traffic delta calculation, counter resets, selected-node filtering, and public hidden-node visibility.
 - [x] 4. Add theme API types and a traffic analytics hook with graceful fallback/error states.
 - [x] 5. Rebuild the `/traffic` page around range presets, custom date range, all/single/multi-node comparison, summary cards, trend charts, and sortable per-node analytics.
-- [ ] 6. Add i18n copy and responsive polish for the new traffic analytics workflow.
+- [x] 6. Add i18n copy and responsive polish for the new traffic analytics workflow.
 - [ ] 7. Run final cross-repo verification, review the implementation, and mark all tasks complete.
 
 ## Implementation Notes
