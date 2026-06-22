@@ -104,20 +104,23 @@ export function Sidebar({
   // sticky-rail layout — same visual, just placement changes.
   const asideStyle: React.CSSProperties = isMobile
     ? {
-        width: 240,
-        background: 'var(--bg-1)',
-        borderRight: '1px solid var(--edge-mid)',
+        width: 268,
+        background: 'var(--liquid-surface-strong, var(--bg-1))',
+        border: '1px solid var(--liquid-border, var(--edge-mid))',
+        borderRadius: '0 var(--liquid-radius-lg, 24px) var(--liquid-radius-lg, 24px) 0',
         display: 'flex',
         flexDirection: 'column',
         position: 'fixed',
-        top: 0,
-        bottom: 0,
+        top: 10,
+        bottom: 10,
         left: 0,
         zIndex: 51,
         transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)',
         transition: 'transform 220ms cubic-bezier(0.32, 0.72, 0, 1)',
-        boxShadow: mobileOpen ? '4px 0 24px rgba(0,0,0,0.28)' : 'none',
+        boxShadow: mobileOpen ? 'var(--liquid-shadow, 4px 0 24px rgba(0,0,0,0.28))' : 'none',
         overflowY: 'auto',
+        backdropFilter: 'var(--liquid-blur, none)',
+        WebkitBackdropFilter: 'var(--liquid-blur, none)',
         // Disable pointer events when offscreen so it can't accidentally
         // intercept touch on the underlying main content.
         pointerEvents: mobileOpen ? 'auto' : 'none',
@@ -125,17 +128,22 @@ export function Sidebar({
         paddingLeft: 'env(safe-area-inset-left)',
       }
     : {
-        width: 200,
-        background: 'var(--bg-1)',
-        borderRight: '1px solid var(--edge-mid)',
+        width: 220,
+        margin: '12px 0 12px 12px',
+        background: 'var(--liquid-surface-strong, var(--bg-1))',
+        border: '1px solid var(--liquid-border, var(--edge-mid))',
+        borderRadius: 'var(--liquid-radius-lg, var(--radius-lg))',
+        boxShadow: 'var(--liquid-shadow, none)',
         display: 'flex',
         flexDirection: 'column',
         flexShrink: 0,
         position: 'sticky',
-        top: 0,
-        height: '100vh',
+        top: 12,
+        height: 'calc(100vh - 24px)',
         alignSelf: 'flex-start',
         overflowY: 'auto',
+        backdropFilter: 'var(--liquid-blur, none)',
+        WebkitBackdropFilter: 'var(--liquid-blur, none)',
       }
 
   return (
@@ -165,7 +173,7 @@ export function Sidebar({
         <div
           style={{
             padding: '14px 16px 12px',
-            borderBottom: '1px solid var(--edge-engrave)',
+            borderBottom: '1px solid var(--liquid-border, var(--edge-engrave))',
             display: 'flex',
             flexDirection: 'column',
             gap: 6,
@@ -187,24 +195,24 @@ export function Sidebar({
               style={{
                 width: 22,
                 height: 22,
-                background: 'linear-gradient(135deg, var(--accent-bright), var(--accent-dim))',
-                borderRadius: 4,
-                border: '1px solid var(--edge-deep)',
-                boxShadow: '0 1px 0 var(--edge-bright) inset, 0 -1px 0 var(--edge-deep) inset',
+                background: 'radial-gradient(circle at 30% 20%, var(--accent-bright), var(--accent) 48%, var(--accent-dim))',
+                borderRadius: 10,
+                border: '1px solid var(--liquid-border, var(--edge-deep))',
+                boxShadow: '0 10px 26px color-mix(in srgb, var(--accent) 24%, transparent), 0 1px 0 var(--edge-bright) inset',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontFamily: 'var(--font-mono)',
                 fontWeight: 700,
                 fontSize: 11,
-                color: '#1a1208',
+                color: 'var(--fg-mark)',
               }}
             >
-              岚
+              璃
             </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: 13, fontWeight: 600, letterSpacing: '-0.01em' }}>RAN</span>
-              <Etch size={8}>PROBE · {version}</Etch>
+              <span style={{ fontSize: 13, fontWeight: 650, letterSpacing: '-0.01em' }}>RAN LIQUID</span>
+              <Etch size={8}>GLASS · {version}</Etch>
             </div>
           </a>
         </div>
@@ -253,17 +261,17 @@ export function Sidebar({
                   display: 'flex',
                   alignItems: 'center',
                   gap: 10,
-                  padding: '7px 10px',
-                  background: isActive ? 'var(--bg-3)' : 'transparent',
+                  padding: '9px 11px',
+                  background: isActive ? 'color-mix(in srgb, var(--accent) 15%, var(--liquid-surface-soft, var(--bg-3)))' : 'transparent',
                   color: isActive ? 'var(--fg-0)' : disabled ? 'var(--fg-3)' : 'var(--fg-1)',
-                  border: isActive ? '1px solid var(--edge-mid)' : '1px solid transparent',
-                  borderRadius: 4,
+                  border: isActive ? '1px solid color-mix(in srgb, var(--accent) 40%, var(--liquid-border, var(--edge-mid)))' : '1px solid transparent',
+                  borderRadius: 999,
                   cursor: disabled ? 'not-allowed' : 'pointer',
                   fontFamily: 'var(--font-sans)',
                   fontSize: 12,
                   textAlign: 'left',
                   position: 'relative',
-                  boxShadow: isActive ? '0 1px 0 var(--edge-bright) inset' : 'none',
+                  boxShadow: isActive ? '0 1px 0 var(--edge-bright) inset, 0 0 24px color-mix(in srgb, var(--accent) 12%, transparent)' : 'none',
                   opacity: disabled ? 0.55 : 1,
                   textDecoration: 'none',
                 }}
@@ -272,12 +280,13 @@ export function Sidebar({
                   <div
                     style={{
                       position: 'absolute',
-                      left: -8,
+                      left: -6,
                       top: 8,
                       bottom: 8,
-                      width: 2,
+                      width: 3,
+                      borderRadius: 999,
                       background: 'var(--accent)',
-                      boxShadow: '0 0 6px var(--accent)',
+                      boxShadow: '0 0 12px var(--accent)',
                     }}
                   />
                 )}
@@ -295,7 +304,7 @@ export function Sidebar({
           })}
         </nav>
 
-        <div style={{ marginTop: 'auto', padding: 12, borderTop: '1px solid var(--edge-engrave)' }}>
+        <div style={{ marginTop: 'auto', padding: 12, borderTop: '1px solid var(--liquid-border, var(--edge-engrave))' }}>
           {/* Admin entry — Komari 后台登录入口。
               做成"铭牌按钮"风格:跟 SerialPlate 同款蚀刻工艺,
               比之前的虚线小字醒目,但视觉权重控制在"管理员才用"的范围内。 */}
@@ -310,11 +319,10 @@ export function Sidebar({
               gap: 8,
               padding: '8px 10px',
               marginBottom: 12,
-              background: 'var(--bg-1)',
-              border: '1px solid var(--edge-engrave)',
-              borderRadius: 2,
-              boxShadow:
-                'inset 0 1px 0 var(--edge-bright), inset 0 -1px 0 var(--edge-deep)',
+              background: 'var(--liquid-surface-soft, var(--bg-1))',
+              border: '1px solid var(--liquid-border, var(--edge-engrave))',
+              borderRadius: 999,
+              boxShadow: 'var(--shadow-button)',
               fontFamily: 'var(--font-mono)',
               fontSize: 10,
               letterSpacing: '0.16em',
@@ -326,13 +334,13 @@ export function Sidebar({
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.color = 'var(--accent-bright)'
-              e.currentTarget.style.background = 'var(--bg-2)'
-              e.currentTarget.style.borderColor = 'var(--edge-mid)'
+              e.currentTarget.style.background = 'var(--liquid-surface-strong, var(--bg-2))'
+              e.currentTarget.style.borderColor = 'var(--accent)'
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.color = 'var(--fg-1)'
-              e.currentTarget.style.background = 'var(--bg-1)'
-              e.currentTarget.style.borderColor = 'var(--edge-engrave)'
+              e.currentTarget.style.background = 'var(--liquid-surface-soft, var(--bg-1))'
+              e.currentTarget.style.borderColor = 'var(--liquid-border, var(--edge-engrave))'
             }}
             title="Komari 后台 /admin"
           >

@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Etch } from '@/components/atoms/Etch'
-import { SerialPlate } from '@/components/atoms/SerialPlate'
 import { StatusDot } from '@/components/atoms/StatusDot'
 import { ThemePicker } from '@/components/atoms/ThemePicker'
 import { ViewVersionSwitcher } from '@/components/atoms/ViewVersionSwitcher'
 import { Icon } from '@/components/atoms/icons'
+import { LiquidStatusChip } from '@/components/liquid/LiquidPrimitives'
 import { useIsMobile, useIsNarrow } from '@/hooks/useMediaQuery'
 import { useSearchQuery, nodeMatchesQuery } from '@/hooks/useSearchQuery'
 import { contentFs } from '@/utils/fontScale'
@@ -205,15 +205,21 @@ export function Topbar({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: isMobile ? '10px 14px' : '12px 24px',
-        background: 'var(--bg-1)',
-        borderBottom: '1px solid var(--edge-mid)',
-        boxShadow: '0 1px 0 var(--edge-bright)',
+        padding: isMobile ? '9px 12px' : '12px 18px',
+        margin: isMobile ? '8px 10px 0' : '12px 20px 0',
+        background: 'var(--liquid-surface-strong, var(--bg-1))',
+        border: '1px solid var(--liquid-border, var(--edge-mid))',
+        borderRadius: 'var(--liquid-radius-lg, var(--radius-lg))',
+        boxShadow: 'var(--liquid-shadow, 0 1px 0 var(--edge-bright))',
         gap: isMobile ? 8 : 16,
+        backdropFilter: 'var(--liquid-blur, none)',
+        WebkitBackdropFilter: 'var(--liquid-blur, none)',
         // Honour iOS safe-area on the right (notch in landscape).
-        paddingRight: `calc(${isMobile ? 14 : 24}px + env(safe-area-inset-right))`,
-        paddingLeft: `calc(${isMobile ? 14 : 24}px + env(safe-area-inset-left))`,
-        position: 'relative',
+        paddingRight: `calc(${isMobile ? 12 : 18}px + env(safe-area-inset-right))`,
+        paddingLeft: `calc(${isMobile ? 12 : 18}px + env(safe-area-inset-left))`,
+        position: 'sticky',
+        top: isMobile ? 8 : 12,
+        zIndex: 25,
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 16, minWidth: 0, flex: 1 }}>
@@ -222,21 +228,23 @@ export function Topbar({
           <button
             onClick={onMobileMenu}
             aria-label="Open navigation menu"
-            style={{
-              flexShrink: 0,
-              width: 34,
-              height: 34,
-              padding: 0,
-              background: 'var(--bg-inset)',
-              border: '1px solid var(--edge-engrave)',
-              borderRadius: 4,
-              boxShadow: 'inset 0 1px 0 var(--edge-deep)',
-              color: 'var(--fg-1)',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
+              style={{
+                flexShrink: 0,
+                width: 34,
+                height: 34,
+                padding: 0,
+                background: 'var(--liquid-surface-soft, var(--bg-inset))',
+                border: '1px solid var(--liquid-border, var(--edge-engrave))',
+                borderRadius: 999,
+                boxShadow: 'var(--shadow-button)',
+                color: 'var(--fg-1)',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backdropFilter: 'var(--liquid-blur, none)',
+                WebkitBackdropFilter: 'var(--liquid-blur, none)',
+              }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <line x1="4" y1="7" x2="20" y2="7" />
@@ -262,12 +270,12 @@ export function Topbar({
             >
               {title}
             </span>
-            <SerialPlate>
+            <LiquidStatusChip tone={connStatus}>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
                 <StatusDot status={connStatus} size={5} pulse={conn === 'open'} />
                 {online}/{total} · {connLabel}
               </span>
-            </SerialPlate>
+            </LiquidStatusChip>
             {agoLabel && !isNarrow && (
               <span
                 style={{
@@ -307,17 +315,19 @@ export function Topbar({
                 width: 34,
                 height: 34,
                 padding: 0,
-                background: mobileSearchOpen || query ? 'var(--bg-3)' : 'var(--bg-inset)',
-                border: '1px solid var(--edge-engrave)',
-                borderRadius: 4,
-                boxShadow: 'inset 0 1px 0 var(--edge-deep)',
-                color: query ? 'var(--accent)' : 'var(--fg-1)',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                position: 'relative',
-              }}
+                  background: mobileSearchOpen || query ? 'var(--liquid-surface-strong, var(--bg-3))' : 'var(--liquid-surface-soft, var(--bg-inset))',
+                  border: '1px solid var(--liquid-border, var(--edge-engrave))',
+                  borderRadius: 999,
+                  boxShadow: 'var(--shadow-button)',
+                  color: query ? 'var(--accent)' : 'var(--fg-1)',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  position: 'relative',
+                  backdropFilter: 'var(--liquid-blur, none)',
+                  WebkitBackdropFilter: 'var(--liquid-blur, none)',
+                }}
             >
               {Icon.search}
               {query && (
@@ -342,15 +352,17 @@ export function Topbar({
                   display: 'flex',
                   alignItems: 'center',
                   gap: 8,
-                  padding: '5px 10px',
-                  background: 'var(--bg-inset)',
-                  border: `1px solid ${focused ? 'var(--accent)' : 'var(--edge-engrave)'}`,
-                  borderRadius: 4,
+                  padding: '6px 12px',
+                  background: 'var(--liquid-surface-soft, var(--bg-inset))',
+                  border: `1px solid ${focused ? 'var(--accent)' : 'var(--liquid-border, var(--edge-engrave))'}`,
+                  borderRadius: 999,
                   minWidth: 220,
                   boxShadow: focused
-                    ? 'inset 0 1px 0 var(--edge-deep), 0 0 0 2px color-mix(in srgb, var(--accent) 18%, transparent)'
-                    : 'inset 0 1px 0 var(--edge-deep)',
+                    ? 'var(--shadow-button), 0 0 0 2px color-mix(in srgb, var(--accent) 18%, transparent)'
+                    : 'var(--shadow-button)',
                   transition: 'border-color 120ms ease, box-shadow 120ms ease',
+                  backdropFilter: 'var(--liquid-blur, none)',
+                  WebkitBackdropFilter: 'var(--liquid-blur, none)',
                 }}
               >
                 <span style={{ color: query ? 'var(--accent)' : 'var(--fg-3)', display: 'inline-flex' }}>
@@ -455,13 +467,16 @@ export function Topbar({
           style={{
             position: 'absolute',
             top: '100%',
-            left: 0,
-            right: 0,
-            background: 'var(--bg-1)',
-            borderBottom: '1px solid var(--edge-mid)',
+            left: 10,
+            right: 10,
+            background: 'var(--liquid-surface-strong, var(--bg-1))',
+            border: '1px solid var(--liquid-border, var(--edge-mid))',
+            borderRadius: 'var(--liquid-radius-md, var(--radius-lg))',
             padding: '10px 14px',
             zIndex: 20,
-            boxShadow: '0 4px 12px rgba(0,0,0,0.18)',
+            boxShadow: 'var(--liquid-shadow, 0 4px 12px rgba(0,0,0,0.18))',
+            backdropFilter: 'var(--liquid-blur, none)',
+            WebkitBackdropFilter: 'var(--liquid-blur, none)',
           }}
         >
           <div
@@ -470,10 +485,10 @@ export function Topbar({
               alignItems: 'center',
               gap: 8,
               padding: '8px 12px',
-              background: 'var(--bg-inset)',
-              border: `1px solid ${focused ? 'var(--accent)' : 'var(--edge-engrave)'}`,
-              borderRadius: 4,
-              boxShadow: 'inset 0 1px 0 var(--edge-deep)',
+              background: 'var(--liquid-surface-soft, var(--bg-inset))',
+              border: `1px solid ${focused ? 'var(--accent)' : 'var(--liquid-border, var(--edge-engrave))'}`,
+              borderRadius: 999,
+              boxShadow: 'var(--shadow-button)',
             }}
           >
             <span style={{ color: query ? 'var(--accent)' : 'var(--fg-3)', display: 'inline-flex' }}>
@@ -572,12 +587,14 @@ function SearchDropdown({ suggestions, records, activeIdx, onPick, onHover, quer
         left: 0,
         right: 0,
         minWidth: inline ? undefined : 260,
-        background: 'var(--bg-1)',
-        border: '1px solid var(--edge-mid)',
-        borderRadius: 4,
-        boxShadow: inline ? 'none' : '0 6px 16px rgba(0,0,0,0.22)',
+        background: 'var(--liquid-surface-strong, var(--bg-1))',
+        border: '1px solid var(--liquid-border, var(--edge-mid))',
+        borderRadius: 'var(--liquid-radius-md, var(--radius-lg))',
+        boxShadow: inline ? 'none' : 'var(--liquid-shadow, 0 6px 16px rgba(0,0,0,0.22))',
         zIndex: 30,
         overflow: 'hidden',
+        backdropFilter: 'var(--liquid-blur, none)',
+        WebkitBackdropFilter: 'var(--liquid-blur, none)',
       }}
     >
       {/* Header strip — etched count. Shows "0 / N" when no match so users
@@ -589,8 +606,8 @@ function SearchDropdown({ suggestions, records, activeIdx, onPick, onHover, quer
           fontSize: 9,
           color: 'var(--fg-3)',
           letterSpacing: '0.14em',
-          background: 'var(--bg-inset)',
-          borderBottom: '1px solid var(--edge-engrave)',
+          background: 'var(--liquid-surface-soft, var(--bg-inset))',
+          borderBottom: '1px solid var(--liquid-border, var(--edge-engrave))',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -633,7 +650,7 @@ function SearchDropdown({ suggestions, records, activeIdx, onPick, onHover, quer
                 style={{
                   padding: '7px 10px',
                   cursor: 'pointer',
-                  background: active ? 'var(--bg-3)' : 'transparent',
+                  background: active ? 'var(--liquid-surface-soft, var(--bg-3))' : 'transparent',
                   borderLeft: `2px solid ${active ? 'var(--accent)' : 'transparent'}`,
                   display: 'flex',
                   alignItems: 'center',
