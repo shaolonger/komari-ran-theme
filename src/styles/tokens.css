@@ -503,6 +503,187 @@ body[data-theme='ran-liquid-light']::after {
   box-shadow: var(--shadow-inset);
 }
 
+/* Liquid primitives — used by the redesign shell and new surfaces. */
+.liquid-surface,
+.liquid-button,
+.liquid-pill,
+.liquid-status-chip {
+  position: relative;
+  isolation: isolate;
+}
+
+.liquid-surface {
+  overflow: hidden;
+  color: var(--fg-0);
+  background: var(--liquid-surface, var(--bg-2));
+  border: 1px solid var(--liquid-border, var(--edge-mid));
+  border-radius: var(--liquid-radius-md, var(--radius-lg));
+  box-shadow: var(--liquid-shadow, var(--shadow-card));
+  backdrop-filter: var(--liquid-blur, blur(18px) saturate(1.25));
+  -webkit-backdrop-filter: var(--liquid-blur, blur(18px) saturate(1.25));
+}
+
+.liquid-surface::before,
+.liquid-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background:
+    linear-gradient(135deg, var(--liquid-highlight, rgba(255, 255, 255, 0.18)), transparent 38%),
+    radial-gradient(circle at 20% 0%, var(--liquid-glow-cyan, transparent), transparent 34%);
+  opacity: 0.46;
+  transition: opacity 180ms ease, transform 240ms ease;
+}
+
+.liquid-surface--strong {
+  background: var(--liquid-surface-strong, var(--bg-2));
+}
+
+.liquid-surface--soft {
+  background: var(--liquid-surface-soft, var(--bg-1));
+  box-shadow: none;
+}
+
+.liquid-surface--interactive {
+  transition:
+    transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.liquid-surface--interactive:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--accent) 38%, var(--liquid-border));
+  box-shadow: var(--liquid-shadow), 0 0 34px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.liquid-surface--interactive:hover::before,
+.liquid-button:hover::before {
+  opacity: 0.7;
+  transform: translateY(-6%);
+}
+
+.liquid-pad--none {
+  padding: 0;
+}
+
+.liquid-pad--sm {
+  padding: 10px;
+}
+
+.liquid-pad--md {
+  padding: 14px;
+}
+
+.liquid-pad--lg {
+  padding: 18px;
+}
+
+.liquid-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 8px 13px;
+  color: var(--fg-1);
+  background: var(--liquid-surface-soft, var(--bg-inset));
+  border: 1px solid var(--liquid-border, var(--edge-mid));
+  border-radius: 999px;
+  box-shadow: var(--shadow-button);
+  cursor: pointer;
+  font: inherit;
+  transition:
+    transform 150ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 150ms ease,
+    background 150ms ease,
+    border-color 150ms ease;
+  backdrop-filter: var(--liquid-blur, blur(18px) saturate(1.25));
+  -webkit-backdrop-filter: var(--liquid-blur, blur(18px) saturate(1.25));
+}
+
+.liquid-button:hover {
+  transform: translateY(-1px);
+  color: var(--fg-0);
+  border-color: color-mix(in srgb, var(--accent) 42%, var(--liquid-border));
+}
+
+.liquid-button:active {
+  transform: translateY(0) scale(0.985);
+}
+
+.liquid-button--active {
+  color: var(--fg-mark);
+  background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+  border-color: color-mix(in srgb, var(--accent) 68%, white);
+}
+
+.liquid-button--compact {
+  min-width: 34px;
+  min-height: 34px;
+  padding: 7px 10px;
+}
+
+.liquid-pill,
+.liquid-status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  border: 1px solid var(--liquid-border, var(--edge-mid));
+  background: var(--liquid-surface-soft, var(--bg-inset));
+  backdrop-filter: var(--liquid-blur, blur(18px) saturate(1.25));
+  -webkit-backdrop-filter: var(--liquid-blur, blur(18px) saturate(1.25));
+}
+
+.liquid-pill {
+  padding: 5px 10px;
+  color: var(--fg-2);
+  font-family: var(--font-mono);
+  font-size: var(--t-mini);
+  letter-spacing: var(--tracking-mid);
+  text-transform: uppercase;
+}
+
+.liquid-pill--active {
+  color: var(--fg-0);
+  border-color: color-mix(in srgb, var(--accent) 46%, var(--liquid-border));
+  background: color-mix(in srgb, var(--accent) 14%, var(--liquid-surface-soft));
+}
+
+.liquid-status-chip {
+  padding: 5px 9px;
+  color: var(--fg-1);
+  font-family: var(--font-mono);
+  font-size: var(--t-mini);
+  letter-spacing: var(--tracking-mid);
+  text-transform: uppercase;
+}
+
+.liquid-status-chip__icon {
+  display: inline-flex;
+  color: currentColor;
+}
+
+.liquid-status-chip.is-good {
+  color: var(--signal-good);
+}
+
+.liquid-status-chip.is-warn {
+  color: var(--signal-warn);
+}
+
+.liquid-status-chip.is-bad {
+  color: var(--signal-bad);
+}
+
+.liquid-status-chip.is-info {
+  color: var(--signal-info);
+}
+
 /* The double-stroke effect — outer bright, inner deep */
 .machined-edge {
   position: relative;
