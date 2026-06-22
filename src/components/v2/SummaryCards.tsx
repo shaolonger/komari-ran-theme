@@ -13,6 +13,7 @@ import { SummaryStatCard } from './SummaryStatCard'
 import { Sparkline } from '@/components/charts/Sparkline'
 import { contentFs } from '@/utils/fontScale'
 import { formatBytes } from '@/utils/format'
+import { useI18n } from '@/i18n'
 
 /**
  * EmptySpark — shown in place of a Sparkline when there aren't yet
@@ -21,6 +22,7 @@ import { formatBytes } from '@/utils/format'
  * the right side, but doesn't pretend to have data.
  */
 function EmptySpark({ color = 'var(--fg-3)' }: { color?: string }) {
+  const { t } = useI18n()
   return (
     <div
       style={{
@@ -51,7 +53,7 @@ function EmptySpark({ color = 'var(--fg-3)' }: { color?: string }) {
           opacity: 0.7,
         }}
       >
-        sampling…
+        {t('common.loading')}…
       </span>
     </div>
   )
@@ -79,6 +81,7 @@ interface ActiveAlertsProps {
  * "all clear" pattern.
  */
 function AlertVolumeBars({ series }: { series: number[] }) {
+  const { t } = useI18n()
   const max = Math.max(1, ...series)
   return (
     <div
@@ -89,7 +92,7 @@ function AlertVolumeBars({ series }: { series: number[] }) {
         height: 36,
         width: 90,
       }}
-      aria-label="24h alert volume"
+      aria-label={t('monitoring.labels.activeAlerts')}
     >
       {series.map((v, i) => {
         const h = Math.max(2, (v / max) * 32)
@@ -120,6 +123,7 @@ export function ActiveAlertsCard({
   volumeSeries,
   serial = 'A01',
 }: ActiveAlertsProps) {
+  const { t } = useI18n()
   // Use the real 24h history. If no history has accumulated yet, the
   // series is all zeros — AlertVolumeBars renders tiny baseline bars
   // (height 2px) which read as "no alerts in this period" rather than
@@ -135,7 +139,7 @@ export function ActiveAlertsCard({
 
   return (
     <SummaryStatCard
-      label="ACTIVE ALERTS"
+      label={t('monitoring.labels.activeAlerts')}
       serial={serial}
       value={summary.counts.total}
       valueColor={valueColor}
@@ -143,11 +147,11 @@ export function ActiveAlertsCard({
       subline={
         <span>
           <span style={{ color: 'var(--signal-bad)' }}>
-            {summary.counts.critical} Critical
+            {summary.counts.critical} {t('monitoring.labels.critical')}
           </span>
           {' · '}
           <span style={{ color: 'var(--signal-warn)' }}>
-            {summary.counts.warning} Warning
+            {summary.counts.warning} {t('monitoring.labels.warning')}
           </span>
         </span>
       }
@@ -167,7 +171,7 @@ export function ActiveAlertsCard({
             fontFamily: 'var(--font-mono)',
           }}
         >
-          VIEW ALERTS
+          {t('monitoring.actions.viewAlerts')}
         </a>
       }
     />
@@ -194,6 +198,7 @@ export function ThroughputSummaryCard({
   deltaPct,
   serial = 'T01',
 }: ThroughputSummaryProps) {
+  const { t } = useI18n()
   const formatted = formatBytes(totalBytes, 1)
   // Split "85.4 TB" into number + unit
   const m = formatted.match(/^(.+?)\s*([A-Z]+)$/)
@@ -202,7 +207,7 @@ export function ThroughputSummaryCard({
 
   return (
     <SummaryStatCard
-      label="GLOBAL THROUGHPUT"
+      label={t('monitoring.labels.globalThroughput')}
       serial={serial}
       value={numStr}
       unit={unitStr}
@@ -239,7 +244,7 @@ export function ThroughputSummaryCard({
               {deltaPct > 0 ? '↑' : deltaPct < 0 ? '↓' : '·'}{' '}
               {Math.abs(deltaPct).toFixed(1)}%
             </span>{' '}
-            vs yesterday
+            {t('monitoring.time.vsYesterday')}
           </span>
         ) : (
           <span style={{ opacity: 0.6 }}>—</span>
@@ -267,6 +272,7 @@ export function AvgPacketLossCard({
   deltaPct,
   serial = 'L01',
 }: AvgPacketLossProps) {
+  const { t } = useI18n()
   const pct = typeof avgLoss === 'number' ? avgLoss * 100 : undefined
   const valueColor =
     typeof pct === 'number'
@@ -279,7 +285,7 @@ export function AvgPacketLossCard({
 
   return (
     <SummaryStatCard
-      label="AVG PACKET LOSS"
+      label={t('monitoring.labels.avgPacketLoss')}
       serial={serial}
       value={typeof pct === 'number' ? pct.toFixed(2) : '—'}
       unit={typeof pct === 'number' ? '%' : undefined}
@@ -328,10 +334,10 @@ export function AvgPacketLossCard({
               {deltaPct > 0 ? '↑' : deltaPct < 0 ? '↓' : '·'}{' '}
               {Math.abs(deltaPct).toFixed(2)}%
             </span>{' '}
-            vs yesterday
+            {t('monitoring.time.vsYesterday')}
           </span>
         ) : (
-          <span style={{ opacity: 0.6 }}>steady</span>
+          <span style={{ opacity: 0.6 }}>{t('monitoring.time.steady')}</span>
         )
       }
     />
@@ -397,23 +403,22 @@ export function ExpiringSoonCard({
   serial = 'E01',
   onViewDetails,
 }: ExpiringSoonProps) {
+  const { t } = useI18n()
   const ratio = stats.total > 0 ? stats.expiringSoon / stats.total : 0
   const valueColor =
     stats.expiringSoon > 0 ? 'var(--accent-bright)' : 'var(--fg-0)'
 
   return (
     <SummaryStatCard
-      label="EXPIRING SOON"
+      label={t('monitoring.labels.expiringSoon')}
       serial={serial}
       value={stats.expiringSoon}
       valueColor={valueColor}
       subline={
         <span>
-          Within{' '}
           <span style={{ color: 'var(--fg-1)', fontWeight: 500 }}>
-            {withinDays}d
-          </span>{' '}
-          window
+            {t('monitoring.time.withinDaysWindow', { days: withinDays })}
+          </span>
         </span>
       }
       visual={<MiniDonut ratio={ratio} color="var(--accent-bright)" />}
@@ -434,7 +439,7 @@ export function ExpiringSoonCard({
               cursor: 'pointer',
             }}
           >
-            VIEW DETAILS
+            {t('monitoring.actions.viewDetails')}
           </button>
         ) : (
           <a
@@ -452,7 +457,7 @@ export function ExpiringSoonCard({
               fontFamily: 'var(--font-mono)',
             }}
           >
-            VIEW DETAILS
+            {t('monitoring.actions.viewDetails')}
           </a>
         )
       }

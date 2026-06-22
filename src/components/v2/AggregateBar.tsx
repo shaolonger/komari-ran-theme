@@ -16,6 +16,7 @@ import type { AggregateStats } from '@/hooks/v2'
 import { Etch } from '@/components/atoms/Etch'
 import { contentFs } from '@/utils/fontScale'
 import { useIsMobile, useIsNarrow } from '@/hooks/useMediaQuery'
+import { useI18n } from '@/i18n'
 
 interface Props {
   stats: AggregateStats
@@ -59,32 +60,33 @@ function Glyph({ children, color }: { children: ReactNode; color: string }) {
 export function AggregateBar({ stats, highLoadCount = 0 }: Props) {
   const isMobile = useIsMobile()
   const isNarrow = useIsNarrow()
+  const { t } = useI18n()
 
   const cells: Cell[] = [
     {
       icon: '▣',
       iconColor: 'var(--fg-2)',
-      label: 'TOTAL',
+      label: t('monitoring.labels.total'),
       value: stats.total,
     },
     {
       icon: '●',
       iconColor: 'var(--signal-good)',
-      label: 'ONLINE',
+      label: t('common.online'),
       value: stats.online,
       valueColor: 'var(--signal-good)',
     },
     {
       icon: '○',
       iconColor: 'var(--signal-warn)',
-      label: 'DEGRADED',
+      label: t('monitoring.labels.degraded'),
       value: stats.degraded,
       valueColor: stats.degraded > 0 ? 'var(--signal-warn)' : undefined,
     },
     {
       icon: '●',
       iconColor: 'var(--signal-bad)',
-      label: 'OFFLINE',
+      label: t('common.offline'),
       value: stats.offline,
       valueColor: stats.offline > 0 ? 'var(--signal-bad)' : undefined,
       emphasis: stats.offline > 0,
@@ -92,14 +94,14 @@ export function AggregateBar({ stats, highLoadCount = 0 }: Props) {
     {
       icon: '⏱',
       iconColor: 'var(--accent)',
-      label: 'EXPIRING SOON',
+      label: t('monitoring.labels.expiringSoon'),
       value: stats.expiringSoon,
       valueColor: stats.expiringSoon > 0 ? 'var(--accent)' : undefined,
     },
     {
       icon: '⚡',
       iconColor: 'var(--signal-warn)',
-      label: 'HIGH LOAD',
+      label: t('monitoring.labels.highLoad'),
       value: highLoadCount,
       valueColor: highLoadCount > 0 ? 'var(--signal-warn)' : undefined,
     },
@@ -116,7 +118,7 @@ export function AggregateBar({ stats, highLoadCount = 0 }: Props) {
         gridTemplateColumns: `repeat(${cols}, 1fr)`,
         overflow: 'hidden',
       }}
-      aria-label="cluster aggregate stats"
+      aria-label={t('monitoring.statusStripe.aria')}
     >
       {cells.map((c, i) => {
         const isLastCol = (i + 1) % cols === 0

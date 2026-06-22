@@ -14,6 +14,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { contentFs } from '@/utils/fontScale'
+import { useI18n, type MessageKey } from '@/i18n'
 
 export type NodeViewMode = 'grid' | 'table' | 'compact'
 
@@ -69,13 +70,14 @@ interface Props {
   onChange: (v: NodeViewMode) => void
 }
 
-const OPTIONS: { value: NodeViewMode; label: string; icon: string }[] = [
-  { value: 'grid', label: 'GRID', icon: '⊞' },
-  { value: 'table', label: 'TABLE', icon: '☰' },
-  { value: 'compact', label: 'COMPACT', icon: '▤' },
+const OPTIONS: { value: NodeViewMode; labelKey: MessageKey; icon: string }[] = [
+  { value: 'grid', labelKey: 'monitoring.viewModes.grid', icon: '⊞' },
+  { value: 'table', labelKey: 'monitoring.viewModes.table', icon: '☰' },
+  { value: 'compact', labelKey: 'monitoring.viewModes.compact', icon: '▤' },
 ]
 
 export function ViewModeSwitcher({ value, onChange }: Props) {
+  const { t } = useI18n()
   return (
     <div
       style={{
@@ -112,7 +114,7 @@ export function ViewModeSwitcher({ value, onChange }: Props) {
             }}
           >
             <span style={{ fontSize: contentFs(11) }}>{opt.icon}</span>
-            <span>{opt.label}</span>
+            <span>{t(opt.labelKey)}</span>
           </button>
         )
       })}

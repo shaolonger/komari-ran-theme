@@ -32,6 +32,7 @@ import {
   resolveRamPercent,
 } from '@/utils/format'
 import { contentFs } from '@/utils/fontScale'
+import { useI18n } from '@/i18n'
 
 interface Props {
   node: KomariNode
@@ -180,6 +181,7 @@ function NodeCardCompactV2_({
   onClick,
   selected,
 }: Props) {
+  const { t } = useI18n()
   const status = deriveStatus(record)
   const dotColor = COLOR_BY_STATUS[status]
   const isOnline = record?.online !== false
@@ -331,7 +333,7 @@ function NodeCardCompactV2_({
             ? `${Math.round(record.ping)}ms`
             : isOnline
               ? ''
-              : 'OFFLINE'}
+              : t('common.offline')}
         </div>
       </div>
 
@@ -417,13 +419,13 @@ function NodeCardCompactV2_({
         }}
       >
         <span style={{ color: 'var(--fg-3)' }}>
-          <Etch>UPTIME</Etch>{' '}
+          <Etch>{t('monitoring.labels.uptime')}</Etch>{' '}
           <span style={{ color: 'var(--fg-1)' }}>
             {fmtUptime(record?.uptime)}
           </span>
         </span>
         <span>
-          <Etch>EXPIRE</Etch>{' '}
+          <Etch>{t('monitoring.labels.expires')}</Etch>{' '}
           <span style={{ color: expiry.color, fontWeight: 500 }}>
             {expiry.date}
           </span>{' '}

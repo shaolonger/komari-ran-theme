@@ -17,6 +17,7 @@ import { Etch } from '@/components/atoms/Etch'
 import { SerialPlate } from '@/components/atoms/SerialPlate'
 import { contentFs } from '@/utils/fontScale'
 import { useIsMobile } from '@/hooks/useMediaQuery'
+import { useI18n } from '@/i18n'
 
 interface Props {
   slices: RegionSlice[]
@@ -35,6 +36,11 @@ export function RegionDistributionDonut({
   size = 120,
 }: Props) {
   const isMobile = useIsMobile()
+  const { t } = useI18n()
+  const resolvedTitle =
+    title === 'REGION DISTRIBUTION'
+      ? t('monitoring.labels.regionDistribution')
+      : title
   const total = slices.reduce((s, x) => s + x.count, 0)
 
   const thickness = 14
@@ -60,7 +66,7 @@ export function RegionDistributionDonut({
           marginBottom: 12,
         }}
       >
-        <Etch>{title}</Etch>
+        <Etch>{resolvedTitle}</Etch>
         <SerialPlate>{serial}</SerialPlate>
       </div>
 
@@ -133,7 +139,7 @@ export function RegionDistributionDonut({
                 color: 'var(--fg-3)',
               }}
             >
-              NODES
+              {t('common.nodes')}
             </span>
           </div>
         </div>
@@ -211,7 +217,7 @@ export function RegionDistributionDonut({
                 fontSize: contentFs(11),
               }}
             >
-              No region data
+              {t('monitoring.empty.noRegionData')}
             </div>
           )}
         </div>

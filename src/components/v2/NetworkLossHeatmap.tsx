@@ -29,6 +29,7 @@ import { Etch } from '@/components/atoms/Etch'
 import { SerialPlate } from '@/components/atoms/SerialPlate'
 import { contentFs } from '@/utils/fontScale'
 import { nodeToLonLat } from '@/utils/cities'
+import { useI18n } from '@/i18n'
 
 const COUNTRIES = feature(
   topo as unknown as Topology,
@@ -76,6 +77,11 @@ export function NetworkLossHeatmap({
   title = 'NETWORK HEATMAP (LOSS %)',
   serial = 'NH01',
 }: Props) {
+  const { t } = useI18n()
+  const resolvedTitle =
+    title === 'NETWORK HEATMAP (LOSS %)'
+      ? t('monitoring.labels.networkHeatmap')
+      : title
   const width = 760
   const height = 380
 
@@ -131,7 +137,7 @@ export function NetworkLossHeatmap({
           marginBottom: 10,
         }}
       >
-        <Etch>{title}</Etch>
+        <Etch>{resolvedTitle}</Etch>
         <SerialPlate>{serial}</SerialPlate>
       </div>
 
@@ -203,7 +209,7 @@ export function NetworkLossHeatmap({
                 fill="var(--fg-3)"
                 letterSpacing="0.1em"
               >
-                no node coordinates available
+                {t('common.empty')}
               </text>
             )}
           </svg>
@@ -277,7 +283,7 @@ export function NetworkLossHeatmap({
                   'var(--fg-2)')
               }
             >
-              <span>View Geo Map</span>
+              <span>{t('monitoring.actions.viewGeoMap')}</span>
               <span style={{ fontSize: contentFs(11) }}>→</span>
             </a>
           </div>

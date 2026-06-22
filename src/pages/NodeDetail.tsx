@@ -33,6 +33,7 @@ import { useNodeHistory } from '@/hooks/useNodeHistory'
 import { hashFor } from '@/router/route'
 import { useMobileDrawer, useIsMobile } from '@/hooks/useMediaQuery'
 import { type Theme } from '@/components/atoms/ThemePicker'
+import { useI18n } from '@/i18n'
 
 type Conn = 'connecting' | 'open' | 'closed' | 'error' | 'idle'
 type WindowKey = string
@@ -105,6 +106,7 @@ export function NodeDetailPage({
   config,
   hubTargetUuid,
 }: Props) {
+  const { t } = useI18n()
   const drawer = useMobileDrawer()
   const isMobile = useIsMobile()
   const metricsForm = resolveMetricsForm(
@@ -185,7 +187,7 @@ export function NodeDetailPage({
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
           <Topbar
             title={siteName}
-            subtitle={stillLoading ? 'LOADING PROBE …' : 'UNKNOWN PROBE'}
+            subtitle={stillLoading ? t('monitoring.detail.loadingProbe') : t('monitoring.detail.unknownProbe')}
             theme={theme}
             onTheme={onTheme}
             online={0}
@@ -198,7 +200,7 @@ export function NodeDetailPage({
           />
           <main className="app-main" style={{ flex: 1, padding: 20 }}>
             {stillLoading ? (
-              <CardFrame title="Loading probe …" code="…">
+              <CardFrame title={t('monitoring.detail.loadingProbe')} code="…">
                 <div
                   style={{
                     padding: 40,
@@ -210,7 +212,7 @@ export function NodeDetailPage({
                     textTransform: 'uppercase',
                   }}
                 >
-                  Fetching node roster
+                  {t('monitoring.detail.fetchingRoster')}
                   <br />
                   <span style={{ fontSize: contentFs(9), opacity: 0.7 }}>
                     UUID · {uuid.slice(0, 8).toUpperCase()}
@@ -218,7 +220,7 @@ export function NodeDetailPage({
                 </div>
               </CardFrame>
             ) : (
-              <CardFrame title="Node not found" code="404">
+              <CardFrame title={t('pages.nodeDetail.notFound')} code="404">
                 <div style={{ padding: 40, textAlign: 'center' }}>
                   <div
                     style={{
@@ -229,7 +231,7 @@ export function NodeDetailPage({
                       marginBottom: 16,
                     }}
                   >
-                    PROBE [{uuid.slice(0, 8)}…] NOT IN ROSTER
+                    {t('monitoring.detail.notInRoster', { uuid: uuid.slice(0, 8) })}
                   </div>
                   <a
                     href={hashFor({ name: 'nodes' })}
@@ -240,7 +242,7 @@ export function NodeDetailPage({
                       letterSpacing: '0.1em',
                     }}
                   >
-                    ← BACK TO NODES
+                    ← {t('monitoring.actions.backToNodes')}
                   </a>
                 </div>
               </CardFrame>
@@ -267,7 +269,7 @@ export function NodeDetailPage({
       ? 'warn'
       : 'good'
 
-  const subtitle = `${node.region ?? '—'} · ${node.ip ?? '—'} · UP ${online ? formatUptime(record?.uptime) : '—'}`
+  const subtitle = `${node.region ?? '—'} · ${node.ip ?? '—'} · ${t('monitoring.labels.uptime')} ${online ? formatUptime(record?.uptime) : '—'}`
 
   const haveLoadHistory = hasLoadData(history.load)
   const cpuHist = buckets.cpu
@@ -289,7 +291,7 @@ export function NodeDetailPage({
       sub: node.cpu_cores ? `${node.cpu_cores}-CORE` : undefined,
     },
     {
-      label: 'MEMORY',
+      label: t('monitoring.labels.memory'),
       value: record?.memory_total ? formatBytes(record.memory_total) : '—',
       sub: record?.swap_total ? `SWAP ${formatBytes(record.swap_total)}` : undefined,
     },
@@ -299,7 +301,7 @@ export function NodeDetailPage({
       sub: node.arch ?? undefined,
     },
     {
-      label: 'NETWORK',
+      label: t('monitoring.labels.network'),
       value: labels.bandwidth?.value ?? '—',
       sub: labels.traffic ? `LIMIT ${labels.traffic.value}` : undefined,
     },
@@ -309,8 +311,8 @@ export function NodeDetailPage({
       sub: kernelHint,
     },
     {
-      label: 'EXPIRE',
-      value: days != null ? `${days} 天` : '—',
+      label: t('monitoring.labels.expires'),
+      value: days != null ? t('monitoring.time.daysCount', { days }) : '—',
       sub: node.price != null ? `$${node.price}/月` : undefined,
     },
   ]
@@ -355,13 +357,13 @@ export function NodeDetailPage({
                 textTransform: 'uppercase',
               }}
             >
-              ← All nodes
+              ← {t('monitoring.actions.backToNodes')}
             </a>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
               <SerialPlate>UUID · {uuid.slice(0, 8).toUpperCase()}</SerialPlate>
               <StatusBadge
                 status={status}
-                label={status === 'good' ? 'ONLINE' : status === 'warn' ? 'DEGRADED' : 'OFFLINE'}
+                label={status === 'good' ? t('common.online') : status === 'warn' ? t('monitoring.labels.degraded') : t('common.offline')}
               />
             </div>
           </div>
@@ -605,10 +607,10 @@ export function NodeDetailPage({
           >
             <Tabs
               tabs={[
-                { id: 'overview', label: 'Overview' },
+                { id: 'overview', label: t('nav.overview') },
                 {
                   id: 'latency',
-                  label: '测速点延迟',
+                  label: t('monitoring.labels.latency'),
                   badge:
                     pingSeries.length > 0 ? (
                       <SerialPlate>{pingSeries.length}</SerialPlate>
@@ -621,7 +623,7 @@ export function NodeDetailPage({
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
               <a
                 href={hashFor({ name: 'hub', uuid })}
-                title="HUB · 单节点驾驶舱视图"
+                title={t('monitoring.detail.hubTitle')}
                 style={{
                   fontFamily: 'var(--font-mono)',
                   fontSize: contentFs(10),
@@ -643,7 +645,7 @@ export function NodeDetailPage({
                 HUB →
               </a>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Etch>WINDOW</Etch>
+                <Etch>{t('monitoring.labels.window')}</Etch>
                 <Segmented
                   size="sm"
                   value={activeWindowKey}
@@ -904,21 +906,21 @@ export function NodeDetailPage({
                       letterSpacing: '-0.01em',
                     }}
                   >
-                    测速点延迟 · {windowSpec.titleSuffix}
+                    {t('monitoring.labels.latency')} · {windowSpec.titleSuffix}
                   </h3>
                   <SerialPlate>
                     {pingTargets.length > 0
                       ? `${pingTargets.length} TARGET${pingTargets.length === 1 ? '' : 'S'}`
                       : history.loading
-                        ? 'LOADING'
-                        : 'NO TARGETS'}
+                        ? t('common.loading')
+                        : t('common.empty')}
                   </SerialPlate>
                 </div>
-                <Etch>SAMPLED FROM THIS PROBE</Etch>
+                <Etch>{t('common.node')}</Etch>
               </div>
 
               {pingTargets.length === 0 ? (
-                <CardFrame title="No ping data" code="∅">
+                <CardFrame title={t('common.empty')} code="∅">
                   <div
                     style={{
                       padding: '60px 16px',
@@ -931,12 +933,12 @@ export function NodeDetailPage({
                       lineHeight: 1.8,
                     }}
                   >
-                    {history.loading ? '加载中…' : '该节点无测速点数据'}
+                    {history.loading ? `${t('common.loading')}…` : t('common.empty')}
                     {!history.loading && (
                       <>
                         <br />
                         <span style={{ fontSize: contentFs(9), color: 'var(--fg-3)', opacity: 0.7 }}>
-                          configure ping tasks in komari admin
+                          {t('monitoring.filters.searchNodes')}
                         </span>
                       </>
                     )}

@@ -5,6 +5,7 @@ import { Sparkline } from '@/components/charts/Sparkline'
 import type { KomariNode, KomariRecord, NodeStatus } from '@/types/komari'
 import { formatBps, formatBytes, formatPercent, formatUptimeShort, parseLabels, daysUntil } from '@/utils/format'
 import { contentFs } from '@/utils/fontScale'
+import { useI18n } from '@/i18n'
 
 interface Props {
   node: KomariNode
@@ -92,6 +93,7 @@ function MetricCell({
 }
 
 function NodeCardCompact_({ node, record, netSpark = [], pingSpark = [], pingLoss = [], pingStats }: Props) {
+  const { t } = useI18n()
   const status = deriveStatus(record)
   const offline = status === 'bad'
   const statusColor = COLOR_BY_STATUS[status]
@@ -174,7 +176,7 @@ function NodeCardCompact_({ node, record, netSpark = [], pingSpark = [], pingLos
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
           <StatusDot status={status} size={6} pulse={status === 'good'} />
-          <Etch>{status === 'good' ? 'ONLINE' : status === 'warn' ? 'DEGRADED' : 'OFFLINE'}</Etch>
+          <Etch>{status === 'good' ? t('common.online') : status === 'warn' ? t('monitoring.labels.degraded') : t('common.offline')}</Etch>
         </div>
       </div>
 

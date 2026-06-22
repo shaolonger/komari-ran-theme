@@ -22,6 +22,7 @@ import {
   resolveRamPercent,
 } from '@/utils/format'
 import { useIsMobile } from '@/hooks/useMediaQuery'
+import { useI18n } from '@/i18n'
 
 interface Props {
   nodes: KomariNode[]
@@ -76,6 +77,7 @@ export function NodeRowTable({
   selectedUuid,
 }: Props) {
   const isMobile = useIsMobile()
+  const { t } = useI18n()
 
   const cellPad = '8px 10px'
   const headStyle: React.CSSProperties = {
@@ -117,11 +119,11 @@ export function NodeRowTable({
         >
           <thead>
             <tr>
-              <th style={{ ...headStyle, minWidth: 180 }}>NODE</th>
-              <th style={{ ...headStyle, width: 70 }}>STATUS</th>
+              <th style={{ ...headStyle, minWidth: 180 }}>{t('common.node')}</th>
+              <th style={{ ...headStyle, width: 70 }}>{t('monitoring.labels.status')}</th>
               <th style={{ ...headStyle, width: 60, textAlign: 'right' }}>CPU</th>
               <th style={{ ...headStyle, width: 60, textAlign: 'right' }}>RAM</th>
-              <th style={{ ...headStyle, width: 60, textAlign: 'right' }}>DISK</th>
+              <th style={{ ...headStyle, width: 60, textAlign: 'right' }}>{t('monitoring.labels.disk')}</th>
               {!isMobile && (
                 <>
                   <th style={{ ...headStyle, width: 90, textAlign: 'right' }}>
@@ -139,10 +141,10 @@ export function NodeRowTable({
                 </>
               )}
               <th style={{ ...headStyle, width: 70, textAlign: 'right' }}>
-                UPTIME
+                {t('monitoring.labels.uptime')}
               </th>
               <th style={{ ...headStyle, width: 110, textAlign: 'right' }}>
-                EXPIRES
+                {t('monitoring.labels.expires')}
               </th>
             </tr>
           </thead>
@@ -158,7 +160,7 @@ export function NodeRowTable({
                     padding: '40px 10px',
                   }}
                 >
-                  No nodes match the current filters.
+                  {t('monitoring.empty.noNodesMatch')}
                 </td>
               </tr>
             ) : (
@@ -250,7 +252,7 @@ export function NodeRowTable({
                         letterSpacing: '0.08em',
                       }}
                     >
-                      {online ? 'online' : 'offline'}
+                      {online ? t('common.online') : t('common.offline')}
                     </td>
                     <td style={{ ...bodyCell, color: cpu.color, textAlign: 'right' }}>
                       {cpu.text}

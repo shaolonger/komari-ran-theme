@@ -16,6 +16,7 @@ import type { EventKind, NodeEvent } from '@/hooks/v2'
 import { Etch } from '@/components/atoms/Etch'
 import { contentFs } from '@/utils/fontScale'
 import { PanelFooterLink } from './PanelFooterLink'
+import { useI18n } from '@/i18n'
 
 interface Props {
   events: NodeEvent[]
@@ -35,16 +36,6 @@ const KIND_DOT_COLOR: Record<EventKind, string> = {
   recovered: 'var(--signal-good)',
 }
 
-function fmtAgo(t: number): string {
-  const dt = Date.now() - t
-  if (dt < 60_000) return 'just now'
-  const m = Math.floor(dt / 60_000)
-  if (m < 60) return `${m}m ago`
-  const h = Math.floor(m / 60)
-  if (h < 24) return `${h}h ago`
-  return `${Math.floor(h / 24)}d ago`
-}
-
 export function RecentEventsPanel({
   events,
   title = 'RECENT EVENTS',
@@ -52,7 +43,9 @@ export function RecentEventsPanel({
   footerLink,
   limit = 5,
 }: Props) {
+  const { t, format } = useI18n()
   const visible = events.slice(0, limit)
+  const resolvedTitle = title === 'RECENT EVENTS' ? t('monitoring.labels.recentEvents') : title
 
   return (
     <div
@@ -72,7 +65,7 @@ export function RecentEventsPanel({
           marginBottom: 10,
         }}
       >
-        <Etch>{title}</Etch>
+        <Etch>{resolvedTitle}</Etch>
       </div>
 
       {visible.length === 0 ? (
@@ -86,7 +79,7 @@ export function RecentEventsPanel({
             letterSpacing: '0.04em',
           }}
         >
-          Events appear here as nodes transition state.
+          {t('common.empty')}
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -155,7 +148,7 @@ export function RecentEventsPanel({
                   whiteSpace: 'nowrap',
                 }}
               >
-                {fmtAgo(e.t)}
+                {format.relativeFromNow(e.t)}
               </span>
             </div>
           ))}

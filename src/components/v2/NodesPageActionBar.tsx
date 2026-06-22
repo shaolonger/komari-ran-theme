@@ -20,6 +20,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { KomariNode, KomariRecord } from '@/types/komari'
 import { contentFs } from '@/utils/fontScale'
+import { useI18n } from '@/i18n'
 
 interface Props {
   /** Nodes currently visible (after filters) — used by Export */
@@ -131,6 +132,7 @@ export function NodesPageActionBar({
   records,
   onRefresh,
 }: Props) {
+  const { t } = useI18n()
   const [bulkOpen, setBulkOpen] = useState(false)
   const [spinning, setSpinning] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
@@ -163,13 +165,13 @@ export function NodesPageActionBar({
     const date = `${ts.getFullYear()}${String(ts.getMonth() + 1).padStart(2, '0')}${String(ts.getDate()).padStart(2, '0')}-${String(ts.getHours()).padStart(2, '0')}${String(ts.getMinutes()).padStart(2, '0')}`
     const csv = nodesToCSV(visibleNodes, records)
     downloadCSV(`ran-nodes-${date}.csv`, csv)
-    setToast(`Exported ${visibleNodes.length} nodes`)
+    setToast(`${t('monitoring.actions.export')} ${visibleNodes.length}`)
   }
 
   const handleRefresh = () => {
     setSpinning(true)
     onRefresh?.()
-    setToast('Refreshed')
+    setToast(t('monitoring.actions.refresh'))
     setTimeout(() => setSpinning(false), 600)
   }
 
@@ -177,7 +179,7 @@ export function NodesPageActionBar({
     navigator.clipboard.writeText(
       visibleNodes.map((n) => n.name ?? n.uuid).join('\n'),
     )
-    setToast(`Copied ${visibleNodes.length} names`)
+    setToast(`${t('monitoring.actions.copied')} ${visibleNodes.length}`)
     setBulkOpen(false)
   }
 
@@ -186,7 +188,7 @@ export function NodesPageActionBar({
       .map((n) => (n as { ip?: string }).ip)
       .filter(Boolean) as string[]
     navigator.clipboard.writeText(ips.join('\n'))
-    setToast(`Copied ${ips.length} IPs`)
+    setToast(`${t('monitoring.actions.copied')} ${ips.length} IPs`)
     setBulkOpen(false)
   }
 
@@ -200,14 +202,14 @@ export function NodesPageActionBar({
     >
       <button type="button" onClick={handleExport} style={btnBase()}>
         <span>⬇</span>
-        <span>EXPORT</span>
+        <span>{t('monitoring.actions.export')}</span>
       </button>
 
       <button
         type="button"
         onClick={handleRefresh}
         style={btnBase()}
-        title="Refresh data"
+        title={t('monitoring.actions.refresh')}
       >
         <span
           style={{
@@ -218,7 +220,7 @@ export function NodesPageActionBar({
         >
           ↻
         </span>
-        <span>REFRESH</span>
+        <span>{t('monitoring.actions.refresh')}</span>
       </button>
 
       <div ref={bulkRef} style={{ position: 'relative' }}>
@@ -228,7 +230,7 @@ export function NodesPageActionBar({
           style={btnBase()}
         >
           <span>☰</span>
-          <span>BULK</span>
+          <span>{t('monitoring.actions.bulk')}</span>
           <span style={{ fontSize: contentFs(8), opacity: 0.6, marginLeft: 2 }}>
             ▼
           </span>

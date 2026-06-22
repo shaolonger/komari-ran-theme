@@ -14,6 +14,7 @@ import { contentFs } from '@/utils/fontScale'
 import { useMobileDrawer } from '@/hooks/useMediaQuery'
 import { useSearchQuery, nodeMatchesQuery } from '@/hooks/useSearchQuery'
 import { type Theme } from '@/components/atoms/ThemePicker'
+import { useI18n } from '@/i18n'
 
 type Conn = 'connecting' | 'open' | 'closed' | 'error' | 'idle'
 type Filter = 'all' | 'on' | 'warn' | 'off'
@@ -59,6 +60,7 @@ export function NodesPage({
   viewVersion,
   onViewVersionChange,
 }: Props) {
+  const { t } = useI18n()
   const drawer = useMobileDrawer()
   const [filter, setFilter] = useState<Filter>('all')
   const [group, setGroup] = useState<string>('ALL')
@@ -76,8 +78,14 @@ export function NodesPage({
     const groups = Array.from(seen).sort((a, b) => a.localeCompare(b))
     if (hasUngrouped) groups.push('未分组')
     if (groups.length < 2) return null
-    return [{ value: 'ALL', label: 'ALL' }, ...groups.map((g) => ({ value: g, label: g }))]
-  }, [nodes])
+    return [
+      { value: 'ALL', label: t('common.all') },
+      ...groups.map((g) => ({
+        value: g,
+        label: g === '未分组' ? t('monitoring.filters.ungrouped') : g,
+      })),
+    ]
+  }, [nodes, t])
 
   useEffect(() => {
     if (!groupOptions) {
@@ -222,7 +230,7 @@ export function NodesPage({
                   color: 'var(--fg-0)',
                 }}
               >
-                Nodes
+                {t('pages.nodes.title')}
               </h2>
               <SerialPlate>{`SHOWN ${filtered.length}/${nodes.length}`}</SerialPlate>
               <Etch>
@@ -235,10 +243,10 @@ export function NodesPage({
                 value={filter}
                 onChange={(v) => setFilter(v as Filter)}
                 options={[
-                  { value: 'all', label: 'ALL' },
-                  { value: 'on', label: 'ONLINE' },
-                  { value: 'warn', label: 'DEGR' },
-                  { value: 'off', label: 'OFF' },
+                  { value: 'all', label: t('common.all') },
+                  { value: 'on', label: t('common.online') },
+                  { value: 'warn', label: t('monitoring.labels.degraded') },
+                  { value: 'off', label: t('common.offline') },
                 ]}
               />
             </div>
@@ -255,7 +263,7 @@ export function NodesPage({
                 flexWrap: 'wrap',
               }}
             >
-              <Etch>GROUP</Etch>
+              <Etch>{t('monitoring.detail.group')}</Etch>
               <Segmented
                 size="sm"
                 value={group}
@@ -267,7 +275,7 @@ export function NodesPage({
 
           {/* Table or empty state */}
           {filtered.length === 0 ? (
-            <CardFrame title="No probes" code="∅">
+            <CardFrame title={t('monitoring.empty.noNodesConfigured')} code="∅">
               <div
                 style={{
                   padding: '30px 16px',
@@ -280,10 +288,10 @@ export function NodesPage({
                 }}
               >
                 {nodes.length === 0
-                  ? 'NO NODES CONFIGURED'
+                  ? t('monitoring.empty.noNodesConfigured')
                   : searchQuery.trim()
-                    ? `NO MATCH FOR "${searchQuery.toUpperCase()}"`
-                    : 'NO NODES MATCH FILTER'}
+                    ? t('monitoring.empty.noSearchMatch', { query: searchQuery })
+                    : t('monitoring.empty.noNodesMatch')}
               </div>
             </CardFrame>
           ) : (

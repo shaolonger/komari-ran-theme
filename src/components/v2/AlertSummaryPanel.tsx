@@ -16,6 +16,7 @@ import { SerialPlate } from '@/components/atoms/SerialPlate'
 import { contentFs } from '@/utils/fontScale'
 import { useIsMobile } from '@/hooks/useMediaQuery'
 import { PanelFooterLink } from './PanelFooterLink'
+import { useI18n } from '@/i18n'
 
 interface Props {
   summary: AlertSummary
@@ -45,19 +46,6 @@ const LEVEL_BORDER = {
   info: 'rgba(160,104,32,0.25)',
 } as const
 
-function fmtAgo(iso?: string): string {
-  if (!iso) return ''
-  const ts = new Date(iso).getTime()
-  if (Number.isNaN(ts)) return ''
-  const dt = Date.now() - ts
-  if (dt < 60_000) return 'just now'
-  const m = Math.floor(dt / 60_000)
-  if (m < 60) return `${m}m ago`
-  const h = Math.floor(m / 60)
-  if (h < 24) return `${h}h ago`
-  return `${Math.floor(h / 24)}d ago`
-}
-
 export function AlertSummaryPanel({
   summary,
   title = 'ALERT SUMMARY',
@@ -66,6 +54,13 @@ export function AlertSummaryPanel({
   footerLink,
 }: Props) {
   const isMobile = useIsMobile()
+  const { t, format } = useI18n()
+  const resolvedTitle = title === 'ALERT SUMMARY' ? t('monitoring.labels.alertSummary') : title
+  const levelLabel = {
+    critical: t('monitoring.labels.critical'),
+    warning: t('monitoring.labels.warning'),
+    info: 'INFO',
+  } as const
 
   return (
     <div
@@ -85,7 +80,7 @@ export function AlertSummaryPanel({
           marginBottom: 10,
         }}
       >
-        <Etch>{title}</Etch>
+        <Etch>{resolvedTitle}</Etch>
         <SerialPlate>{serial}</SerialPlate>
       </div>
 
@@ -133,7 +128,7 @@ export function AlertSummaryPanel({
                   fontWeight: 600,
                 }}
               >
-                {lv.toUpperCase()}
+                {levelLabel[lv]}
               </span>
             </div>
           </div>
@@ -150,7 +145,7 @@ export function AlertSummaryPanel({
             textAlign: 'center',
           }}
         >
-          No active alerts.
+          {t('monitoring.empty.noActiveAlerts')}
         </div>
       ) : (
         <div
@@ -225,7 +220,7 @@ export function AlertSummaryPanel({
                   whiteSpace: 'nowrap',
                 }}
               >
-                {fmtAgo(a.timestampISO)}
+                {a.timestampISO ? format.relativeFromNow(a.timestampISO) : ''}
               </span>
             </div>
           ))}

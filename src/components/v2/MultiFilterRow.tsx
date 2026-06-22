@@ -18,6 +18,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { contentFs } from '@/utils/fontScale'
 import { Etch } from '@/components/atoms/Etch'
+import { useI18n } from '@/i18n'
 
 export interface FilterOption {
   value: string
@@ -59,6 +60,11 @@ export function MultiFilterRow({
   meta,
   onRefresh,
 }: Props) {
+  const { t } = useI18n()
+  const resolvedPlaceholder =
+    searchPlaceholder === 'Search nodes by name, tag, ip…'
+      ? t('monitoring.filters.searchNodes')
+      : searchPlaceholder
   return (
     <div
       className="precision-card"
@@ -96,7 +102,7 @@ export function MultiFilterRow({
           type="text"
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder={searchPlaceholder}
+          placeholder={resolvedPlaceholder}
           style={{
             width: '100%',
             padding: '6px 10px 6px 28px',
@@ -152,7 +158,7 @@ export function MultiFilterRow({
           }}
         >
           <span>↻</span>
-          <span>REFRESH</span>
+          <span>{t('monitoring.actions.refresh')}</span>
         </button>
       )}
     </div>
@@ -161,6 +167,7 @@ export function MultiFilterRow({
 
 /** Single dropdown filter — opens on click, closes on outside-click. */
 function FilterDropdown({ spec }: { spec: FilterSpec }) {
+  const { t } = useI18n()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -212,7 +219,7 @@ function FilterDropdown({ spec }: { spec: FilterSpec }) {
             fontWeight: 500,
           }}
         >
-          {current?.label ?? 'All'}
+          {current?.label ?? t('common.all')}
         </span>
         <span style={{ fontSize: contentFs(8), opacity: 0.6 }}>▼</span>
       </button>

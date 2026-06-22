@@ -14,6 +14,7 @@ import {
   formatUptimeShort,
   resolveRamPercent,
 } from '@/utils/format'
+import { useI18n } from '@/i18n'
 
 interface Props {
   node: KomariNode
@@ -30,6 +31,7 @@ interface Props {
  * region / CPU / MEM / DISK / NET / PING+LOSS / status badge + uptime.
  */
 function NodeCardRow_({ node, record, netSpark = [], pingSpark = [], pingLoss = [], pingStats }: Props) {
+  const { t } = useI18n()
   const online = record?.online === true
   const cpu = record?.cpu ?? 0
   const ramPct = resolveRamPercent(record?.memory_used, record?.memory_total) ?? 0
@@ -179,7 +181,7 @@ function NodeCardRow_({ node, record, netSpark = [], pingSpark = [], pingLoss = 
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
         <StatusBadge
           status={statusKey === 'good' ? 'good' : statusKey === 'warn' ? 'warn' : 'bad'}
-          label={statusKey === 'good' ? 'ONLINE' : statusKey === 'warn' ? 'DEGR' : 'OFFLINE'}
+          label={statusKey === 'good' ? t('common.online') : statusKey === 'warn' ? t('monitoring.labels.degraded') : t('common.offline')}
           dense
         />
         <span className="mono tnum" style={{ fontSize: contentFs(10), color: 'var(--fg-2)' }}>

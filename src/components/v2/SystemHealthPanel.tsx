@@ -26,6 +26,7 @@ import { Etch } from '@/components/atoms/Etch'
 import { SerialPlate } from '@/components/atoms/SerialPlate'
 import { contentFs } from '@/utils/fontScale'
 import { PanelFooterLink } from './PanelFooterLink'
+import { useI18n } from '@/i18n'
 
 type Conn = 'connecting' | 'open' | 'closed' | 'error' | 'idle'
 type Health = 'healthy' | 'degraded' | 'down'
@@ -54,12 +55,6 @@ const HEALTH_COLOR: Record<Health, string> = {
   down: 'var(--signal-bad)',
 }
 
-const HEALTH_LABEL: Record<Health, string> = {
-  healthy: 'Healthy',
-  degraded: 'Degraded',
-  down: 'Down',
-}
-
 function checkStorage(): boolean {
   try {
     const k = '__ran_storage_probe__'
@@ -81,6 +76,13 @@ export function SystemHealthPanel({
   footerLink,
 }: Props) {
   const [now, setNow] = useState(Date.now())
+  const { t, format } = useI18n()
+  const healthLabel: Record<Health, string> = {
+    healthy: t('common.healthy'),
+    degraded: t('common.degraded'),
+    down: t('common.offline'),
+  }
+  const resolvedTitle = title === 'SYSTEM HEALTH' ? t('monitoring.labels.systemHealth') : title
 
   // Tick every 5s to refresh staleness checks
   useEffect(() => {
@@ -100,19 +102,19 @@ export function SystemHealthPanel({
           : 'down'
   const wsDetail =
     conn === 'open'
-      ? wsAge < 60_000
-        ? `${Math.max(1, Math.round(wsAge / 1000))}s ago`
-        : `${Math.round(wsAge / 60_000)}m ago`
+      ? lastUpdate
+        ? format.relativeFromNow(lastUpdate)
+        : '—'
       : conn ?? '—'
 
   const recordsHealth: Health = recordCount > 0 ? 'healthy' : 'down'
-  const recordsDetail = recordCount > 0 ? `${recordCount} probes` : 'no data'
+  const recordsDetail = recordCount > 0 ? `${recordCount} ${t('common.nodes')}` : t('common.empty')
 
   const pingCount = ping?.count ?? 0
   const pingHealth: Health =
     pingCount > 0 ? 'healthy' : conn === 'open' ? 'degraded' : 'down'
   const pingDetail =
-    pingCount > 0 ? `${pingCount.toLocaleString()} records` : 'pending'
+    pingCount > 0 ? `${format.number(pingCount)} ${t('units.records')}` : t('common.loading')
 
   const storageOk = checkStorage()
   const storageHealth: Health = storageOk ? 'healthy' : 'down'
@@ -145,7 +147,7 @@ export function SystemHealthPanel({
           marginBottom: 10,
         }}
       >
-        <Etch>{title}</Etch>
+        <Etch>{resolvedTitle}</Etch>
         <SerialPlate>{serial}</SerialPlate>
       </div>
 
@@ -211,7 +213,7 @@ export function SystemHealthPanel({
                 fontWeight: 500,
               }}
             >
-              {HEALTH_LABEL[r.health]}
+              {healthLabel[r.health]}
             </span>
           </div>
         ))}

@@ -20,6 +20,7 @@ import { SerialPlate } from '@/components/atoms/SerialPlate'
 import { contentFs } from '@/utils/fontScale'
 import { useIsMobile } from '@/hooks/useMediaQuery'
 import { PanelFooterLink } from './PanelFooterLink'
+import { useI18n } from '@/i18n'
 
 interface Props {
   items: AttentionItem[]
@@ -81,6 +82,11 @@ export function AttentionNeededTable({
   footerLink,
 }: Props) {
   const isMobile = useIsMobile()
+  const { t } = useI18n()
+  const resolvedTitle =
+    title === 'ATTENTION NEEDED · TOP 5 NODES'
+      ? t('monitoring.labels.attentionNeeded')
+      : title
 
   return (
     <div
@@ -100,7 +106,7 @@ export function AttentionNeededTable({
           marginBottom: 10,
         }}
       >
-        <Etch>{title}</Etch>
+        <Etch>{resolvedTitle}</Etch>
         <SerialPlate>{serial}</SerialPlate>
       </div>
 
@@ -114,7 +120,7 @@ export function AttentionNeededTable({
             textAlign: 'center',
           }}
         >
-          ✓ All nodes nominal — no attention required.
+          ✓ {t('monitoring.empty.allNodesNominal')}
         </div>
       ) : (
         <table
@@ -140,7 +146,7 @@ export function AttentionNeededTable({
                   borderBottom: '1px solid var(--edge-engrave)',
                 }}
               >
-                NODE
+                {t('common.node')}
               </th>
               {!isMobile && (
                 <th
@@ -155,7 +161,7 @@ export function AttentionNeededTable({
                     width: 70,
                   }}
                 >
-                  STATUS
+                  {t('monitoring.labels.status')}
                 </th>
               )}
               <th

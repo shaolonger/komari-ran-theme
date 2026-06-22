@@ -23,6 +23,7 @@ import type { ClusterHealth } from '@/hooks/v2'
 import { Etch } from '@/components/atoms/Etch'
 import { LiquidPill } from '@/components/liquid/LiquidPrimitives'
 import { contentFs } from '@/utils/fontScale'
+import { useI18n } from '@/i18n'
 
 interface Props {
   health: ClusterHealth
@@ -39,18 +40,12 @@ const GRADE_COLOR: Record<ClusterHealth['grade'], string> = {
   poor: 'var(--signal-bad)',
 }
 
-const GRADE_LABEL: Record<ClusterHealth['grade'], string> = {
-  excellent: 'EXCELLENT',
-  good: 'GOOD',
-  fair: 'FAIR',
-  poor: 'POOR',
-}
-
 export function HealthScoreCard({
   health,
   yesterdayScore,
   serial = 'H01',
 }: Props) {
+  const { t } = useI18n()
   const color = GRADE_COLOR[health.grade]
   const delta =
     typeof yesterdayScore === 'number' ? health.score - yesterdayScore : undefined
@@ -73,7 +68,7 @@ export function HealthScoreCard({
           alignItems: 'center',
         }}
       >
-        <Etch>CLUSTER HEALTH SCORE</Etch>
+        <Etch>{t('monitoring.labels.healthScore')}</Etch>
         <LiquidPill active>{serial}</LiquidPill>
       </div>
 
@@ -119,7 +114,13 @@ export function HealthScoreCard({
             color,
           }}
         >
-          {GRADE_LABEL[health.grade]}
+          {health.grade === 'excellent'
+            ? 'EXCELLENT'
+            : health.grade === 'good'
+              ? t('common.good')
+              : health.grade === 'fair'
+                ? t('common.warning')
+                : t('common.critical')}
         </span>
       </div>
 
@@ -175,10 +176,10 @@ export function HealthScoreCard({
             >
               {delta > 0 ? '↑' : delta < 0 ? '↓' : '·'} {Math.abs(delta)} pts
             </span>{' '}
-            vs yesterday
+            {t('monitoring.time.vsYesterday')}
           </>
         ) : (
-          <span style={{ opacity: 0.6 }}>collecting trend data…</span>
+          <span style={{ opacity: 0.6 }}>{t('common.loading')}…</span>
         )}
       </div>
     </div>

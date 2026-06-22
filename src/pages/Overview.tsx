@@ -24,6 +24,7 @@ import { contentFs } from '@/utils/fontScale'
 import { useMobileDrawer } from '@/hooks/useMediaQuery'
 import { useSearchQuery, nodeMatchesQuery } from '@/hooks/useSearchQuery'
 import { type Theme } from '@/components/atoms/ThemePicker'
+import { useI18n } from '@/i18n'
 
 type Conn = 'connecting' | 'open' | 'closed' | 'error' | 'idle'
 type ViewMode = 'grid' | 'row'
@@ -60,6 +61,7 @@ export function OverviewPage({
   viewVersion,
   onViewVersionChange,
 }: Props) {
+  const { t } = useI18n()
   const drawer = useMobileDrawer()
   const [view, setView] = useState<ViewMode>('grid')
   const [filter, setFilter] = useState<Filter>('all')
@@ -78,8 +80,14 @@ export function OverviewPage({
     if (hasUngrouped) groups.push('未分组')
     // Only show the picker when there are at least two distinct groups.
     if (groups.length < 2) return null
-    return [{ value: 'ALL', label: 'ALL' }, ...groups.map((g) => ({ value: g, label: g }))]
-  }, [nodes])
+    return [
+      { value: 'ALL', label: t('common.all') },
+      ...groups.map((g) => ({
+        value: g,
+        label: g === '未分组' ? t('monitoring.filters.ungrouped') : g,
+      })),
+    ]
+  }, [nodes, t])
 
   // Reset group selection if the chosen group disappears from the list.
   useEffect(() => {
@@ -125,7 +133,7 @@ export function OverviewPage({
 
     return [
       {
-        label: 'NODES ONLINE',
+        label: `${t('common.nodes')} ${t('common.online')}`,
         code: 'M01',
         value: `${online}/${total}`,
         spark: onlineSpark,
@@ -150,7 +158,7 @@ export function OverviewPage({
         sparkColor: 'var(--signal-good)',
       },
       {
-        label: 'TRAFFIC TOTAL',
+        label: `${t('nav.traffic')} ${t('common.total')}`,
         code: 'M04',
         value: trafficVal || '0',
         unit: trafficUnit || 'B',
@@ -158,7 +166,7 @@ export function OverviewPage({
         sparkColor: 'var(--accent)',
       },
     ]
-  }, [nodes, records, history])
+  }, [nodes, records, history, t])
 
   const [searchQuery] = useSearchQuery()
 
@@ -192,8 +200,8 @@ export function OverviewPage({
 
   const subtitle = useMemo(() => {
     const regions = new Set(nodes.map((n) => n.region?.split('-')[0]).filter(Boolean))
-    return `CLUSTER · ${nodes.length} NODES / ${regions.size} REGIONS`
-  }, [nodes])
+    return `${t('monitoring.labels.cluster')} · ${nodes.length} ${t('common.nodes')} / ${regions.size} ${t('common.regions')}`
+  }, [nodes, t])
 
   // ── derive bottom rail data from real records ──
   const alerts = useMemo<AlertItem[]>(() => {
@@ -206,8 +214,8 @@ export function OverviewPage({
         out.push({
           code: `A·${String(i++).padStart(2, '0')}`,
           level: 'bad',
-          levelLabel: 'OFFLINE',
-          message: `${n.name} · 探针离线`,
+          levelLabel: t('common.offline'),
+          message: `${n.name} · ${t('events.nodeOffline')}`,
           target: n.region ?? n.uuid.slice(0, 8),
           time: 'now',
         })
@@ -215,7 +223,7 @@ export function OverviewPage({
         out.push({
           code: `A·${String(i++).padStart(2, '0')}`,
           level: 'bad',
-          levelLabel: 'CRIT',
+          levelLabel: t('monitoring.labels.critical'),
           message: `${n.name} · CPU ${Math.round(r.cpu ?? 0)}%`,
           target: n.region ?? n.uuid.slice(0, 8),
           time: 'live',
@@ -224,7 +232,7 @@ export function OverviewPage({
         out.push({
           code: `A·${String(i++).padStart(2, '0')}`,
           level: 'warn',
-          levelLabel: 'WARN',
+          levelLabel: t('monitoring.labels.warning'),
           message: `${n.name} · CPU ${Math.round(r.cpu ?? 0)}%`,
           target: n.region ?? n.uuid.slice(0, 8),
           time: 'live',
@@ -233,8 +241,8 @@ export function OverviewPage({
         out.push({
           code: `A·${String(i++).padStart(2, '0')}`,
           level: 'warn',
-          levelLabel: 'LOSS',
-          message: `${n.name} · 丢包 ${(r.loss ?? 0).toFixed(1)}%`,
+          levelLabel: t('monitoring.labels.packetLoss'),
+          message: `${n.name} · ${t('monitoring.labels.packetLoss')} ${(r.loss ?? 0).toFixed(1)}%`,
           target: n.region ?? n.uuid.slice(0, 8),
           time: 'live',
         })
@@ -242,7 +250,7 @@ export function OverviewPage({
       if (out.length >= 6) break
     }
     return out
-  }, [nodes, records])
+  }, [nodes, records, t])
 
   // ── Ping series — global mean latency per target, derived from records/ping ──
   // Prefer history.ping (per-node fan-out, properly merged) over the old `ping`
@@ -345,7 +353,7 @@ export function OverviewPage({
                   color: 'var(--fg-0)',
                 }}
               >
-                Nodes
+                {t('pages.nodes.title')}
               </h3>
               <SerialPlate>N · {String(nodes.length).padStart(2, '0')}</SerialPlate>
               <Etch>{viewLabel}</Etch>
@@ -353,7 +361,7 @@ export function OverviewPage({
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
               {groupOptions && (
                 <>
-                  <Etch>GROUP</Etch>
+                  <Etch>{t('monitoring.detail.group')}</Etch>
                   <Segmented
                     size="sm"
                     value={group}
@@ -375,7 +383,7 @@ export function OverviewPage({
                 value={view}
                 onChange={(v) => setView(v as ViewMode)}
                 options={[
-                  { value: 'grid', label: 'GRID' },
+                  { value: 'grid', label: t('monitoring.viewModes.grid') },
                   { value: 'row', label: 'ROW' },
                 ]}
               />
@@ -384,10 +392,10 @@ export function OverviewPage({
                 value={filter}
                 onChange={(v) => setFilter(v as Filter)}
                 options={[
-                  { value: 'all', label: 'ALL' },
-                  { value: 'on', label: 'ONLINE' },
-                  { value: 'warn', label: 'DEGR' },
-                  { value: 'off', label: 'OFF' },
+                  { value: 'all', label: t('common.all') },
+                  { value: 'on', label: t('common.online') },
+                  { value: 'warn', label: t('monitoring.labels.degraded') },
+                  { value: 'off', label: t('common.offline') },
                 ]}
               />
             </div>
@@ -413,11 +421,11 @@ export function OverviewPage({
             >
               {nodes.length === 0
                 ? conn === 'open'
-                  ? 'NO PROBES CONFIGURED'
-                  : 'CONNECTING TO PROBE NETWORK …'
+                  ? t('monitoring.empty.noNodesConfigured')
+                  : `${t('topbar.connecting')} …`
                 : searchQuery.trim()
-                  ? `NO PROBES MATCH "${searchQuery.toUpperCase()}"`
-                  : 'NO PROBES MATCH FILTER'}
+                  ? t('monitoring.empty.noSearchMatch', { query: searchQuery })
+                  : t('monitoring.empty.noNodesMatch')}
             </div>
           ) : view === 'grid' ? (
             <div
@@ -474,7 +482,7 @@ export function OverviewPage({
             }}
           >
             <CardFrame
-              title="Active Alerts"
+              title={t('monitoring.labels.activeAlerts')}
               code={`A · ${String(alerts.length).padStart(2, '0')}`}
               action={<Etch>RT</Etch>}
               inset
@@ -483,13 +491,13 @@ export function OverviewPage({
             </CardFrame>
 
             <CardFrame
-              title="测速点延迟 · 1H"
+              title={`${t('monitoring.labels.latency')} · 1H`}
               code="P · 06"
               action={
                 <Etch>
                   {pingSeries.length > 0
                     ? `${pingSeries.length} TARGET${pingSeries.length === 1 ? '' : 'S'}`
-                    : 'NO TARGETS'}
+                    : t('common.empty')}
                 </Etch>
               }
             >
@@ -508,10 +516,10 @@ export function OverviewPage({
                     lineHeight: 1.6,
                   }}
                 >
-                  尚未配置测速点
+                  {t('common.empty')}
                   <br />
                   <span style={{ fontSize: contentFs(9), color: 'var(--fg-3)', opacity: 0.7 }}>
-                    add ping tasks in komari admin
+                    {t('monitoring.actions.refresh')}
                   </span>
                 </div>
               )}

@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react'
 import type { AggregateStats } from '@/hooks/v2'
 import { contentFs } from '@/utils/fontScale'
 import { useIsMobile } from '@/hooks/useMediaQuery'
+import { useI18n } from '@/i18n'
 
 interface Props {
   stats: AggregateStats
@@ -25,16 +26,6 @@ interface Props {
   isLive?: boolean
   /** Last WS update timestamp (ms) — drives the "SYNC Xs ago" tail */
   lastUpdate?: number | null
-}
-
-function formatSyncAgo(ms: number): string {
-  if (ms < 1000) return 'just now'
-  const s = Math.round(ms / 1000)
-  if (s < 60) return `${s}s ago`
-  const m = Math.round(s / 60)
-  if (m < 60) return `${m}m ago`
-  const h = Math.round(m / 60)
-  return `${h}h ago`
 }
 
 function formatLatency(avgPing: number | undefined): string {
@@ -50,8 +41,9 @@ export function StatusStripe({
   isLive,
   lastUpdate,
 }: Props) {
-  const [now, setNow] = useState(Date.now())
+  const [, setNow] = useState(Date.now())
   const isMobile = useIsMobile()
+  const { t, format } = useI18n()
 
   // Tick every second to refresh the "SYNC Xs ago" text
   useEffect(() => {
@@ -59,7 +51,7 @@ export function StatusStripe({
     return () => clearInterval(t)
   }, [])
 
-  const syncAgo = lastUpdate ? formatSyncAgo(now - lastUpdate) : '—'
+  const syncAgo = lastUpdate ? format.relativeFromNow(lastUpdate) : '—'
 
   // On mobile we hide the secondary metrics (avg lat / sync) to keep the strip
   // from wrapping awkwardly. Critical counts always render.
@@ -72,26 +64,26 @@ export function StatusStripe({
     muted?: boolean
   }> = [
     isLive
-      ? { icon: '●', iconColor: 'var(--signal-good)', label: 'LIVE' }
-      : { icon: '○', iconColor: 'var(--fg-3)', label: 'OFFLINE' },
+      ? { icon: '●', iconColor: 'var(--signal-good)', label: t('monitoring.statusStripe.live') }
+      : { icon: '○', iconColor: 'var(--fg-3)', label: t('monitoring.statusStripe.offline') },
     {
       icon: '●',
       iconColor: 'var(--signal-good)',
-      label: 'ONLINE',
+      label: t('monitoring.statusStripe.online'),
       value: stats.online,
       valueColor: 'var(--signal-good)',
     },
     {
       icon: '●',
       iconColor: 'var(--signal-bad)',
-      label: 'OFFLINE',
+      label: t('monitoring.statusStripe.offline'),
       value: stats.offline,
       valueColor: stats.offline > 0 ? 'var(--signal-bad)' : undefined,
     },
     {
       icon: '○',
       iconColor: 'var(--signal-warn)',
-      label: 'DEGRADED',
+      label: t('monitoring.statusStripe.degraded'),
       value: stats.degraded,
       valueColor: stats.degraded > 0 ? 'var(--signal-warn)' : undefined,
     },
@@ -99,7 +91,7 @@ export function StatusStripe({
 
   if (typeof regionCount === 'number') {
     items.push({
-      label: 'REGIONS',
+      label: t('monitoring.statusStripe.regions'),
       value: regionCount,
     })
   }
@@ -107,19 +99,19 @@ export function StatusStripe({
   items.push({
     icon: '▲',
     iconColor: alertCount > 0 ? 'var(--signal-warn)' : 'var(--fg-3)',
-    label: 'ALERTS',
+    label: t('monitoring.statusStripe.alerts'),
     value: alertCount,
     valueColor: alertCount > 0 ? 'var(--signal-warn)' : undefined,
   })
 
   if (!isMobile) {
     items.push({
-      label: 'AVG LAT',
+      label: t('monitoring.statusStripe.avgLat'),
       value: formatLatency(stats.avgPing),
       muted: true,
     })
     items.push({
-      label: 'SYNC',
+      label: t('monitoring.statusStripe.sync'),
       value: syncAgo,
       muted: true,
     })
@@ -137,7 +129,7 @@ export function StatusStripe({
         padding: isMobile ? '8px 12px' : '10px 18px',
         borderRadius: 999,
       }}
-      aria-label="cluster status"
+      aria-label={t('monitoring.statusStripe.aria')}
     >
       {items.map((it, i) => (
         <div

@@ -4,6 +4,7 @@ import type { KomariNode, KomariRecord } from '@/types/komari'
 import { resolveRamPercent, formatBps, compactBps, daysUntil } from '@/utils/format'
 import { hashFor } from '@/router/route'
 import { contentFs } from '@/utils/fontScale'
+import { useI18n } from '@/i18n'
 
 export type SortKey =
   | 'default'
@@ -157,6 +158,7 @@ interface NodeCardSlimProps {
  *   └──────────────────────────────────────────────────────────────────────┘
  */
 function NodeCardSlim({ node, record }: NodeCardSlimProps) {
+  const { t } = useI18n()
   const online = record?.online === true
   const cpu = record?.cpu ?? 0
   const memPct = resolveRamPercent(record?.memory_used, record?.memory_total) ?? 0
@@ -323,7 +325,7 @@ function NodeCardSlim({ node, record }: NodeCardSlimProps) {
                 </span>
               </>
             ) : (
-              <span style={{ color: 'var(--fg-3)' }}>OFFLINE</span>
+              <span style={{ color: 'var(--fg-3)' }}>{t('common.offline')}</span>
             )}
           </div>
           <div style={{ display: 'flex', gap: 6, fontSize: contentFs(9), color: 'var(--fg-3)' }}>

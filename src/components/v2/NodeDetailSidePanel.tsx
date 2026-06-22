@@ -28,6 +28,7 @@ import {
   resolveRamPercent,
 } from '@/utils/format'
 import { hashFor, navigate } from '@/router/route'
+import { useI18n } from '@/i18n'
 
 interface Props {
   node: KomariNode | null
@@ -143,6 +144,7 @@ function ProgressRow({
 
 function CopyableLine({ label, value }: { label: string; value: string }) {
   const [copied, setCopied] = useState(false)
+  const { t } = useI18n()
   const handleCopy = () => {
     if (!navigator?.clipboard?.writeText) return
     navigator.clipboard.writeText(value).then(() => {
@@ -197,13 +199,14 @@ function CopyableLine({ label, value }: { label: string; value: string }) {
           flexShrink: 0,
         }}
       >
-        {copied ? 'COPIED' : 'COPY'}
+        {copied ? t('monitoring.actions.copied') : t('monitoring.actions.copy')}
       </button>
     </div>
   )
 }
 
 export function NodeDetailSidePanel({ node, record, width = 300 }: Props) {
+  const { t } = useI18n()
   if (!node) {
     return (
       <aside
@@ -230,7 +233,7 @@ export function NodeDetailSidePanel({ node, record, width = 300 }: Props) {
             lineHeight: 1.6,
           }}
         >
-          ▸ select a node to view details
+          ▸ {t('monitoring.empty.selectNode')}
         </div>
       </aside>
     )
@@ -357,7 +360,7 @@ export function NodeDetailSidePanel({ node, record, width = 300 }: Props) {
           gap: 12,
         }}
       >
-        {ip && <CopyableLine label="IP" value={ip} />}
+        {ip && <CopyableLine label={t('monitoring.detail.ipAddress')} value={ip} />}
 
         {(node.group || node.region) && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
@@ -371,7 +374,7 @@ export function NodeDetailSidePanel({ node, record, width = 300 }: Props) {
                   fontSize: contentFs(10),
                 }}
               >
-                <Etch>GROUP</Etch>
+                <Etch>{t('monitoring.detail.group')}</Etch>
                 <span style={{ color: 'var(--fg-1)' }}>{node.group}</span>
               </div>
             )}
@@ -385,7 +388,7 @@ export function NodeDetailSidePanel({ node, record, width = 300 }: Props) {
                   fontSize: contentFs(10),
                 }}
               >
-                <Etch>REGION</Etch>
+                <Etch>{t('monitoring.labels.region')}</Etch>
                 <span style={{ color: 'var(--fg-1)' }}>{node.region}</span>
               </div>
             )}
@@ -399,7 +402,7 @@ export function NodeDetailSidePanel({ node, record, width = 300 }: Props) {
             detail={node.cpu_name ?? undefined}
           />
           <ProgressRow
-            label="MEMORY"
+            label={t('monitoring.labels.memory')}
             pct={memPct}
             detail={
               record?.memory_used !== undefined && record?.memory_total
@@ -408,7 +411,7 @@ export function NodeDetailSidePanel({ node, record, width = 300 }: Props) {
             }
           />
           <ProgressRow
-            label="DISK"
+            label={t('monitoring.labels.disk')}
             pct={diskPct}
             detail={
               record?.disk_used !== undefined && record?.disk_total
@@ -428,7 +431,7 @@ export function NodeDetailSidePanel({ node, record, width = 300 }: Props) {
           }}
         >
           <div>
-            <Etch>↑ INBOUND</Etch>
+            <Etch>↑ {t('monitoring.detail.inbound')}</Etch>
             <div
               style={{
                 fontFamily: 'var(--font-mono)',
@@ -443,7 +446,7 @@ export function NodeDetailSidePanel({ node, record, width = 300 }: Props) {
             </div>
           </div>
           <div>
-            <Etch>↓ OUTBOUND</Etch>
+            <Etch>↓ {t('monitoring.detail.outbound')}</Etch>
             <div
               style={{
                 fontFamily: 'var(--font-mono)',
@@ -467,7 +470,7 @@ export function NodeDetailSidePanel({ node, record, width = 300 }: Props) {
           }}
         >
           <div>
-            <Etch>UPTIME</Etch>
+            <Etch>{t('monitoring.labels.uptime')}</Etch>
             <div
               style={{
                 fontFamily: 'var(--font-mono)',
@@ -480,7 +483,7 @@ export function NodeDetailSidePanel({ node, record, width = 300 }: Props) {
             </div>
           </div>
           <div>
-            <Etch>EXPIRES</Etch>
+            <Etch>{t('monitoring.labels.expires')}</Etch>
             <div
               style={{
                 fontFamily: 'var(--font-mono)',
@@ -525,7 +528,7 @@ export function NodeDetailSidePanel({ node, record, width = 300 }: Props) {
             fontWeight: 600,
           }}
         >
-          VIEW DETAILS →
+          {t('monitoring.actions.viewDetails')} →
         </button>
         <a
           href={`./index.html${hashFor({ name: 'nodes', uuid: node.uuid })}`}
@@ -543,7 +546,7 @@ export function NodeDetailSidePanel({ node, record, width = 300 }: Props) {
             alignItems: 'center',
           }}
         >
-          FULL
+          {t('monitoring.actions.full')}
         </a>
       </footer>
     </aside>

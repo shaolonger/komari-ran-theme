@@ -29,6 +29,7 @@ import { contentFs } from '@/utils/fontScale'
 import { useIsMobile } from '@/hooks/useMediaQuery'
 import { formatBytes, formatBps, resolveRamPercent, daysUntil } from '@/utils/format'
 import { hashFor, navigate } from '@/router/route'
+import { useI18n } from '@/i18n'
 
 interface Props {
   node: KomariNode | null
@@ -136,6 +137,7 @@ function ProgressRow({
 
 function CopyableLine({ label, value }: { label: string; value: string }) {
   const [copied, setCopied] = useState(false)
+  const { t } = useI18n()
   const handleCopy = () => {
     if (!navigator?.clipboard?.writeText) return
     navigator.clipboard.writeText(value).then(() => {
@@ -190,7 +192,7 @@ function CopyableLine({ label, value }: { label: string; value: string }) {
           flexShrink: 0,
         }}
       >
-        {copied ? 'COPIED' : 'COPY'}
+        {copied ? t('monitoring.actions.copied') : t('monitoring.actions.copy')}
       </button>
     </div>
   )
@@ -198,6 +200,7 @@ function CopyableLine({ label, value }: { label: string; value: string }) {
 
 export function NodeDetailDrawer({ node, record, onClose }: Props) {
   const isMobile = useIsMobile()
+  const { t } = useI18n()
   const [mounted, setMounted] = useState(false)
 
   // Lock body scroll while open
@@ -266,7 +269,7 @@ export function NodeDetailDrawer({ node, record, onClose }: Props) {
       {/* Drawer */}
       <aside
         role="dialog"
-        aria-label={`Node ${node.name ?? node.uuid}`}
+        aria-label={`${t('common.node')} ${node.name ?? node.uuid}`}
         style={{
           position: 'fixed',
           top: 0,
@@ -356,7 +359,7 @@ export function NodeDetailDrawer({ node, record, onClose }: Props) {
             >
               {[
                 node.os,
-                node.cpu_cores ? `${node.cpu_cores} cores` : null,
+                node.cpu_cores ? t('monitoring.detail.cores', { count: node.cpu_cores }) : null,
                 record?.memory_total ? `${formatBytes(record.memory_total)} RAM` : null,
               ]
                 .filter(Boolean)
@@ -366,7 +369,7 @@ export function NodeDetailDrawer({ node, record, onClose }: Props) {
           <button
             type="button"
             onClick={onClose}
-            aria-label="close"
+            aria-label={t('monitoring.detail.close')}
             style={{
               width: 26,
               height: 26,
@@ -395,7 +398,7 @@ export function NodeDetailDrawer({ node, record, onClose }: Props) {
             gap: 14,
           }}
         >
-          {ip && <CopyableLine label="IP ADDRESS" value={ip} />}
+          {ip && <CopyableLine label={t('monitoring.detail.ipAddress')} value={ip} />}
 
           {(node.region || node.group || (node.tags && node.tags.length > 0)) && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -409,7 +412,7 @@ export function NodeDetailDrawer({ node, record, onClose }: Props) {
                     fontSize: contentFs(11),
                   }}
                 >
-                  <Etch>GROUP</Etch>
+                  <Etch>{t('monitoring.detail.group')}</Etch>
                   <span style={{ color: 'var(--fg-1)' }}>{node.group}</span>
                 </div>
               )}
@@ -423,7 +426,7 @@ export function NodeDetailDrawer({ node, record, onClose }: Props) {
                     fontSize: contentFs(11),
                   }}
                 >
-                  <Etch>REGION</Etch>
+                  <Etch>{t('monitoring.labels.region')}</Etch>
                   <span style={{ color: 'var(--fg-1)' }}>{node.region}</span>
                 </div>
               )}
@@ -438,7 +441,7 @@ export function NodeDetailDrawer({ node, record, onClose }: Props) {
               detail={node.cpu_name ?? undefined}
             />
             <ProgressRow
-              label="MEMORY"
+              label={t('monitoring.labels.memory')}
               pct={memPct}
               detail={
                 record?.memory_used !== undefined && record?.memory_total
@@ -447,7 +450,7 @@ export function NodeDetailDrawer({ node, record, onClose }: Props) {
               }
             />
             <ProgressRow
-              label="DISK"
+              label={t('monitoring.labels.disk')}
               pct={diskPct}
               detail={
                 record?.disk_used !== undefined && record?.disk_total
@@ -459,7 +462,7 @@ export function NodeDetailDrawer({ node, record, onClose }: Props) {
 
           {/* Network */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <Etch>NETWORK</Etch>
+            <Etch>{t('monitoring.labels.network')}</Etch>
             <div
               style={{
                 display: 'grid',
@@ -496,7 +499,7 @@ export function NodeDetailDrawer({ node, record, onClose }: Props) {
                   {record?.network_tx ? formatBps(record.network_tx) : '—'}
                 </div>
                 <div style={{ fontSize: contentFs(9), color: 'var(--fg-3)', marginTop: 2 }}>
-                  total {record?.network_total_up ? formatBytes(record.network_total_up) : '—'}
+                  {t('monitoring.detail.total')} {record?.network_total_up ? formatBytes(record.network_total_up) : '—'}
                 </div>
               </div>
               <div
@@ -527,7 +530,7 @@ export function NodeDetailDrawer({ node, record, onClose }: Props) {
                   {record?.network_rx ? formatBps(record.network_rx) : '—'}
                 </div>
                 <div style={{ fontSize: contentFs(9), color: 'var(--fg-3)', marginTop: 2 }}>
-                  total {record?.network_total_down ? formatBytes(record.network_total_down) : '—'}
+                  {t('monitoring.detail.total')} {record?.network_total_down ? formatBytes(record.network_total_down) : '—'}
                 </div>
               </div>
             </div>
@@ -543,7 +546,7 @@ export function NodeDetailDrawer({ node, record, onClose }: Props) {
             }}
           >
             <div>
-              <Etch>LATENCY</Etch>
+              <Etch>{t('monitoring.labels.latency')}</Etch>
               <div
                 style={{
                   fontSize: contentFs(13),
@@ -563,7 +566,7 @@ export function NodeDetailDrawer({ node, record, onClose }: Props) {
               </div>
             </div>
             <div>
-              <Etch>PACKET LOSS</Etch>
+              <Etch>{t('monitoring.labels.packetLoss')}</Etch>
               <div
                 style={{
                   fontSize: contentFs(13),
@@ -594,7 +597,7 @@ export function NodeDetailDrawer({ node, record, onClose }: Props) {
             }}
           >
             <div>
-              <Etch>UPTIME</Etch>
+              <Etch>{t('monitoring.labels.uptime')}</Etch>
               <div
                 style={{
                   fontSize: contentFs(12),
@@ -607,7 +610,7 @@ export function NodeDetailDrawer({ node, record, onClose }: Props) {
               </div>
             </div>
             <div>
-              <Etch>EXPIRES</Etch>
+              <Etch>{t('monitoring.labels.expires')}</Etch>
               <div
                 style={{
                   fontSize: contentFs(12),
@@ -655,7 +658,7 @@ export function NodeDetailDrawer({ node, record, onClose }: Props) {
               fontWeight: 600,
             }}
           >
-            VIEW DETAILS →
+            {t('monitoring.actions.viewDetails')} →
           </button>
           <a
             href={`./index.html${hashFor({ name: 'nodes', uuid: node.uuid })}`}
@@ -673,7 +676,7 @@ export function NodeDetailDrawer({ node, record, onClose }: Props) {
               alignItems: 'center',
             }}
           >
-            FULL PAGE
+            {t('monitoring.actions.full')}
           </a>
         </footer>
       </aside>

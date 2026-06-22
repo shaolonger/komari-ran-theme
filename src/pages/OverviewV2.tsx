@@ -46,6 +46,7 @@ import type {
 } from '@/types/komari'
 import { useMobileDrawer, useIsMobile } from '@/hooks/useMediaQuery'
 import { useGlobalHistory } from '@/hooks/useGlobalHistory'
+import { useI18n } from '@/i18n'
 
 import {
   useAggregateStats,
@@ -112,6 +113,7 @@ export function OverviewV2Page({
   viewVersion,
   onViewVersionChange,
 }: Props) {
+  const { t } = useI18n()
   // ── Data layer ──
   const stats = useAggregateStats(nodes, records, { expiringWithinDays: 30 })
   const health = useClusterHealth(stats)
@@ -233,7 +235,7 @@ export function OverviewV2Page({
       >
         <Topbar
           title={siteName}
-          subtitle={`CLUSTER · ${stats.total} NODES · ${regions.length} REGIONS`}
+          subtitle={`${t('monitoring.labels.cluster')} · ${stats.total} ${t('common.nodes')} · ${regions.length} ${t('common.regions')}`}
           theme={theme}
           onTheme={onTheme}
           online={stats.online}
@@ -301,12 +303,12 @@ export function OverviewV2Page({
             totalOut={stats.totalNetUp}
             windowLabel={
               chartHours === 24
-                ? 'Last 24h'
+                ? t('monitoring.time.last24h')
                 : chartHours < 168
-                  ? `Last ${chartHours / 24}d`
+                  ? t('monitoring.time.lastDays', { days: chartHours / 24 })
                   : chartHours === 168
-                    ? 'Last 7d'
-                    : 'Last 30d'
+                    ? t('monitoring.time.lastDays', { days: 7 })
+                    : t('monitoring.time.lastDays', { days: 30 })
             }
             timeWindow={chartHours}
             onTimeWindowChange={setChartHours}
@@ -324,13 +326,13 @@ export function OverviewV2Page({
             <AlertSummaryPanel
               summary={alertSummary}
               onAlertClick={(uuid) => setDrawerUuid(uuid)}
-              footerLink={{ label: 'View All Alerts', href: '#/v2/overview' }}
+              footerLink={{ label: t('monitoring.actions.viewAllAlerts'), href: '#/v2/overview' }}
             />
             <RecentEventsPanel
               events={events}
-              title="RECENT INCIDENTS"
+              title={t('monitoring.labels.recentIncidents')}
               onEventClick={(uuid) => setDrawerUuid(uuid)}
-              footerLink={{ label: 'View All Incidents', href: '#/v2/overview' }}
+              footerLink={{ label: t('monitoring.actions.viewAllIncidents'), href: '#/v2/overview' }}
             />
             <HealthTrend7DChart points={trend} currentScore={health.score} />
           </div>
@@ -348,14 +350,14 @@ export function OverviewV2Page({
             <AttentionNeededTable
               items={attention}
               onNodeClick={(uuid) => setDrawerUuid(uuid)}
-              footerLink={{ label: 'View All Nodes', href: '#/v2/nodes' }}
+              footerLink={{ label: t('monitoring.actions.viewAllNodes'), href: '#/v2/nodes' }}
             />
             <SystemHealthPanel
               conn={conn}
               lastUpdate={lastUpdate}
               recordCount={Object.keys(records).length}
               ping={ping}
-              footerLink={{ label: 'View All Services', href: '#/v2/overview' }}
+              footerLink={{ label: t('monitoring.actions.viewAllServices'), href: '#/v2/overview' }}
             />
             <NetworkLossHeatmap nodes={nodes} records={records} />
           </div>

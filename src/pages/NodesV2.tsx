@@ -57,6 +57,7 @@ import {
 import { Etch } from '@/components/atoms/Etch'
 import { SerialPlate } from '@/components/atoms/SerialPlate'
 import { contentFs } from '@/utils/fontScale'
+import { useI18n } from '@/i18n'
 
 type Conn = 'connecting' | 'open' | 'closed' | 'error' | 'idle'
 
@@ -77,6 +78,9 @@ interface Props {
 
 const PAGE_SIZE_OPTIONS = [20, 50, 100]
 const DEFAULT_PAGE_SIZE = 20
+const UNASSIGNED_VALUE = '__unassigned'
+const UNGROUPED_VALUE = '__ungrouped'
+const UNKNOWN_OS_VALUE = '__unknown'
 
 export function NodesV2Page({
   nodes,
@@ -90,6 +94,7 @@ export function NodesV2Page({
   viewVersion,
   onViewVersionChange,
 }: Props) {
+  const { t } = useI18n()
   const stats = useAggregateStats(nodes, records, { expiringWithinDays: 30 })
   const drawer = useMobileDrawer()
   const isMobile = useIsMobile()
@@ -127,16 +132,20 @@ export function NodesV2Page({
   const regionOptions = useMemo(() => {
     const set: Record<string, number> = {}
     for (const n of nodes) {
-      const k = (n.region ?? '').trim() || 'Unassigned'
+      const k = (n.region ?? '').trim() || UNASSIGNED_VALUE
       set[k] = (set[k] ?? 0) + 1
     }
     return [
-      { value: 'all', label: 'All Regions' },
+      { value: 'all', label: t('monitoring.filters.allRegions') },
       ...Object.entries(set)
         .sort((a, b) => b[1] - a[1])
-        .map(([k, c]) => ({ value: k, label: k, count: c })),
+        .map(([k, c]) => ({
+          value: k,
+          label: k === UNASSIGNED_VALUE ? t('monitoring.filters.unassigned') : k,
+          count: c,
+        })),
     ]
-  }, [nodes])
+  }, [nodes, t])
 
   const providerGroupOptions = useMemo(() => {
     const set: Record<string, number> = {}
@@ -145,41 +154,49 @@ export function NodesV2Page({
       const k =
         ((n as { provider?: string }).provider ?? '').trim() ||
         (n.group ?? '').trim() ||
-        'Ungrouped'
+        UNGROUPED_VALUE
       set[k] = (set[k] ?? 0) + 1
     }
     return [
-      { value: 'all', label: 'All Providers / Groups' },
+      { value: 'all', label: t('monitoring.filters.allProvidersGroups') },
       ...Object.entries(set)
         .sort((a, b) => b[1] - a[1])
-        .map(([k, c]) => ({ value: k, label: k, count: c })),
+        .map(([k, c]) => ({
+          value: k,
+          label: k === UNGROUPED_VALUE ? t('monitoring.filters.ungrouped') : k,
+          count: c,
+        })),
     ]
-  }, [nodes])
+  }, [nodes, t])
 
   const osOptions = useMemo(() => {
     const set: Record<string, number> = {}
     for (const n of nodes) {
       // Normalize "Debian GNU/Linux 12 (bookworm)" → "Debian"
-      const raw = n.os ?? 'Unknown'
-      const first = raw.split(/[\s/]/)[0] || 'Unknown'
+      const raw = n.os ?? UNKNOWN_OS_VALUE
+      const first = raw === UNKNOWN_OS_VALUE ? UNKNOWN_OS_VALUE : raw.split(/[\s/]/)[0] || UNKNOWN_OS_VALUE
       set[first] = (set[first] ?? 0) + 1
     }
     return [
-      { value: 'all', label: 'All OS' },
+      { value: 'all', label: t('monitoring.filters.allOs') },
       ...Object.entries(set)
         .sort((a, b) => b[1] - a[1])
-        .map(([k, c]) => ({ value: k, label: k, count: c })),
+        .map(([k, c]) => ({
+          value: k,
+          label: k === UNKNOWN_OS_VALUE ? t('common.unknown') : k,
+          count: c,
+        })),
     ]
-  }, [nodes])
+  }, [nodes, t])
 
   const statusOptions = useMemo(
     () => [
-      { value: 'all', label: 'All Statuses', count: stats.total },
-      { value: 'online', label: 'Online', count: stats.online },
-      { value: 'degraded', label: 'Degraded', count: stats.degraded },
-      { value: 'offline', label: 'Offline', count: stats.offline },
+      { value: 'all', label: t('monitoring.filters.allStatuses'), count: stats.total },
+      { value: 'online', label: t('common.online'), count: stats.online },
+      { value: 'degraded', label: t('monitoring.labels.degraded'), count: stats.degraded },
+      { value: 'offline', label: t('common.offline'), count: stats.offline },
     ],
-    [stats.total, stats.online, stats.degraded, stats.offline],
+    [stats.total, stats.online, stats.degraded, stats.offline, t],
   )
 
   // ── Filter nodes ──
@@ -188,7 +205,7 @@ export function NodesV2Page({
       const r = records[n.uuid]
 
       if (filterRegion !== 'all') {
-        const region = (n.region ?? '').trim() || 'Unassigned'
+        const region = (n.region ?? '').trim() || UNASSIGNED_VALUE
         if (region !== filterRegion) return false
       }
 
@@ -196,13 +213,13 @@ export function NodesV2Page({
         const key =
           ((n as { provider?: string }).provider ?? '').trim() ||
           (n.group ?? '').trim() ||
-          'Ungrouped'
+          UNGROUPED_VALUE
         if (key !== filterProviderGroup) return false
       }
 
       if (filterOs !== 'all') {
-        const raw = n.os ?? 'Unknown'
-        const first = raw.split(/[\s/]/)[0] || 'Unknown'
+        const raw = n.os ?? UNKNOWN_OS_VALUE
+        const first = raw === UNKNOWN_OS_VALUE ? UNKNOWN_OS_VALUE : raw.split(/[\s/]/)[0] || UNKNOWN_OS_VALUE
         if (first !== filterOs) return false
       }
 
@@ -260,21 +277,21 @@ export function NodesV2Page({
   const filterSpecs: FilterSpec[] = [
     {
       key: 'region',
-      label: 'REGION',
+      label: t('monitoring.labels.region'),
       options: regionOptions,
       value: filterRegion,
       onChange: setFilterRegion,
     },
     {
       key: 'status',
-      label: 'STATUS',
+      label: t('monitoring.labels.status'),
       options: statusOptions,
       value: filterStatus,
       onChange: setFilterStatus,
     },
     {
       key: 'providerGroup',
-      label: 'PROVIDER',
+      label: t('monitoring.labels.provider'),
       options: providerGroupOptions,
       value: filterProviderGroup,
       onChange: setFilterProviderGroup,
@@ -339,6 +356,12 @@ export function NodesV2Page({
 
   // Main column shrinks to leave room for side panel on desktop
   const mainGridWidth = isMobile ? '1fr' : 'minmax(0, 1fr) 300px'
+  const viewModeLabel =
+    viewMode === 'grid'
+      ? t('monitoring.viewModes.grid')
+      : viewMode === 'table'
+        ? t('monitoring.viewModes.table')
+        : t('monitoring.viewModes.compact')
 
   return (
     <div
@@ -388,7 +411,7 @@ export function NodesV2Page({
       >
         <Topbar
           title={siteName}
-          subtitle={`INVENTORY · ${stats.total} NODES · ${viewMode.toUpperCase()}`}
+          subtitle={`${t('monitoring.labels.inventory')} · ${stats.total} ${t('common.nodes')} · ${viewModeLabel}`}
           theme={theme}
           onTheme={onTheme}
           online={stats.online}
@@ -433,13 +456,13 @@ export function NodesV2Page({
                   letterSpacing: '-0.02em',
                 }}
               >
-                Nodes
+                {t('pages.nodes.title')}
               </h2>
               <SerialPlate>N · {stats.total}</SerialPlate>
               <Etch>
                 {filteredNodes.length === stats.total
-                  ? 'ALL SHOWN'
-                  : `SHOWN ${filteredNodes.length}/${stats.total}`}
+                  ? t('monitoring.labels.allShown')
+                  : `${filteredNodes.length}/${stats.total}`}
               </Etch>
             </div>
             <NodesPageActionBar
@@ -460,8 +483,8 @@ export function NodesV2Page({
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             filters={filterSpecs}
-            meta={`PAGE ${safePage}/${totalPages}`}
-            searchPlaceholder="Search nodes by name, IP, tag…"
+            meta={t('monitoring.pagination.page', { page: safePage, total: totalPages })}
+            searchPlaceholder={t('monitoring.filters.searchNodes')}
           />
 
           {/* View mode row */}
@@ -473,7 +496,7 @@ export function NodesV2Page({
               padding: '0 2px',
             }}
           >
-            <Etch>VIEW MODE</Etch>
+            <Etch>{t('monitoring.labels.viewMode')}</Etch>
             <ViewModeSwitcher value={viewMode} onChange={setViewMode} />
           </div>
 
@@ -501,8 +524,8 @@ export function NodesV2Page({
                   }}
                 >
                   {filteredNodes.length === 0
-                    ? 'No nodes match the current filters.'
-                    : 'Page is empty — try a different page.'}
+                    ? t('monitoring.empty.noNodesMatch')
+                    : t('monitoring.empty.pageEmpty')}
                 </div>
               ) : viewMode === 'table' ? (
                 <NodeRowTable
@@ -569,15 +592,11 @@ export function NodesV2Page({
                   color: 'var(--fg-2)',
                 }}
               >
-                Showing{' '}
-                <span style={{ color: 'var(--fg-0)', fontWeight: 500 }}>
-                  {(safePage - 1) * pageSize + 1}-
-                  {Math.min(safePage * pageSize, filteredNodes.length)}
-                </span>{' '}
-                of{' '}
-                <span style={{ color: 'var(--fg-0)', fontWeight: 500 }}>
-                  {filteredNodes.length}
-                </span>
+                {t('monitoring.pagination.showing', {
+                  start: (safePage - 1) * pageSize + 1,
+                  end: Math.min(safePage * pageSize, filteredNodes.length),
+                  total: filteredNodes.length,
+                })}
               </span>
 
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -589,7 +608,7 @@ export function NodesV2Page({
                     color: 'var(--fg-3)',
                   }}
                 >
-                  PER PAGE
+                  {t('monitoring.pagination.perPage')}
                 </span>
                 <div
                   style={{
@@ -642,7 +661,7 @@ export function NodesV2Page({
                     opacity: safePage <= 1 ? 0.4 : 1,
                   }}
                 >
-                  ← PREV
+                  ← {t('monitoring.pagination.prev')}
                 </button>
                 <span
                   style={{
@@ -673,7 +692,7 @@ export function NodesV2Page({
                     opacity: safePage >= totalPages ? 0.4 : 1,
                   }}
                 >
-                  NEXT →
+                  {t('monitoring.pagination.next')} →
                 </button>
               </div>
             </div>
