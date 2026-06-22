@@ -1413,6 +1413,20 @@ body[data-theme='ran-liquid-light']::after {
   }
 }
 
+.traffic-analytics-table-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--edge-mid) transparent;
+}
+
+.traffic-analytics-table-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.traffic-analytics-table-scroll::-webkit-scrollbar-thumb {
+  background: var(--edge-mid);
+  border-radius: 999px;
+}
+
 /* Billing: two 2-col blocks (Renewal Timeline / Critical-7 panel,
    and CostTrend / continent spend) collapse to single column on mobile. */
 @media (max-width: 767px) {

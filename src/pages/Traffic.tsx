@@ -14,6 +14,7 @@ import { BarChart } from '@/components/charts/BarChart'
 import type { TrafficNodeSummary, TrafficQuality, TrafficRangePreset } from '@/api/client'
 import type { KomariNode, KomariPublicConfig, KomariRecord } from '@/types/komari'
 import type { GlobalHistoryState } from '@/hooks/useGlobalHistory'
+import type { Translator } from '@/i18n/types'
 import { useTrafficAnalytics } from '@/hooks/useTrafficAnalytics'
 import { formatBps, formatBytes, formatPercent } from '@/utils/format'
 import { contentFs } from '@/utils/fontScale'
@@ -40,13 +41,6 @@ interface Props {
   hubTargetUuid?: string
 }
 
-const SORT_LABELS: Record<SortBy, string> = {
-  total: 'TOTAL',
-  up: 'OUT',
-  down: 'IN',
-  peak: 'PEAK',
-}
-
 function toLocalInputValue(date: Date): string {
   const pad = (v: number) => String(v).padStart(2, '0')
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`
@@ -58,16 +52,16 @@ function fromLocalInputValue(value: string): Date | undefined {
   return Number.isFinite(date.getTime()) ? date : undefined
 }
 
-function qualityLabel(quality: TrafficQuality): string {
+function qualityLabel(quality: TrafficQuality, t: Translator): string {
   switch (quality) {
     case 'exact':
-      return '精确'
+      return t('pages.traffic.qualityStates.exact')
     case 'estimated':
-      return '估算'
+      return t('pages.traffic.qualityStates.estimated')
     case 'partial':
-      return '部分'
+      return t('pages.traffic.qualityStates.partial')
     default:
-      return '无数据'
+      return t('pages.traffic.qualityStates.empty')
   }
 }
 
@@ -159,12 +153,25 @@ export function TrafficPage({
 
   const scopeLabel =
     scopeMode === 'all'
-      ? `${nodes.length} ${t('common.nodes')}`
+      ? t('pages.traffic.selectedNodes', { count: nodes.length })
       : scopeMode === 'single'
         ? visibleNodeMap.get(effectiveSingleUuid)?.name ?? t('common.node')
-        : `${effectiveMultiUuids.length} ${t('common.nodes')}`
-  const rangeLabel = rangeMode === 'today' ? '今日' : rangeMode === '3d' ? '近 3 天' : rangeMode === '7d' ? '近 7 天' : '自定义'
+        : t('pages.traffic.selectedNodes', { count: effectiveMultiUuids.length })
+  const rangeLabel =
+    rangeMode === 'today'
+      ? t('pages.traffic.today')
+      : rangeMode === '3d'
+        ? t('pages.traffic.last3d')
+        : rangeMode === '7d'
+          ? t('pages.traffic.last7d')
+          : t('pages.traffic.custom')
   const subtitle = `${scopeLabel} · ${rangeLabel} · ${formatBytes(summary.total)}`
+  const sortLabels: Record<SortBy, string> = {
+    total: t('pages.traffic.sortTotal'),
+    up: t('pages.traffic.sortOutbound'),
+    down: t('pages.traffic.sortInbound'),
+    peak: t('pages.traffic.sortPeak'),
+  }
 
   const heroStats = useMemo(() => {
     const totalStr = formatBytes(summary.total).split(' ')
@@ -173,7 +180,7 @@ export function TrafficPage({
     const peakStr = formatBps(summary.peak_bps).split(' ')
     return [
       {
-        label: '区间总流量',
+        label: t('pages.traffic.rangeTotal'),
         code: 'T01',
         value: totalStr[0] || '0',
         unit: totalStr[1] || 'B',
@@ -181,7 +188,7 @@ export function TrafficPage({
         sparkColor: 'var(--accent)',
       },
       {
-        label: '出站 ↑',
+        label: `${t('pages.traffic.outbound')} ↑`,
         code: 'T02',
         value: upStr[0] || '0',
         unit: upStr[1] || 'B',
@@ -189,7 +196,7 @@ export function TrafficPage({
         sparkColor: 'var(--accent-bright)',
       },
       {
-        label: '进站 ↓',
+        label: `${t('pages.traffic.inbound')} ↓`,
         code: 'T03',
         value: downStr[0] || '0',
         unit: downStr[1] || 'B',
@@ -197,7 +204,7 @@ export function TrafficPage({
         sparkColor: 'var(--signal-good)',
       },
       {
-        label: '峰值区间速率',
+        label: t('pages.traffic.peakRate'),
         code: 'T04',
         value: peakStr[0] || '0',
         unit: peakStr[1] ? peakStr[1].replace('/s', '') : 'B',
@@ -205,7 +212,7 @@ export function TrafficPage({
         sparkColor: 'var(--signal-info)',
       },
     ]
-  }, [chartData, summary, traffic.data.series])
+  }, [chartData, summary, t, traffic.data.series])
 
   const toggleMultiUuid = (uuid: string) => {
     setMultiUuids((current) =>
@@ -262,8 +269,8 @@ export function TrafficPage({
               >
                 {t('pages.traffic.title')}
               </h2>
-              <SerialPlate>TRAFFIC · ANALYTICS</SerialPlate>
-              <Etch>{traffic.loading ? 'SYNCING' : qualityLabel(summary.quality).toUpperCase()} · RANGE</Etch>
+              <SerialPlate>{t('pages.traffic.analytics').toUpperCase()}</SerialPlate>
+              <Etch>{traffic.loading ? t('pages.traffic.syncing').toUpperCase() : qualityLabel(summary.quality, t).toUpperCase()} · {t('pages.traffic.range').toUpperCase()}</Etch>
             </div>
             <button
               type="button"
@@ -281,11 +288,11 @@ export function TrafficPage({
                 cursor: 'pointer',
               }}
             >
-              刷新
+              {t('pages.traffic.refresh')}
             </button>
           </div>
 
-          <CardFrame title="筛选范围" code="F · 01" inset>
+          <CardFrame title={t('pages.traffic.filters')} code="F · 01" inset>
             <div
               style={{
                 display: 'grid',
@@ -294,39 +301,39 @@ export function TrafficPage({
                 padding: 14,
               }}
             >
-              <ControlBlock label="时间范围">
+              <ControlBlock label={t('pages.traffic.timeRange')}>
                 <Segmented
                   size="sm"
                   value={rangeMode}
                   onChange={(v) => setRangeMode(v as RangeMode)}
                   options={[
-                    { value: 'today', label: '今日' },
-                    { value: '3d', label: '近 3 天' },
-                    { value: '7d', label: '近 7 天' },
-                    { value: 'custom', label: '自定义' },
+                    { value: 'today', label: t('pages.traffic.today') },
+                    { value: '3d', label: t('pages.traffic.last3d') },
+                    { value: '7d', label: t('pages.traffic.last7d') },
+                    { value: 'custom', label: t('pages.traffic.custom') },
                   ]}
                 />
               </ControlBlock>
-              <ControlBlock label="节点范围">
+              <ControlBlock label={t('pages.traffic.nodeScope')}>
                 <Segmented
                   size="sm"
                   value={scopeMode}
                   onChange={(v) => setScopeMode(v as ScopeMode)}
                   options={[
-                    { value: 'all', label: '全部' },
-                    { value: 'single', label: '单台' },
-                    { value: 'multi', label: '多选' },
+                    { value: 'all', label: t('common.all') },
+                    { value: 'single', label: t('pages.traffic.single') },
+                    { value: 'multi', label: t('pages.traffic.multi') },
                   ]}
                 />
               </ControlBlock>
-              <ControlBlock label="排序">
+              <ControlBlock label={t('pages.traffic.sort')}>
                 <Segmented
                   size="sm"
                   value={sortBy}
                   onChange={(v) => setSortBy(v as SortBy)}
-                  options={(Object.keys(SORT_LABELS) as SortBy[]).map((value) => ({
+                  options={(Object.keys(sortLabels) as SortBy[]).map((value) => ({
                     value,
-                    label: SORT_LABELS[value],
+                    label: sortLabels[value],
                   }))}
                 />
               </ControlBlock>
@@ -341,8 +348,8 @@ export function TrafficPage({
                   padding: '0 14px 14px',
                 }}
               >
-                <DateField label="开始时间" value={customFrom} onChange={setCustomFrom} />
-                <DateField label="结束时间" value={customTo} onChange={setCustomTo} />
+                <DateField label={t('pages.traffic.startTime')} value={customFrom} onChange={setCustomFrom} />
+                <DateField label={t('pages.traffic.endTime')} value={customTo} onChange={setCustomTo} />
                 {!customValid && (
                   <div
                     style={{
@@ -353,7 +360,7 @@ export function TrafficPage({
                       letterSpacing: '0.08em',
                     }}
                   >
-                    请选择有效的开始和结束时间
+                    {t('pages.traffic.invalidRange')}
                   </div>
                 )}
               </div>
@@ -402,9 +409,9 @@ export function TrafficPage({
           </CardFrame>
 
           {traffic.error && (
-            <CardFrame title="数据接口不可用" code="E · API">
+            <CardFrame title={t('pages.traffic.apiUnavailable')} code="E · API">
               <div style={{ color: 'var(--signal-warn)', fontSize: contentFs(12), lineHeight: 1.7 }}>
-                新版区间流量 API 暂时无法读取：{traffic.error}
+                {t('pages.traffic.apiUnavailableDescription', { error: traffic.error })}
               </div>
             </CardFrame>
           )}
@@ -418,14 +425,14 @@ export function TrafficPage({
               gap: 12,
             }}
           >
-            <QualityPill label="数据质量" value={qualityLabel(summary.quality)} tone={qualityTone(summary.quality)} />
-            <QualityPill label="覆盖率" value={formatPercent(summary.coverage * 100)} tone={summary.coverage >= 0.8 ? 'good' : 'warn'} />
-            <QualityPill label="计数器重置" value={`${summary.resets}`} tone={summary.resets > 0 ? 'warn' : 'good'} />
-            <QualityPill label="样本数" value={`${summary.samples}`} tone={summary.samples > 0 ? 'good' : 'bad'} />
+            <QualityPill label={t('pages.traffic.quality')} value={qualityLabel(summary.quality, t)} tone={qualityTone(summary.quality)} />
+            <QualityPill label={t('pages.traffic.coverage')} value={formatPercent(summary.coverage * 100)} tone={summary.coverage >= 0.8 ? 'good' : 'warn'} />
+            <QualityPill label={t('pages.traffic.counterResets')} value={`${summary.resets}`} tone={summary.resets > 0 ? 'warn' : 'good'} />
+            <QualityPill label={t('pages.traffic.samples')} value={`${summary.samples}`} tone={summary.samples > 0 ? 'good' : 'bad'} />
           </div>
 
           <CardFrame
-            title={`区间流量趋势 · ${traffic.data.group_by.toUpperCase()}`}
+            title={`${t('pages.traffic.trend')} · ${traffic.data.group_by.toUpperCase()}`}
             code="T · 06"
             action={<Etch>{traffic.data.from.slice(0, 10)} → {traffic.data.to.slice(0, 10)}</Etch>}
           >
@@ -443,9 +450,9 @@ export function TrafficPage({
           </CardFrame>
 
           <CardFrame
-            title={scopeMode === 'single' ? '单节点区间构成' : '节点流量对比'}
+            title={scopeMode === 'single' ? t('pages.traffic.singleComposition') : t('pages.traffic.nodeComparison')}
             code={`C · ${String(comparisonNodes.length).padStart(2, '0')}`}
-            action={<Etch>{SORT_LABELS[sortBy]}</Etch>}
+            action={<Etch>{sortLabels[sortBy]}</Etch>}
           >
             <BarChart
               data={comparisonData.length > 0 ? comparisonData : [0]}
@@ -586,7 +593,7 @@ function TrafficTable({
   const { t } = useI18n()
   if (rows.length === 0) {
     return (
-      <CardFrame title="节点明细" code="N · 00">
+      <CardFrame title={t('pages.traffic.nodeDetails')} code="N · 00">
         <div
           style={{
             padding: '42px 16px',
@@ -606,10 +613,11 @@ function TrafficTable({
 
   const maxTotal = Math.max(...rows.map((row) => row.total), 1)
   return (
-    <CardFrame title="节点明细" code={`N · ${String(rows.length).padStart(2, '0')}`} inset>
-      <div>
+    <CardFrame title={t('pages.traffic.nodeDetails')} code={`N · ${String(rows.length).padStart(2, '0')}`} inset>
+      <div className="traffic-analytics-table-scroll" style={{ overflowX: 'auto' }}>
+        <div style={{ minWidth: 920 }}>
         <div
-          className="traffic-talkers-header"
+          className="traffic-analytics-header"
           style={{
             display: 'grid',
             gridTemplateColumns: '32px minmax(160px, 1.4fr) 92px 120px 120px 120px 110px minmax(140px, 1fr)',
@@ -627,11 +635,11 @@ function TrafficTable({
           <span>#</span>
           <span>{t('common.node').toUpperCase()}</span>
           <span>{t('common.region').toUpperCase()}</span>
-          <span style={{ textAlign: 'right' }}>出站</span>
-          <span style={{ textAlign: 'right' }}>进站</span>
-          <span style={{ textAlign: 'right' }}>峰值</span>
-          <span>质量</span>
-          <span>占比</span>
+          <span style={{ textAlign: 'right' }}>{t('pages.traffic.outbound')}</span>
+          <span style={{ textAlign: 'right' }}>{t('pages.traffic.inbound')}</span>
+          <span style={{ textAlign: 'right' }}>{t('pages.traffic.sortPeak')}</span>
+          <span>{t('pages.traffic.quality')}</span>
+          <span>{t('pages.traffic.share')}</span>
         </div>
         {rows.map((row, index) => {
           const live = records[row.uuid]
@@ -640,7 +648,7 @@ function TrafficTable({
             <a
               key={row.uuid}
               href={hashFor({ name: 'nodes', uuid: row.uuid })}
-              className="traffic-talkers-row"
+              className="traffic-analytics-row"
               style={{
                 display: 'grid',
                 gridTemplateColumns: '32px minmax(160px, 1.4fr) 92px 120px 120px 120px 110px minmax(140px, 1fr)',
@@ -696,7 +704,7 @@ function TrafficTable({
                 {formatBps(row.peak_bps)}
               </span>
               <span>
-                <SerialPlate>{qualityLabel(row.quality)}</SerialPlate>
+                <SerialPlate>{qualityLabel(row.quality, t)}</SerialPlate>
               </span>
               <span>
                 <ShareBar up={row.up} down={row.down} max={maxTotal} />
@@ -704,6 +712,7 @@ function TrafficTable({
             </a>
           )
         })}
+        </div>
       </div>
     </CardFrame>
   )
