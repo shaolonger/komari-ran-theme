@@ -16,7 +16,7 @@
 
 import type { ReactNode } from 'react'
 import { Etch } from '@/components/atoms/Etch'
-import { SerialPlate } from '@/components/atoms/SerialPlate'
+import { LiquidPill } from '@/components/liquid/LiquidPrimitives'
 import { contentFs } from '@/utils/fontScale'
 
 interface Props {
@@ -47,7 +47,7 @@ export function SummaryStatCard({
 }: Props) {
   return (
     <div
-      className="precision-card"
+      className="liquid-surface liquid-surface--interactive"
       style={{
         padding: '13px 16px 12px',
         display: 'flex',
@@ -64,7 +64,7 @@ export function SummaryStatCard({
         }}
       >
         <Etch>{label}</Etch>
-        <SerialPlate>{serial}</SerialPlate>
+        <LiquidPill>{serial}</LiquidPill>
       </div>
 
       <div

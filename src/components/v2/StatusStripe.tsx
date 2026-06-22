@@ -127,7 +127,7 @@ export function StatusStripe({
 
   return (
     <div
-      className="precision-card"
+      className="liquid-surface liquid-surface--soft"
       style={{
         display: 'flex',
         alignItems: 'center',
@@ -135,6 +135,7 @@ export function StatusStripe({
         flexWrap: 'wrap',
         gap: isMobile ? 12 : 22,
         padding: isMobile ? '8px 12px' : '10px 18px',
+        borderRadius: 999,
       }}
       aria-label="cluster status"
     >

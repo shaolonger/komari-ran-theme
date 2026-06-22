@@ -21,7 +21,7 @@
 
 import type { ClusterHealth } from '@/hooks/v2'
 import { Etch } from '@/components/atoms/Etch'
-import { SerialPlate } from '@/components/atoms/SerialPlate'
+import { LiquidPill } from '@/components/liquid/LiquidPrimitives'
 import { contentFs } from '@/utils/fontScale'
 
 interface Props {
@@ -57,7 +57,7 @@ export function HealthScoreCard({
 
   return (
     <div
-      className="precision-card"
+      className="liquid-surface liquid-surface--interactive"
       style={{
         padding: '14px 18px 12px',
         display: 'flex',
@@ -74,7 +74,7 @@ export function HealthScoreCard({
         }}
       >
         <Etch>CLUSTER HEALTH SCORE</Etch>
-        <SerialPlate>{serial}</SerialPlate>
+        <LiquidPill active>{serial}</LiquidPill>
       </div>
 
       {/* score + grade */}
@@ -127,12 +127,12 @@ export function HealthScoreCard({
       <div
         style={{
           height: 4,
-          background: 'var(--bg-inset)',
-          border: '1px solid var(--edge-engrave)',
-          borderRadius: 1,
+          background: 'var(--liquid-surface-soft, var(--bg-inset))',
+          border: '1px solid var(--liquid-border, var(--edge-engrave))',
+          borderRadius: 999,
           position: 'relative',
           overflow: 'hidden',
-          boxShadow: 'inset 0 1px 1px var(--edge-deep)',
+          boxShadow: 'var(--shadow-inset)',
           marginTop: 2,
         }}
       >

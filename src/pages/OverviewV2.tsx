@@ -188,9 +188,10 @@ export function OverviewV2Page({
     <div
       style={{
         display: 'flex',
-        background: 'var(--bg-0)',
+        background: 'transparent',
         color: 'var(--fg-0)',
         fontFamily: 'var(--font-sans)',
+        minHeight: '100vh',
       }}
     >
       {/* Sidebar + bottom status footer wrapper */}
@@ -252,7 +253,7 @@ export function OverviewV2Page({
             paddingBottom: isMobile ? 12 : 120, // leave room for sidebar footer overlay
             display: 'flex',
             flexDirection: 'column',
-            gap,
+            gap: isMobile ? 12 : 14,
           }}
         >
           {/* ── 1. Status Stripe ── */}
