@@ -3,7 +3,8 @@
    Design tokens. Inspired by precision-machined hi-fi gear:
    stepped chamfered edges, etched serial plates, sunken displays,
    true 1px hairlines. No glow, no scanlines, no spectacle.
-   Themes: ran-night (graphite), ran-mist (porcelain), ran-ember (jujube),
+   Themes: ran-liquid (dark glass), ran-liquid-light (clear glass),
+           ran-night (graphite), ran-mist (porcelain), ran-ember (jujube),
            ran-sakura (cherry blossom), ran-lavender (pale lilac).
    ============================================================ */
 
@@ -852,6 +853,202 @@ body {
   --map-land-hover: #e2e7ee;
   --map-border: rgba(30, 40, 55, 0.30);
   --map-graticule: rgba(30, 40, 55, 0.09);
+}
+
+/* ── ran-liquid (Siri stream dark glass) ─────────────────────
+   Web implementation of a Liquid Glass-inspired material system.
+   The legacy --bg/--edge variables are intentionally mapped to
+   translucent surfaces so existing Ran components immediately inherit
+   the new material without a full component rewrite. */
+[data-theme='ran-liquid'] {
+  --bg-0: #050711;
+  --bg-1: rgba(10, 15, 29, 0.58);
+  --bg-2: rgba(16, 24, 42, 0.54);
+  --bg-3: rgba(27, 39, 64, 0.62);
+  --bg-4: rgba(52, 72, 110, 0.72);
+  --bg-inset: rgba(4, 8, 18, 0.46);
+
+  --fg-0: #f7fbff;
+  --fg-1: #d7e4f2;
+  --fg-2: #93a8be;
+  --fg-3: #607086;
+  --fg-mark: #ffffff;
+
+  --txt-engrave: none;
+
+  --edge-bright: rgba(255, 255, 255, 0.32);
+  --edge-mid: rgba(210, 236, 255, 0.16);
+  --edge-deep: rgba(0, 0, 0, 0.34);
+  --edge-engrave: rgba(255, 255, 255, 0.12);
+
+  --accent: #61f2ff;
+  --accent-dim: #2e88ff;
+  --accent-bright: #b8fff8;
+
+  --signal-good: #62f0b4;
+  --signal-warn: #ffd36a;
+  --signal-bad: #ff6f91;
+  --signal-info: #7bb7ff;
+
+  --shadow-card:
+    0 1px 0 rgba(255, 255, 255, 0.22) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.24) inset,
+    0 18px 46px rgba(0, 0, 0, 0.32),
+    0 0 56px rgba(70, 160, 255, 0.09);
+  --shadow-inset:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.22);
+  --shadow-button:
+    0 1px 0 rgba(255, 255, 255, 0.22) inset,
+    0 10px 24px rgba(0, 0, 0, 0.22);
+
+  --grid-line: rgba(190, 230, 255, 0.04);
+  --grid-line-strong: rgba(190, 230, 255, 0.09);
+
+  --map-land: rgba(51, 78, 112, 0.78);
+  --map-land-hover: rgba(83, 122, 168, 0.88);
+  --map-border: rgba(214, 241, 255, 0.24);
+  --map-graticule: rgba(214, 241, 255, 0.10);
+
+  --liquid-page-bg: radial-gradient(circle at 18% 12%, rgba(83, 144, 255, 0.28), transparent 34%),
+    radial-gradient(circle at 78% 20%, rgba(142, 92, 255, 0.20), transparent 32%),
+    linear-gradient(145deg, #050711 0%, #071021 42%, #03060f 100%);
+  --liquid-surface: rgba(16, 24, 42, 0.54);
+  --liquid-surface-strong: rgba(22, 33, 55, 0.68);
+  --liquid-surface-soft: rgba(255, 255, 255, 0.08);
+  --liquid-border: rgba(220, 246, 255, 0.18);
+  --liquid-highlight: rgba(255, 255, 255, 0.28);
+  --liquid-blur: blur(28px) saturate(1.55);
+  --liquid-radius-sm: 14px;
+  --liquid-radius-md: 20px;
+  --liquid-radius-lg: 28px;
+  --liquid-shadow: 0 24px 70px rgba(0, 0, 0, 0.34), 0 0 80px rgba(62, 178, 255, 0.08);
+  --liquid-glow-cyan: rgba(97, 242, 255, 0.42);
+  --liquid-glow-blue: rgba(46, 136, 255, 0.36);
+  --liquid-glow-violet: rgba(142, 92, 255, 0.28);
+  --liquid-glow-warm: rgba(255, 224, 184, 0.20);
+}
+
+/* ── ran-liquid-light (clear glass) ───────────────────────── */
+[data-theme='ran-liquid-light'] {
+  --bg-0: #eef7ff;
+  --bg-1: rgba(255, 255, 255, 0.68);
+  --bg-2: rgba(255, 255, 255, 0.58);
+  --bg-3: rgba(246, 251, 255, 0.78);
+  --bg-4: rgba(234, 245, 255, 0.88);
+  --bg-inset: rgba(226, 239, 250, 0.58);
+
+  --fg-0: #07111f;
+  --fg-1: #172437;
+  --fg-2: #516278;
+  --fg-3: #8795a6;
+  --fg-mark: #000000;
+
+  --txt-engrave: none;
+
+  --edge-bright: rgba(255, 255, 255, 0.92);
+  --edge-mid: rgba(75, 118, 168, 0.16);
+  --edge-deep: rgba(30, 70, 120, 0.16);
+  --edge-engrave: rgba(30, 70, 120, 0.12);
+
+  --accent: #247cff;
+  --accent-dim: #0f55c8;
+  --accent-bright: #65f0ff;
+
+  --signal-good: #16a36f;
+  --signal-warn: #b87400;
+  --signal-bad: #d8345f;
+  --signal-info: #247cff;
+
+  --shadow-card:
+    0 1px 0 rgba(255, 255, 255, 0.86) inset,
+    0 -1px 0 rgba(30, 70, 120, 0.09) inset,
+    0 18px 48px rgba(42, 90, 140, 0.14);
+  --shadow-inset:
+    inset 0 1px 0 rgba(30, 70, 120, 0.08),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.72);
+  --shadow-button:
+    0 1px 0 rgba(255, 255, 255, 0.92) inset,
+    0 10px 24px rgba(42, 90, 140, 0.14);
+
+  --grid-line: rgba(30, 70, 120, 0.06);
+  --grid-line-strong: rgba(30, 70, 120, 0.12);
+
+  --map-land: rgba(209, 229, 246, 0.94);
+  --map-land-hover: rgba(185, 216, 244, 0.98);
+  --map-border: rgba(30, 70, 120, 0.25);
+  --map-graticule: rgba(30, 70, 120, 0.09);
+
+  --liquid-page-bg: radial-gradient(circle at 18% 12%, rgba(84, 168, 255, 0.24), transparent 34%),
+    radial-gradient(circle at 82% 18%, rgba(120, 96, 255, 0.14), transparent 30%),
+    linear-gradient(145deg, #eef7ff 0%, #f8fcff 48%, #eaf4ff 100%);
+  --liquid-surface: rgba(255, 255, 255, 0.58);
+  --liquid-surface-strong: rgba(255, 255, 255, 0.74);
+  --liquid-surface-soft: rgba(255, 255, 255, 0.34);
+  --liquid-border: rgba(75, 118, 168, 0.18);
+  --liquid-highlight: rgba(255, 255, 255, 0.86);
+  --liquid-blur: blur(26px) saturate(1.35);
+  --liquid-radius-sm: 14px;
+  --liquid-radius-md: 20px;
+  --liquid-radius-lg: 28px;
+  --liquid-shadow: 0 24px 70px rgba(42, 90, 140, 0.15), 0 0 72px rgba(84, 168, 255, 0.13);
+  --liquid-glow-cyan: rgba(101, 240, 255, 0.34);
+  --liquid-glow-blue: rgba(36, 124, 255, 0.26);
+  --liquid-glow-violet: rgba(120, 96, 255, 0.16);
+  --liquid-glow-warm: rgba(255, 246, 218, 0.36);
+}
+
+[data-theme^='ran-liquid'] {
+  color-scheme: dark;
+}
+
+[data-theme='ran-liquid-light'] {
+  color-scheme: light;
+}
+
+body[data-theme^='ran-liquid'] {
+  background: var(--liquid-page-bg);
+}
+
+[data-theme^='ran-liquid'] .precision-card,
+[data-theme^='ran-liquid'] .precision-inset {
+  backdrop-filter: var(--liquid-blur);
+  -webkit-backdrop-filter: var(--liquid-blur);
+  border-color: var(--liquid-border);
+  border-radius: var(--liquid-radius-md);
+}
+
+[data-theme^='ran-liquid'] .precision-card {
+  background: var(--liquid-surface);
+  box-shadow: var(--liquid-shadow);
+}
+
+[data-theme^='ran-liquid'] .precision-inset {
+  background: var(--bg-inset);
+}
+
+[data-theme^='ran-liquid'] .seam {
+  background: linear-gradient(90deg, transparent, var(--liquid-border), transparent);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+@media (prefers-contrast: more) {
+  [data-theme^='ran-liquid'] {
+    --bg-1: rgba(8, 13, 24, 0.94);
+    --bg-2: rgba(12, 19, 34, 0.96);
+    --liquid-surface: rgba(12, 19, 34, 0.96);
+    --liquid-surface-strong: rgba(16, 25, 44, 0.98);
+    --liquid-border: rgba(255, 255, 255, 0.36);
+    --liquid-blur: blur(0) saturate(1);
+  }
+
+  [data-theme='ran-liquid-light'] {
+    --bg-1: rgba(255, 255, 255, 0.98);
+    --bg-2: rgba(255, 255, 255, 0.98);
+    --liquid-surface: rgba(255, 255, 255, 0.98);
+    --liquid-surface-strong: rgba(255, 255, 255, 1);
+    --liquid-border: rgba(30, 70, 120, 0.34);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

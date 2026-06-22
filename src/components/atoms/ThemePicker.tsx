@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 
 export type Theme =
+  | 'ran-liquid'
+  | 'ran-liquid-light'
   | 'ran-night'
   | 'ran-mist'
   | 'ran-ember'
@@ -37,6 +39,18 @@ interface ThemeOption {
  * applied to <html data-theme>.
  */
 const THEMES: ThemeOption[] = [
+  {
+    value: 'ran-liquid',
+    name: 'LIQUID',
+    zh: '璃',
+    swatch: { bg: '#050711', card: '#142033', accent: '#61f2ff' },
+  },
+  {
+    value: 'ran-liquid-light',
+    name: 'LIQUID L',
+    zh: '皎',
+    swatch: { bg: '#eef7ff', card: '#ffffff', accent: '#247cff' },
+  },
   {
     value: 'ran-night',
     name: 'NIGHT',

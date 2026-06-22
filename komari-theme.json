@@ -26,9 +26,9 @@
         "key": "default_theme",
         "name": "[ MODE ] 默认主题",
         "type": "select",
-        "options": "ran-night,ran-mist,ran-ember,ran-sakura,ran-lavender,ran-tomcat,ran-teal,ran-midnight,ran-mint,ran-butter",
-        "default": "ran-night",
-        "help": "页面首次加载时的默认主题。night=墨石,mist=雾,ember=烬,sakura=樱,lavender=薰,tomcat=凤凰,teal=松石,midnight=午夜,mint=薄荷,butter=奶油。用户切换后浏览器会记住偏好。"
+        "options": "ran-liquid,ran-liquid-light,ran-night,ran-mist,ran-ember,ran-sakura,ran-lavender,ran-tomcat,ran-teal,ran-midnight,ran-mint,ran-butter,ran-ji",
+        "default": "ran-liquid",
+        "help": "页面首次加载时的默认主题。liquid=暗色流体玻璃,liquid-light=浅色流体玻璃,night=墨石,mist=雾,ember=烬,sakura=樱,lavender=薰,tomcat=凤凰,teal=松石,midnight=午夜,mint=薄荷,butter=奶油,ji=霁。用户切换后浏览器会记住偏好。"
       },
       {
         "key": "font_scale",

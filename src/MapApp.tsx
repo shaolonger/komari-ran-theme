@@ -37,14 +37,14 @@ const THEME_KEY = 'ran.theme'
 function loadTheme(): Theme {
   try {
     const v = localStorage.getItem(THEME_KEY)
-    if (v === 'ran-night' || v === 'ran-mist' || v === 'ran-ember' || v === 'ran-sakura' || v === 'ran-lavender' || v === 'ran-ji') return v
+    if (v === 'ran-liquid' || v === 'ran-liquid-light' || v === 'ran-night' || v === 'ran-mist' || v === 'ran-ember' || v === 'ran-sakura' || v === 'ran-lavender' || v === 'ran-ji') return v
   } catch {
     /* ignore */
   }
   if (typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: light)').matches) {
-    return 'ran-mist'
+    return 'ran-liquid-light'
   }
-  return 'ran-night'
+  return 'ran-liquid'
 }
 
 export default function MapApp() {
@@ -103,7 +103,7 @@ export default function MapApp() {
     if (!embed) return
     const onStorage = (e: StorageEvent) => {
       if (e.key !== THEME_KEY) return
-      if (e.newValue === 'ran-night' || e.newValue === 'ran-mist' || e.newValue === 'ran-ji') {
+      if (e.newValue === 'ran-liquid' || e.newValue === 'ran-liquid-light' || e.newValue === 'ran-night' || e.newValue === 'ran-mist' || e.newValue === 'ran-ji') {
         setTheme(e.newValue)
       }
     }

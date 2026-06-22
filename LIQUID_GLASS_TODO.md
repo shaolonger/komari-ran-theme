@@ -10,7 +10,7 @@
 ## Tasks
 
 - [x] `todo-01` 建立本文件，明确 Liquid Glass 改造范围、执行规则和验收节奏。
-- [ ] `todo-02` 新增 Liquid 主题 token、背景材质变量、可访问性 fallback，并将默认主题切换到 Liquid 暗色。
+- [x] `todo-02` 新增 Liquid 主题 token、背景材质变量、可访问性 fallback，并将默认主题切换到 Liquid 暗色。
 - [ ] `todo-03` 新增 Siri 暗流光背景层，让全局页面具备低干扰的动态环境光。
 - [ ] `todo-04` 新增 Liquid 基础组件原语，用统一的玻璃材质、按钮、胶囊和状态芯片替换零散 inline 样式。
 - [ ] `todo-05` 改造顶部栏与侧边栏为横屏优先的 Liquid shell，保留当前所有页面入口。
