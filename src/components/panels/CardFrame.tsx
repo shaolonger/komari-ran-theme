@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react'
-import { SerialPlate } from '@/components/atoms/SerialPlate'
+import { LiquidPill } from '@/components/liquid/LiquidPrimitives'
 
 interface Props {
   title: string
@@ -18,7 +18,7 @@ interface Props {
 export function CardFrame({ title, code, action, children, inset = false, style }: Props) {
   return (
     <div
-      className="precision-card"
+      className="liquid-surface"
       style={{ display: 'flex', flexDirection: 'column', ...style }}
     >
       <div
@@ -27,8 +27,8 @@ export function CardFrame({ title, code, action, children, inset = false, style 
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '10px 14px',
-          borderBottom: '1px solid var(--edge-engrave)',
-          background: 'var(--bg-1)',
+          borderBottom: '1px solid var(--liquid-border, var(--edge-engrave))',
+          background: 'var(--liquid-surface-soft, var(--bg-1))',
           gap: 8,
         }}
       >
@@ -46,7 +46,7 @@ export function CardFrame({ title, code, action, children, inset = false, style 
           >
             {title}
           </span>
-          {code && <SerialPlate>{code}</SerialPlate>}
+          {code && <LiquidPill>{code}</LiquidPill>}
         </div>
         {action}
       </div>

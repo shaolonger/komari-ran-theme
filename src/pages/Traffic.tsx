@@ -263,9 +263,10 @@ export function TrafficPage({
     <div
       style={{
         display: 'flex',
-        background: 'var(--bg-0)',
+        background: 'transparent',
         color: 'var(--fg-0)',
         fontFamily: 'var(--font-sans)',
+        minHeight: '100vh',
       }}
     >
       <Sidebar active="traffic" mobileOpen={drawer.open} onMobileClose={drawer.onClose} hubTargetUuid={hubTargetUuid} />

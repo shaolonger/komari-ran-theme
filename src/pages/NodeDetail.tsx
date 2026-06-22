@@ -175,7 +175,7 @@ export function NodeDetailPage({
       <div
         style={{
           display: 'flex',
-          background: 'var(--bg-0)',
+          background: 'transparent',
           color: 'var(--fg-0)',
           fontFamily: 'var(--font-sans)',
           minHeight: '100vh',
@@ -319,7 +319,7 @@ export function NodeDetailPage({
     <div
       style={{
         display: 'flex',
-        background: 'var(--bg-0)',
+        background: 'transparent',
         color: 'var(--fg-0)',
         fontFamily: 'var(--font-sans)',
       }}
@@ -1206,4 +1206,3 @@ function ConnRow({ label, value }: { label: string; value: string | number }) {
     </div>
   )
 }
-

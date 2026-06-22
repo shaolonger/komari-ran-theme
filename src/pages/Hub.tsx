@@ -979,7 +979,7 @@ export function HubPage({
       <div
         style={{
           display: 'flex',
-          background: 'var(--bg-0)',
+          background: 'transparent',
           color: 'var(--fg-0)',
           fontFamily: 'var(--font-sans)',
           minHeight: '100vh',
@@ -1083,7 +1083,7 @@ export function HubPage({
     <div
       style={{
         display: 'flex',
-        background: 'var(--bg-0)',
+        background: 'transparent',
         color: 'var(--fg-0)',
         fontFamily: 'var(--font-sans)',
         minHeight: '100vh',
@@ -1180,9 +1180,10 @@ export function HubPage({
               fontFamily: 'var(--font-mono)',
               fontSize: contentFs(10),
               padding: '6px 12px',
-              background: 'var(--bg-0)',
+              background: 'var(--liquid-surface-soft, var(--bg-0))',
               color: 'var(--fg-2)',
-              border: '1px solid var(--edge-engrave)',
+              border: '1px solid var(--liquid-border, var(--edge-engrave))',
+              borderRadius: 999,
               cursor: 'pointer',
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
@@ -1200,8 +1201,8 @@ export function HubPage({
             display: 'flex',
             gap: 8,
             padding: '10px 20px',
-            background: 'var(--bg-0)',
-            borderBottom: '1px solid var(--edge-engrave)',
+            background: 'var(--liquid-surface-soft, transparent)',
+            borderBottom: '1px solid var(--liquid-border, var(--edge-engrave))',
             flexWrap: 'wrap',
           }}
         >
@@ -1536,8 +1537,9 @@ export function HubPage({
                         letterSpacing: '0.16em',
                         textTransform: 'uppercase',
                         fontWeight: 600,
-                        background: 'var(--bg-0)',
-                        border: '1px solid var(--edge-mid)',
+                        background: 'var(--liquid-surface-soft, var(--bg-0))',
+                        border: '1px solid var(--liquid-border, var(--edge-mid))',
+                        borderRadius: 999,
                         padding: '4px 8px',
                         boxShadow: 'inset 0 1px 0 var(--edge-bright)',
                       }}

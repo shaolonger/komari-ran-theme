@@ -258,7 +258,7 @@ export function BillingPage({
       <div
         style={{
           display: 'flex',
-          background: 'var(--bg-0)',
+          background: 'transparent',
           color: 'var(--fg-0)',
           fontFamily: 'var(--font-sans)',
           minHeight: '100vh',
@@ -309,7 +309,7 @@ export function BillingPage({
     <div
       style={{
         display: 'flex',
-        background: 'var(--bg-0)',
+        background: 'transparent',
         color: 'var(--fg-0)',
         fontFamily: 'var(--font-sans)',
         minHeight: '100vh',
