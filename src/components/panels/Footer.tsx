@@ -15,7 +15,7 @@ import { useI18n } from '@/i18n'
  *     to make redistribution easy.
  */
 
-const REPO_URL = 'https://github.com/saladinxp/komari-ran-theme'
+const REPO_URL = 'https://github.com/shaolonger/komari-ran-theme'
 
 const linkStyle: React.CSSProperties = {
   color: 'inherit',
@@ -58,7 +58,7 @@ function BeianEntry({ text, url, title }: { text: string; url: string; title: st
   return <span>{text}</span>
 }
 
-export function Footer({ version = 'v2.1.3', config }: FooterProps) {
+export function Footer({ version = 'v2.1.4', config }: FooterProps) {
   const { t } = useI18n()
   const ts = config?.theme_settings
   const icpText = readStr(ts, 'icp_text')

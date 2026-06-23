@@ -328,11 +328,13 @@ export function LatencyPage({
                     border: '1px solid var(--edge-engrave)',
                     background: 'var(--bg-inset)',
                     color: 'var(--fg-0)',
-                    borderRadius: 999,
-                    padding: '9px 12px',
+                    borderRadius: 4,
+                    padding: '8px 10px',
                     fontFamily: 'var(--font-mono)',
                     fontSize: contentFs(11),
+                    letterSpacing: '0.02em',
                     outline: 'none',
+                    boxShadow: 'inset 0 1px 0 var(--edge-deep)',
                   }}
                 />
               </ControlBlock>

@@ -55,7 +55,7 @@ interface Props {
 
 export function Sidebar({
   active,
-  version = 'v2.1.3',
+  version = 'v2.1.4',
   hubTargetUuid,
   crossPage = false,
   mobileOpen = false,
