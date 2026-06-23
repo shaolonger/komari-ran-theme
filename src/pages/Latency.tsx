@@ -30,6 +30,7 @@ import {
 type Conn = 'connecting' | 'open' | 'closed' | 'error' | 'idle'
 type WindowId = 'live' | '1h' | '6h' | '24h' | '7d'
 type SortBy = 'status' | 'latest' | 'p95' | 'loss' | 'name'
+type ScopeMode = 'all' | 'single' | 'multi'
 
 interface Props {
   nodes: KomariNode[]
@@ -98,6 +99,11 @@ export function LatencyPage({
   const { t } = useI18n()
   const drawer = useMobileDrawer()
   const [windowId, setWindowId] = useState<WindowId>('live')
+  const [scopeMode, setScopeMode] = useState<ScopeMode>('all')
+  const [singleUuid, setSingleUuid] = useState(() => nodes[0]?.uuid ?? '')
+  const [multiUuids, setMultiUuids] = useState<string[]>(() =>
+    nodes.slice(0, Math.min(3, nodes.length)).map((node) => node.uuid),
+  )
   const [sortBy, setSortBy] = useState<SortBy>('status')
   const [query, setQuery] = useState('')
 
@@ -115,15 +121,31 @@ export function LatencyPage({
     )
   }, [retentionHours, t])
 
+  const nodeMap = useMemo(() => new Map(nodes.map((node) => [node.uuid, node])), [nodes])
+  const effectiveSingleUuid = nodeMap.has(singleUuid) ? singleUuid : nodes[0]?.uuid ?? ''
+  const effectiveMultiUuids = useMemo(() => {
+    const valid = multiUuids.filter((uuid) => nodeMap.has(uuid))
+    if (valid.length > 0) return valid
+    return nodes.slice(0, Math.min(3, nodes.length)).map((node) => node.uuid)
+  }, [multiUuids, nodeMap, nodes])
+  const selectedNodes = useMemo(() => {
+    if (scopeMode === 'single') {
+      return effectiveSingleUuid ? nodes.filter((node) => node.uuid === effectiveSingleUuid) : []
+    }
+    if (scopeMode === 'multi') {
+      const selected = new Set(effectiveMultiUuids)
+      return nodes.filter((node) => selected.has(node.uuid))
+    }
+    return nodes
+  }, [effectiveMultiUuids, effectiveSingleUuid, nodes, scopeMode])
   const activeWindow = windowOptions.find((option) => option.id === windowId) ?? windowOptions[0]
   const latency = useLatencyAnalytics({
-    nodes,
+    nodes: selectedNodes,
     records,
     hours: activeWindow?.hours ?? 1,
-    enabled: nodes.length > 0,
+    enabled: selectedNodes.length > 0,
     refreshMs: 60_000,
   })
-  const nodeMap = useMemo(() => new Map(nodes.map((node) => [node.uuid, node])), [nodes])
   const onlineCount = useMemo(
     () => nodes.reduce((count, node) => count + (records[node.uuid]?.online ? 1 : 0), 0),
     [nodes, records],
@@ -199,14 +221,26 @@ export function LatencyPage({
     loss: t('pages.latency.sortLoss'),
     name: t('pages.latency.sortName'),
   }
+  const scopeLabel =
+    scopeMode === 'all'
+      ? t('pages.latency.allNodes')
+      : scopeMode === 'single'
+        ? nodeMap.get(effectiveSingleUuid)?.name ?? t('common.node')
+        : t('pages.latency.selectedNodes', { count: selectedNodes.length })
   const topDegraded = visibleNodes
     .filter((node) => node.status === 'bad' || node.status === 'warn')
     .slice(0, 8)
   const insightNodes = topDegraded.length > 0 ? topDegraded : visibleNodes.slice(0, 8)
-  const subtitle = `${t('pages.latency.subtitle')} · ${t('pages.latency.reportingNodes', {
+  const subtitle = `${t('pages.latency.subtitle')} · ${scopeLabel} · ${t('pages.latency.reportingNodes', {
     count: summary.reportingNodes,
-    total: nodes.length,
+    total: selectedNodes.length,
   })}`
+
+  const toggleMultiUuid = (uuid: string) => {
+    setMultiUuids((current) =>
+      current.includes(uuid) ? current.filter((id) => id !== uuid) : [...current, uuid],
+    )
+  }
 
   return (
     <div
@@ -262,6 +296,18 @@ export function LatencyPage({
                   }))}
                 />
               </ControlBlock>
+              <ControlBlock label={t('pages.latency.nodeScope')}>
+                <Segmented
+                  size="sm"
+                  value={scopeMode}
+                  onChange={(value) => setScopeMode(value as ScopeMode)}
+                  options={[
+                    { value: 'all', label: t('common.all') },
+                    { value: 'single', label: t('pages.latency.single') },
+                    { value: 'multi', label: t('pages.latency.multi') },
+                  ]}
+                />
+              </ControlBlock>
               <ControlBlock label={t('pages.latency.sort')}>
                 <Segmented
                   size="sm"
@@ -291,6 +337,47 @@ export function LatencyPage({
                 />
               </ControlBlock>
             </div>
+
+            {scopeMode === 'single' && (
+              <div style={{ padding: '0 14px 14px' }}>
+                <NodeSelect nodes={nodes} value={effectiveSingleUuid} onChange={setSingleUuid} />
+              </div>
+            )}
+
+            {scopeMode === 'multi' && (
+              <div
+                style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: 8,
+                  padding: '0 14px 14px',
+                }}
+              >
+                {nodes.map((node) => {
+                  const active = effectiveMultiUuids.includes(node.uuid)
+                  return (
+                    <button
+                      key={node.uuid}
+                      type="button"
+                      onClick={() => toggleMultiUuid(node.uuid)}
+                      style={{
+                        border: `1px solid ${active ? 'var(--accent)' : 'var(--edge-engrave)'}`,
+                        background: active ? 'color-mix(in srgb, var(--accent) 16%, transparent)' : 'var(--bg-inset)',
+                        color: active ? 'var(--fg-0)' : 'var(--fg-2)',
+                        borderRadius: 999,
+                        padding: '7px 10px',
+                        fontSize: contentFs(11),
+                        fontFamily: 'var(--font-mono)',
+                        letterSpacing: '0.04em',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {node.name || node.uuid.slice(0, 8)}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
           </CardFrame>
 
           {latency.error && (
@@ -393,6 +480,39 @@ function ControlBlock({ label, children }: { label: string; children: ReactNode 
       <Etch>{label.toUpperCase()}</Etch>
       {children}
     </div>
+  )
+}
+
+function NodeSelect({
+  nodes,
+  value,
+  onChange,
+}: {
+  nodes: KomariNode[]
+  value: string
+  onChange: (value: string) => void
+}) {
+  return (
+    <select
+      value={value}
+      onChange={(event) => onChange(event.currentTarget.value)}
+      style={{
+        width: '100%',
+        border: '1px solid var(--edge-engrave)',
+        background: 'var(--bg-inset)',
+        color: 'var(--fg-0)',
+        borderRadius: 12,
+        padding: '10px 12px',
+        fontFamily: 'var(--font-mono)',
+        fontSize: contentFs(12),
+      }}
+    >
+      {nodes.map((node) => (
+        <option key={node.uuid} value={node.uuid}>
+          {node.name || node.uuid.slice(0, 8)}
+        </option>
+      ))}
+    </select>
   )
 }
 
