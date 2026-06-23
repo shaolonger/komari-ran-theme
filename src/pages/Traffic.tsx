@@ -11,7 +11,7 @@ import { Segmented } from '@/components/atoms/Segmented'
 import { StatusDot } from '@/components/atoms/StatusDot'
 import { AreaChart } from '@/components/charts/AreaChart'
 import { BarChart } from '@/components/charts/BarChart'
-import type { TrafficNodeSummary, TrafficQuality, TrafficRangePreset } from '@/api/client'
+import type { TrafficNodeSummary, TrafficQuality } from '@/api/client'
 import type { KomariNode, KomariPublicConfig, KomariRecord } from '@/types/komari'
 import type { GlobalHistoryState } from '@/hooks/useGlobalHistory'
 import type { Translator } from '@/i18n/types'
@@ -26,7 +26,7 @@ import { useI18n } from '@/i18n'
 type Conn = 'connecting' | 'open' | 'closed' | 'error' | 'idle'
 type SortBy = 'total' | 'up' | 'down' | 'peak'
 type ScopeMode = 'all' | 'single' | 'multi'
-type RangeMode = TrafficRangePreset | 'custom'
+type RangeMode = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom'
 
 interface Props {
   nodes: KomariNode[]
@@ -50,6 +50,27 @@ function fromLocalInputValue(value: string): Date | undefined {
   if (!value) return undefined
   const date = new Date(value)
   return Number.isFinite(date.getTime()) ? date : undefined
+}
+
+function startOfTrafficRange(mode: Exclude<RangeMode, 'custom'>, now: Date): Date {
+  const year = now.getFullYear()
+  const month = now.getMonth()
+  const date = now.getDate()
+  switch (mode) {
+    case 'today':
+      return new Date(year, month, date, 0, 0, 0, 0)
+    case 'week': {
+      const day = now.getDay()
+      const mondayOffset = day === 0 ? -6 : 1 - day
+      return new Date(year, month, date + mondayOffset, 0, 0, 0, 0)
+    }
+    case 'month':
+      return new Date(year, month, 1, 0, 0, 0, 0)
+    case 'quarter':
+      return new Date(year, Math.floor(month / 3) * 3, 1, 0, 0, 0, 0)
+    case 'year':
+      return new Date(year, 0, 1, 0, 0, 0, 0)
+  }
 }
 
 function qualityLabel(quality: TrafficQuality, t: Translator): string {
@@ -99,6 +120,8 @@ export function TrafficPage({
     toLocalInputValue(new Date(now.getTime() - 24 * 60 * 60 * 1000)),
   )
   const [customTo, setCustomTo] = useState(() => toLocalInputValue(now))
+  const [appliedCustomFrom, setAppliedCustomFrom] = useState(() => customFrom)
+  const [appliedCustomTo, setAppliedCustomTo] = useState(() => customTo)
   const [sortBy, setSortBy] = useState<SortBy>('total')
 
   const visibleNodeMap = useMemo(() => nodeNameMap(nodes), [nodes])
@@ -114,14 +137,21 @@ export function TrafficPage({
   }, [effectiveMultiUuids, effectiveSingleUuid, scopeMode])
   const customStart = fromLocalInputValue(customFrom)
   const customEnd = fromLocalInputValue(customTo)
+  const appliedCustomStart = fromLocalInputValue(appliedCustomFrom)
+  const appliedCustomEnd = fromLocalInputValue(appliedCustomTo)
   const customValid = !customStart || !customEnd ? false : customEnd > customStart
+  const appliedCustomValid =
+    !appliedCustomStart || !appliedCustomEnd ? false : appliedCustomEnd > appliedCustomStart
+  const quickRangeStart = useMemo(
+    () => (rangeMode === 'custom' ? undefined : startOfTrafficRange(rangeMode, new Date())),
+    [rangeMode],
+  )
   const traffic = useTrafficAnalytics({
-    preset: rangeMode === 'custom' ? undefined : rangeMode,
-    from: rangeMode === 'custom' ? customStart : undefined,
-    to: rangeMode === 'custom' ? customEnd : undefined,
+    from: rangeMode === 'custom' ? appliedCustomStart : quickRangeStart,
+    to: rangeMode === 'custom' ? appliedCustomEnd : undefined,
     uuids: selectedUuids,
     groupBy: 'auto',
-    enabled: nodes.length > 0 && (rangeMode !== 'custom' || customValid),
+    enabled: nodes.length > 0 && (rangeMode !== 'custom' || appliedCustomValid),
     refreshMs: 60_000,
   })
 
@@ -160,11 +190,15 @@ export function TrafficPage({
   const rangeLabel =
     rangeMode === 'today'
       ? t('pages.traffic.today')
-      : rangeMode === '3d'
-        ? t('pages.traffic.last3d')
-        : rangeMode === '7d'
-          ? t('pages.traffic.last7d')
-          : t('pages.traffic.custom')
+      : rangeMode === 'week'
+        ? t('pages.traffic.thisWeek')
+        : rangeMode === 'month'
+          ? t('pages.traffic.thisMonth')
+          : rangeMode === 'quarter'
+            ? t('pages.traffic.thisQuarter')
+            : rangeMode === 'year'
+              ? t('pages.traffic.thisYear')
+              : t('pages.traffic.custom')
   const subtitle = `${scopeLabel} · ${rangeLabel} · ${formatBytes(summary.total)}`
   const sortLabels: Record<SortBy, string> = {
     total: t('pages.traffic.sortTotal'),
@@ -218,6 +252,12 @@ export function TrafficPage({
     setMultiUuids((current) =>
       current.includes(uuid) ? current.filter((id) => id !== uuid) : [...current, uuid],
     )
+  }
+
+  const applyCustomRange = () => {
+    if (!customValid) return
+    setAppliedCustomFrom(customFrom)
+    setAppliedCustomTo(customTo)
   }
 
   return (
@@ -308,8 +348,10 @@ export function TrafficPage({
                   onChange={(v) => setRangeMode(v as RangeMode)}
                   options={[
                     { value: 'today', label: t('pages.traffic.today') },
-                    { value: '3d', label: t('pages.traffic.last3d') },
-                    { value: '7d', label: t('pages.traffic.last7d') },
+                    { value: 'week', label: t('pages.traffic.thisWeek') },
+                    { value: 'month', label: t('pages.traffic.thisMonth') },
+                    { value: 'quarter', label: t('pages.traffic.thisQuarter') },
+                    { value: 'year', label: t('pages.traffic.thisYear') },
                     { value: 'custom', label: t('pages.traffic.custom') },
                   ]}
                 />
@@ -350,6 +392,26 @@ export function TrafficPage({
               >
                 <DateField label={t('pages.traffic.startTime')} value={customFrom} onChange={setCustomFrom} />
                 <DateField label={t('pages.traffic.endTime')} value={customTo} onChange={setCustomTo} />
+                <button
+                  type="button"
+                  onClick={applyCustomRange}
+                  disabled={!customValid}
+                  style={{
+                    alignSelf: 'end',
+                    border: '1px solid var(--edge-highlight)',
+                    background: customValid ? 'var(--bg-glass)' : 'var(--bg-inset)',
+                    color: customValid ? 'var(--fg-1)' : 'var(--fg-3)',
+                    borderRadius: 12,
+                    padding: '10px 12px',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: contentFs(11),
+                    letterSpacing: '0.12em',
+                    textTransform: 'uppercase',
+                    cursor: customValid ? 'pointer' : 'not-allowed',
+                  }}
+                >
+                  {t('pages.traffic.query')}
+                </button>
                 {!customValid && (
                   <div
                     style={{
