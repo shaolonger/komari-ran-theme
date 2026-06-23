@@ -3,6 +3,7 @@ import { OverviewPage } from '@/pages/Overview'
 import { NodesPage } from '@/pages/Nodes'
 import { NodeDetailPage } from '@/pages/NodeDetail'
 import { TrafficPage } from '@/pages/Traffic'
+import { LatencyPage } from '@/pages/Latency'
 import { BillingPage } from '@/pages/Billing'
 import { HubPage } from '@/pages/Hub'
 import { V2DemoPage } from '@/pages/V2Demo'
@@ -267,6 +268,21 @@ export default function App() {
           lastUpdate={lastUpdate}
           conn={conn}
           history={globalHistory}
+          config={config}
+          hubTargetUuid={hubTargetUuid}
+        />
+      )
+
+    case 'latency':
+      return (
+        <LatencyPage
+          nodes={displayNodes}
+          records={displayRecords}
+          theme={theme}
+          onTheme={handleThemeChange}
+          siteName={siteName}
+          lastUpdate={lastUpdate}
+          conn={conn}
           config={config}
           hubTargetUuid={hubTargetUuid}
         />

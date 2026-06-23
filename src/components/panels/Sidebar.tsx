@@ -20,6 +20,7 @@ const NAV_BASE: Omit<NavItem, 'enabled' | 'uuidLink'>[] = [
   { id: 'nodes', labelKey: 'nav.nodes', icon: Icon.cpu },
   { id: 'hub', labelKey: 'nav.hub', icon: Icon.hub },
   { id: 'traffic', labelKey: 'nav.traffic', icon: Icon.net },
+  { id: 'latency', labelKey: 'nav.latency', icon: Icon.ping },
   { id: 'billing', labelKey: 'nav.billing', icon: Icon.settings },
   { id: 'map', labelKey: 'nav.map', icon: Icon.globe },
 ]

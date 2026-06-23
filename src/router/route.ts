@@ -5,6 +5,7 @@ export type Route =
   | { name: 'nodes'; uuid?: string }
   | { name: 'hub'; uuid?: string }
   | { name: 'traffic' }
+  | { name: 'latency' }
   | { name: 'map' }
   | { name: 'billing' }
   | { name: 'v2' }
@@ -31,6 +32,8 @@ export function parseHash(hash: string): Route {
       return { name: 'hub', uuid: parts[1] }
     case 'traffic':
       return { name: 'traffic' }
+    case 'latency':
+      return { name: 'latency' }
     case 'map':
     case 'geo':
       return { name: 'map' }
