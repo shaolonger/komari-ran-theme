@@ -3,7 +3,7 @@
 > 受 iOS Liquid Glass、Siri 暗流光与横屏边栏生态启发的 Komari 探针面板主题。
 > Liquid glass surfaces, ambient stream light, and landscape-first monitoring.
 
-[![version](https://img.shields.io/badge/version-2.1.2-c8a86c?style=flat-square)](https://github.com/saladinxp/komari-ran-theme/releases)
+[![version](https://img.shields.io/badge/version-2.1.3-c8a86c?style=flat-square)](https://github.com/saladinxp/komari-ran-theme/releases)
 [![demo](https://img.shields.io/badge/demo-obsr.net-2d6a4f?style=flat-square)](https://obsr.net)
 [![license](https://img.shields.io/badge/license-MIT-666?style=flat-square)](#许可)
 
@@ -122,7 +122,7 @@ Komari 后台 → 主题管理 → 岚 → 配置面板,支持以下后台开关
 | `font_scale` | `standard` / `large` / `xlarge` | `standard` | 字体大小三档,内容字按 1× / 1.18× / 1.36× 缩放;装饰字与布局尺寸不变 |
 | `ui_scale` | `normal` / `larger` / `large` / `xlarge` | `normal` | 整体 UI 缩放,字体、间距、卡片尺寸同步放大 |
 | `metrics_display` | `auto` / `gauge` / `numeric` | `auto` | 节点详情页指标显示形态。`auto` 桌面圆环、移动数字卡 |
-| `version_tag` | string | `v2.1.2` | 页脚显示的版本标识 |
+| `version_tag` | string | `v2.1.3` | 页脚显示的版本标识 |
 
 ## 多语言 · i18n
 
